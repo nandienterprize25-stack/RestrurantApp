@@ -1,0 +1,16 @@
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\bin\Debug\net9.0\RestaurantApp.Application.deps.json
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\bin\Debug\net9.0\RestaurantApp.Application.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\bin\Debug\net9.0\RestaurantApp.Application.pdb
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\bin\Debug\net9.0\RestaurantApp.Core.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\bin\Debug\net9.0\RestaurantApp.Core.pdb
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.csproj.AssemblyReference.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.GeneratedMSBuildEditorConfig.editorconfig
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.AssemblyInfoInputs.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.AssemblyInfo.cs
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.csproj.CoreCompileInputs.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.sourcelink.json
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\Restaura.66220947.Up2Date
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\refint\RestaurantApp.Application.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\RestaurantApp.Application.pdb
+E:\Projects\RestrurantApp\src\RestaurantApp.Application\obj\Debug\net9.0\ref\RestaurantApp.Application.dll

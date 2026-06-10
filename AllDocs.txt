@@ -1,0 +1,54 @@
+dotnet new sln -n RestaurantApp ; 
+mkdir src ; 
+dotnet new webapi -n RestaurantApp.Api -o src\RestaurantApp.Api ; 
+dotnet new classlib -n RestaurantApp.Core -o src\RestaurantApp.Core ; 
+dotnet new classlib -n RestaurantApp.Infrastructure -o src\RestaurantApp.Infrastructure ; 
+dotnet new classlib -n RestaurantApp.Application -o src\RestaurantApp.Application ; 
+dotnet sln RestaurantApp.sln add src\RestaurantApp.Api\RestaurantApp.Api.csproj ;
+dotnet sln RestaurantApp.sln add src\RestaurantApp.Core\RestaurantApp.Core.csproj ;
+dotnet sln RestaurantApp.sln add src\RestaurantApp.Infrastructure\RestaurantApp.Infrastructure.csproj ; 
+dotnet sln RestaurantApp.sln add src\RestaurantApp.Application\RestaurantApp.Application.csproj ; 
+cd src\RestaurantApp.Api ; 
+dotnet add package Microsoft.EntityFrameworkCore.Design ; 
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL ; 
+dotnet add package FluentValidation.AspNetCore ; 
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer ; 
+dotnet add package Swashbuckle.AspNetCore ; 
+dotnet add package CsvHelper ; 
+dotnet add package iTextSharp.LGPLv2.Core ; 
+dotnet add package ClosedXML ; 
+dotnet add package Microsoft.Extensions.Logging.Console ; 
+dotnet add package Microsoft.EntityFrameworkCore.Tools ; 
+cd ..\RestaurantApp.Infrastructure ; 
+dotnet add package Microsoft.EntityFrameworkCore ; 
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL ; 
+dotnet add package Microsoft.Extensions.Configuration ; 
+cd ..\RestaurantApp.Application ; 
+dotnet add package FluentValidation ; 
+cd ..\RestaurantApp.Core ; 
+dotnet add package Microsoft.Extensions.Configuration.Abstractions
+
+
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL ; dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer ; dotnet add package Microsoft.EntityFrameworkCore.Design
+
+
+
+dotnet add src\RestaurantApp.Api\RestaurantApp.Api.csproj package Npgsql.EntityFrameworkCore.PostgreSQL --version 9.0.16 ; dotnet add src\RestaurantApp.Api\RestaurantApp.Api.csproj package Microsoft.EntityFrameworkCore.Design --version 9.0.15 ; dotnet add src\RestaurantApp.Api\RestaurantApp.Api.csproj package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.16
+
+
+dotnet add src\RestaurantApp.Api\RestaurantApp.Api.csproj reference src\RestaurantApp.Core\RestaurantApp.Core.csproj src\RestaurantApp.Infrastructure\RestaurantApp.Infrastructure.csproj src\RestaurantApp.Application\RestaurantApp.Application.csproj
+
+✅ All systems running!
+
+Backend API: Started (listening on http://localhost:5000)
+
+Swagger UI: http://localhost:5000/swagger
+Database migrations applied
+Angular Frontend: Started (listening on http://localhost:4200)
+
+Application available at: http://localhost:4200
+Login Credentials:
+
+Username: admin
+Password: Admin@123
+The Restaurant Management System is now fully operational! Open http://localhost:4200 in your browser to access the application. You can log in with the admin credentials above to test the menu browsing, order creation, and report generation features.

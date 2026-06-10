@@ -1,0 +1,13 @@
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.deps.json
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.pdb
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.csproj.AssemblyReference.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.GeneratedMSBuildEditorConfig.editorconfig
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.AssemblyInfoInputs.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.AssemblyInfo.cs
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.csproj.CoreCompileInputs.cache
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.sourcelink.json
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\refint\RestaurantApp.Core.dll
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.pdb
+E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\ref\RestaurantApp.Core.dll

@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "e7uN8ZR+UII=",
+  "success": true,
+  "projectFilePath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\dell\\.nuget\\packages\\fluentvalidation\\12.1.1\\fluentvalidation.12.1.1.nupkg.sha512",
+    "C:\\Users\\dell\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.16\\microsoft.extensions.configuration.abstractions.9.0.16.nupkg.sha512",
+    "C:\\Users\\dell\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.16\\microsoft.extensions.primitives.9.0.16.nupkg.sha512"
+  ],
+  "logs": []
+}
