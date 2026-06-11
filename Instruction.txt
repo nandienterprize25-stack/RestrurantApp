@@ -1,0 +1,40 @@
+Step 1: Initialize Backend Dependencies (.NET 9)
+Go to your backend repository/root directory containing the solution (*.sln) or project file structure:
+dotnet restore
+dotnet build
+
+Step 2: Initialize Frontend Dependencies (Angular Standalone)
+Go to your frontend client directory containing your package.json:
+npm install
+
+Step 3: Create a Brand New Database Migration
+Go to your backend repository root directory (where your solution file sits) to map out changes to your PostgreSQL schema targets:
+dotnet ef migrations add NameOfYourMigration --project RestaurantApp.Infrastructure --startup-project RestaurantApp.Api
+
+Step 4: Apply Migrations to Live PostgreSQL Instance
+Apply and sync your changes directly onto your active local PostgreSQL database server:
+
+dotnet ef database update --project RestaurantApp.Infrastructure --startup-project RestaurantApp.Api
+
+Step 5: Remove the Most Recent Unapplied Migration Code Block
+If you haven't applied changes via the database update utility but made a mistake on your local model files, clean up your migrations folder structure using:
+dotnet ef migrations remove --project RestaurantApp.Infrastructure --startup-project RestaurantApp.Api
+
+Step 6: Rollback / Revert a Database State
+If you have already updated your database instance but need to revert back to a previous database migration checkpoint state (e.g. InitialRestaurantDbSchema):
+dotnet ef database update NameOfTargetMigration --project RestaurantApp.Infrastructure --startup-project RestaurantApp.Api
+
+Step 7: Add New Third-Party Backend NuGet Packages
+Go to the directory of the target backend project layer (e.g., RestaurantApp.Infrastructure) where you want the new tool setup, then execute:
+
+dotnet add package NameOfPackage
+
+Step 8: Add New Frontend Client Component Packages
+Go to your client-side workspace root folder where your package.json file is situated:
+
+npm install name-of-package
+
+Git Commit:
+git add .
+git commit -m "feat: instruction and gitignore add"
+git push origin main

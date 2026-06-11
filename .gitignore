@@ -1,0 +1,41 @@
+## -----------------------------------------
+## IDE and OS Environments
+## -----------------------------------------
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
+Thumbs.db
+
+## -----------------------------------------
+## .NET Core / C# Build Artifacts
+## -----------------------------------------
+[Bb]in/
+[Oo]bj/
+*.dll
+*.exe
+*.pdb
+*.usersecrets
+*.appsettings.Development.json
+
+## -----------------------------------------
+## Entity Framework Migrations & EF Core Tooling
+## -----------------------------------------
+*.log
+.ehdata/
+
+## -----------------------------------------
+## Node / Angular Frontend Dependencies
+## -----------------------------------------
+node_modules/
+.angular/
+dist/
+tmp/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
