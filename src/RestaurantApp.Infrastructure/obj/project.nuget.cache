@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HNbntKMBlBY=",
+  "dgSpecHash": "birZusQc4hA=",
   "success": true,
-  "projectFilePath": "F:\\1_Holel_Projects_Techno\\rms2\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
+  "projectFilePath": "F:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\closedxml\\0.105.0\\closedxml.0.105.0.nupkg.sha512",

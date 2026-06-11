@@ -1,0 +1,193 @@
+<div class="pos-master-wrapper">
+  
+  <header class="pos-top-navbar">
+    <div class="nav-shortcuts-left">
+      <button class="nav-shortcut-btn home-btn">🏠 Home</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'New Order'" (click)="activeTab = 'New Order'">➕ New Order</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'On Going Order'" (click)="activeTab = 'On Going Order'">🔄 On Going Order</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'Today Order'" (click)="activeTab = 'Today Order'">📅 Today Order</button>
+    </div>
+    <div class="nav-status-right">
+      <span class="status-indicator">● POS Terminal Live</span>
+    </div>
+  </header>
+
+  <div class="pos-workspace" *ngIf="activeTab === 'New Order'">
+    
+    <div class="invoice-container">
+      
+      <div class="invoice-meta-header">
+        <div class="meta-field">
+          <label>Customer Name</label>
+          <input type="text" [(ngModel)]="customerName" placeholder="Walk-In Customer" />
+        </div>
+        <div class="meta-field">
+          <label>Customer Type</label>
+          <select [(ngModel)]="customerType">
+            <option value="Dine In">Dine In</option>
+            <option value="Takeaway">Takeaway</option>
+            <option value="Delivery">Room Delivery</option>
+          </select>
+        </div>
+        <div class="meta-field">
+          <label>Assigned Waiter</label>
+          <input type="text" [(ngModel)]="waiterName" />
+        </div>
+        <div class="meta-field">
+          <label>Table / Room</label>
+          <div class="table-input-picker-wrapper" (click)="openTableSelectionModal()">
+            <input type="text" [(ngModel)]="selectedTable" readonly class="table-picker-trigger-input" />
+            <span class="picker-addon-icon">🪑</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-ledger-wrapper">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Rate</th>
+              <th class="text-center">Qty</th>
+              <th class="text-right">Total</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of cart">
+              <td>
+                <div class="cart-item-desc">
+                  <span class="cart-emoji">{{ item.imageCode }}</span>
+                  <span class="item-title">{{ item.name }}</span>
+                </div>
+              </td>
+              <td>${{ item.price | number:'1.2-2' }}</td>
+              <td>
+                <div class="qty-stepper">
+                  <button (click)="decrementQuantity(item)">-</button>
+                  <span class="qty-value">{{ item.quantity }}</span>
+                  <button (click)="incrementQuantity(item)">+</button>
+                </div>
+              </td>
+              <td class="text-right">${{ (item.price * item.quantity) | number:'1.2-2' }}</td>
+              <td class="text-center">
+                <button class="btn-delete-row" (click)="removeFromCart(item)">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="cart.length === 0">
+              <td colspan="5" class="empty-cart-placeholder">
+                <div class="empty-icon">🛒</div>
+                <p>No catalog items selected yet. Tap products on the grid.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="invoice-summary-footer">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong>${{ cartSubTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>VAT Tax ({{ vatRatePercentage }}%)</span>
+          <strong>${{ cartVatTotal | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-row discount-row">
+          <span>Discount (%)</span>
+          <input type="number" [(ngModel)]="discountPercentage" min="0" max="100" class="discount-input" />
+        </div>
+        
+        <div class="grand-total-block">
+          <span>Total Payable</span>
+          <span class="grand-value">${{ cartGrandTotal | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="payment-action-grid">
+          <button class="btn-pay btn-cash" (click)="processPayment('Cash')">💰 Cash Payment</button>
+          <button class="btn-pay btn-card" (click)="processPayment('Card')">💳 Card Settlement</button>
+          <button class="btn-pay btn-hold" (click)="clearCart()">❌ Clear Order</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="catalog-container">
+      <div class="catalog-search-bar">
+        <span>🔍</span>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search menu catalog items..." />
+      </div>
+
+      <div class="categories-tab-strip">
+        <button *ngFor="let cat of categories" [class.tab-active]="selectedCategory === cat" (click)="selectedCategory = cat" class="category-tab-btn">
+          {{ cat }}
+        </button>
+      </div>
+
+      <div class="products-scroll-grid">
+        <div class="product-item-card" *ngFor="let prod of filteredProducts" (click)="addToCart(prod)">
+          <div class="card-badge" [class.low-stock]="prod.stock < 10">Stock: {{ prod.stock }}</div>
+          <div class="card-visual-wrapper">
+            <span class="product-art">{{ prod.imageCode }}</span>
+          </div>
+          <div class="card-details">
+            <h4>{{ prod.name }}</h4>
+            <div class="card-footer-meta">
+              <span class="card-price">${{ prod.price | number:'1.2-2' }}</span>
+              <button class="btn-quick-add">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fallback-tab-window-pane" *ngIf="activeTab !== 'New Order'">
+    <div class="text-center">
+      <h2>📁 {{ activeTab }} Screen Pane</h2>
+      <p>Data records for this menu selection will load dynamically once production backend links are established.</p>
+    </div>
+  </div>
+
+  <div class="modal-backdrop-overlay" *ngIf="isTableModalOpen" (click)="closeTableSelectionModal()">
+    <div class="table-picker-modal-window-frame" (click)="$event.stopPropagation()">
+      
+      <div class="modal-window-header">
+        <h3>📍 Select Restaurant Table Allocation Checkpoint</h3>
+        <button class="close-modal-x-btn" (click)="closeTableSelectionModal()">✕</button>
+      </div>
+
+      <div class="modal-floor-filter-strip">
+        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'All Floors'" (click)="selectedFloorFilter = 'All Floors'">All Zones</button>
+        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 1'" (click)="selectedFloorFilter = 'Floor 1'">Floor 1 Main</button>
+        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 2'" (click)="selectedFloorFilter = 'Floor 2'">Floor 2 Deck</button>
+        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'VIP Room'" (click)="selectedFloorFilter = 'VIP Room'">VIP Rooms Suite</button>
+      </div>
+
+      <div class="table-floor-grid-matrix">
+        <div 
+          *ngFor="let table of filteredTables" 
+          class="table-grid-node-card"
+          [ngClass]="{
+            'status-avail': table.status === 'Available',
+            'status-occu': table.status === 'Occupied',
+            'status-resv': table.status === 'Reserved'
+          }"
+          (click)="selectTableNode(table)">
+          <span class="table-icon-art">🪑</span>
+          <h4 class="table-node-title">{{ table.name }}</h4>
+          <span class="table-node-capacity">Pax: {{ table.capacity }}</span>
+          <div class="table-status-pill-badge">{{ table.status }}</div>
+        </div>
+      </div>
+
+      <div class="modal-window-footer-legend">
+        <div class="legend-item"><span class="legend-dot dot-avail"></span> Available</div>
+        <div class="legend-item"><span class="legend-dot dot-occu"></span> Occupied</div>
+        <div class="legend-item"><span class="legend-dot dot-resv"></span> Reserved</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QHr8mAC8JEw=",
+  "dgSpecHash": "JBGrZrPHAIk=",
   "success": true,
-  "projectFilePath": "F:\\1_Holel_Projects_Techno\\rms2\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
+  "projectFilePath": "F:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.16\\microsoft.extensions.configuration.abstractions.9.0.16.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.16\\microsoft.extensions.primitives.9.0.16.nupkg.sha512"
