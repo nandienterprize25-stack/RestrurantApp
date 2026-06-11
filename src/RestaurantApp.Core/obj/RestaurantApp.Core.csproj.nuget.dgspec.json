@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {}
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {}
   },
   "projects": {
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
+        "projectUniqueName": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
         "projectName": "RestaurantApp.Core",
-        "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
-        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\obj\\",
+        "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
+        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
+        "outputPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -65,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

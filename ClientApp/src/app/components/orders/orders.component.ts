@@ -5,6 +5,8 @@ import { Order } from '../../models';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
 
+// ... (imports remain the same)
+
 @Component({
   selector: 'app-orders',
   standalone: true,
@@ -39,14 +41,14 @@ import { AuthService } from '../../services/auth.service';
 
             <div class="order-details">
               <p><strong>Table:</strong> {{ order.tableNumber }}</p>
-              <p><strong>Total:</strong> ${{ order.totalAmount.toFixed(2) }}</p>
+              <p><strong>Total:</strong> \${{ order.totalAmount.toFixed(2) }}</p>
               <p><strong>Items:</strong> {{ order.items.length }}</p>
             </div>
 
             <div class="order-items">
               <div *ngFor="let item of order.items" class="item">
                 <span>{{ item.menuItemName }} x {{ item.quantity }}</span>
-                <span>${{ (item.unitPrice * item.quantity).toFixed(2) }}</span>
+                <span>\${{ (item.unitPrice * item.quantity).toFixed(2) }}</span>
               </div>
             </div>
 
@@ -60,7 +62,7 @@ import { AuthService } from '../../services/auth.service';
       </div>
     </div>
   `,
-  styles: [`
+ styles: [`
     .orders-container {
       display: flex;
       flex-direction: column;

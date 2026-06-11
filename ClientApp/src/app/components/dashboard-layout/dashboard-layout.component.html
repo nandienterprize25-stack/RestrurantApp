@@ -1,0 +1,67 @@
+<div class="app-container">
+  <header class="top-header">
+    <div class="header-left">
+      <span class="brand-logo">🍽️ RestoApp POS Engine <small class="version-tag">Enterprise v3.1</small></span>
+    </div>
+    <div class="header-right">
+      <span class="user-welcome">Station Assigned: <strong>{{ currentUser?.fullName || 'Manager Station' }}</strong></span>
+      <button class="btn-logout" (click)="logout()">
+        <span class="icon">🚪</span> Sign Out
+      </button>
+    </div>
+  </header>
+
+  <div class="workspace-wrapper">
+    <aside class="left-sidebar">
+      <nav class="sidebar-nav">
+        <div *ngFor="let item of navigationMenu" class="menu-group">
+          
+          <a *ngIf="!item.subMenus && item.route" 
+             [routerLink]="item.route" 
+             routerLinkActive="active-link" 
+             class="nav-item">
+            <span class="item-left-wrap">
+              <span class="icon">{{ item.icon }}</span>
+              <span class="label">{{ item.label }}</span>
+            </span>
+          </a>
+
+          <div *ngIf="item.subMenus" 
+               class="nav-dropdown-parent" 
+               [class.parent-expanded]="item.isExpanded"
+               (click)="toggleSubMenu(item)">
+            <div class="parent-left">
+              <span class="icon">{{ item.icon }}</span>
+              <span class="label">{{ item.label }}</span>
+            </div>
+            <span class="arrow-indicator" [class.arrow-rotate]="item.isExpanded">▶</span>
+          </div>
+
+          <div *ngIf="item.subMenus" 
+               class="submenu-drawer" 
+               [class.drawer-open]="item.isExpanded">
+            <a *ngFor="let sub of item.subMenus" 
+               [routerLink]="sub.route" 
+               routerLinkActive="active-submenu-link" 
+               class="submenu-item"
+               (click)="$event.stopPropagation()">
+              <span class="sub-bullet">•</span>
+              <span class="sub-label">{{ sub.label }}</span>
+            </a>
+          </div>
+
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main-content-viewport">
+      <div class="page-card">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+
+  <footer class="bottom-footer">
+    <p>&copy; 2026 RestoApp ERP Terminal System. System Connected to Primary Database Node.</p>
+  </footer>
+</div>

@@ -11,3 +11,16 @@ E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.
 E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\refint\RestaurantApp.Core.dll
 E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.pdb
 E:\Projects\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\ref\RestaurantApp.Core.dll
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.deps.json
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.dll
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\bin\Debug\net9.0\RestaurantApp.Core.pdb
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.csproj.AssemblyReference.cache
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.GeneratedMSBuildEditorConfig.editorconfig
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.AssemblyInfoInputs.cache
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.AssemblyInfo.cs
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.csproj.CoreCompileInputs.cache
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.sourcelink.json
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.dll
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\refint\RestaurantApp.Core.dll
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\RestaurantApp.Core.pdb
+F:\1_Holel_Projects_Techno\RestaurentApp\RestrurantApp\src\RestaurantApp.Core\obj\Debug\net9.0\ref\RestaurantApp.Core.dll

@@ -1,0 +1,248 @@
+/* Core Structural Main Wrapper Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Sticky Application Header Layout Engine */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0 24px;
+  height: 64px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+}
+
+.brand-logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.version-tag {
+  font-size: 10px;
+  background-color: #334155;
+  color: #38bdf8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-welcome {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.btn-logout {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-logout:hover {
+  background-color: #dc2626;
+}
+
+/* Main Workspace Core View Split Rules */
+.workspace-wrapper {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 104px); /* Combined adjustment factoring 64px Top Header + 40px Bottom Footer */
+  width: 100%;
+}
+
+/* Scrollable Left Navigation Sidebar Drawer Panel */
+.left-sidebar {
+  width: 280px;
+  background-color: #1e293b;
+  padding-top: 12px;
+  box-shadow: 4px 0 10px -3px rgba(15, 23, 42, 0.3);
+  overflow-y: auto; /* Activates vertical scrolling behavior for deep submenu structures */
+  z-index: 40;
+}
+
+/* custom slim scrollbar aesthetics for the menu layout panel */
+.left-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.left-sidebar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+.left-sidebar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 10px 30px 10px; /* Base cushion prevents footer clipping over submenus */
+}
+
+/* Universal Base Row Settings (Parent links + Child Accordion controls) */
+.nav-item, .nav-dropdown-parent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.item-left-wrap, .parent-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-item .icon, .parent-left .icon {
+  font-size: 15px;
+  width: 18px;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Hover & Navigation Highlight Logic Layers */
+.nav-item:hover, .nav-dropdown-parent:hover {
+  background-color: #273549;
+  color: #f8fafc;
+}
+
+.nav-item.active-link {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Active State Styles when Parent Drawer Menu Layer is Toggled Open */
+.parent-expanded {
+  color: #f8fafc;
+  background-color: #273549;
+}
+
+.arrow-indicator {
+  font-size: 8px;
+  color: #64748b;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.arrow-rotate {
+  transform: rotate(90deg); /* Animates arrow when the drawer opens */
+  color: #38bdf8;
+}
+
+/* Collapsible Submenu Container Engine */
+.submenu-drawer {
+  max-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 18px;
+  border-left: 1px dashed #334155;
+  margin-left: 22px;
+  transition: max-height 0.25s ease-out;
+}
+
+.submenu-drawer.drawer-open {
+  max-height: 600px; /* Extended to display the 12 submenus under 'Manage Order' comfortably */
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+/* Nested Submenu Individual Row Styling */
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 12.5px;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.submenu-item:hover {
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.04);
+  padding-left: 18px;
+}
+
+.sub-bullet {
+  font-size: 14px;
+  color: #475569;
+}
+
+.submenu-item:hover .sub-bullet {
+  color: #38bdf8;
+}
+
+/* Routing Link Highlight Match Trigger Rule For Submenu Items */
+.submenu-item.active-submenu-link {
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.08);
+  font-weight: 600;
+}
+
+/* Application Core Viewport Interface Canvas */
+.main-content-viewport {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background-color: #f1f5f9;
+}
+
+.page-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  min-height: 100%;
+}
+
+/* Administrative Horizontal Frame Footnote Panel */
+.bottom-footer {
+  height: 40px;
+  background-color: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  color: #64748b;
+  z-index: 50;
+}

@@ -7,7 +7,7 @@ import { MenuItem, Category } from '../models';
   providedIn: 'root'
 })
 export class MenuService {
-  private apiUrl = 'http://localhost:5000/api/menuitems';
+  private apiUrl = 'http://localhost:5247/api/menuitems';
 
   constructor(private http: HttpClient) {}
 

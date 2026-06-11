@@ -1,39 +1,45 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj": {}
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj": {}
   },
   "projects": {
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj": {
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj",
+        "projectUniqueName": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj",
         "projectName": "RestaurantApp.Api",
-        "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj",
-        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Api\\obj\\",
+        "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Api\\RestaurantApp.Api.csproj",
+        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
+        "outputPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Api\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj": {
-                "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj"
+              "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj": {
+                "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj"
               },
-              "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
-                "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
+              "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+                "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
               },
-              "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj": {
-                "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj"
+              "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj": {
+                "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj"
               }
             }
           }
@@ -67,10 +73,6 @@
               "version": "[11.3.1, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
-              "target": "Package",
-              "version": "[9.0.16, )"
-            },
-            "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.16, )"
             },
@@ -118,34 +120,40 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj": {
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj",
+        "projectUniqueName": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj",
         "projectName": "RestaurantApp.Application",
-        "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj",
-        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Application\\obj\\",
+        "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\RestaurantApp.Application.csproj",
+        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
+        "outputPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
-                "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
+              "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+                "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
               }
             }
           }
@@ -187,26 +195,32 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
+        "projectUniqueName": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
         "projectName": "RestaurantApp.Core",
-        "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
-        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\obj\\",
+        "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj",
+        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
+        "outputPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -252,34 +266,40 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj": {
+    "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
+        "projectUniqueName": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
         "projectName": "RestaurantApp.Infrastructure",
-        "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\dell\\.nuget\\packages\\",
-        "outputPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\obj\\",
+        "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\RestaurantApp.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
+        "outputPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\dell\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
-                "projectPath": "E:\\Projects\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
+              "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+                "projectPath": "F:\\1_Holel_Projects_Techno\\RestaurentApp\\RestrurantApp\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
               }
             }
           }
@@ -324,11 +344,11 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.15, )"
+              "version": "[9.0.3, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
-              "version": "[6.30.0, )"
+              "version": "[8.3.0, )"
             },
             "iTextSharp.LGPLv2.Core": {
               "target": "Package",
@@ -351,7 +371,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,0 +1,111 @@
+<div class="dashboard-viewport">
+  <div class="welcome-banner">
+    <h2>Operational Dashboard</h2>
+    <p>Real-time dining room data overview and financial performance tracking metrics.</p>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card card-revenue">
+      <div class="card-body">
+        <span class="card-icon">💰</span>
+        <div class="card-info">
+          <h3>Total Revenue</h3>
+          <p class="stat-value">${{ statsSummary.totalRevenue | number:'1.2-2' }}</p>
+          <span class="trend positive">▲ +12.4% today</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card-orders">
+      <div class="card-body">
+        <span class="card-icon">📋</span>
+        <div class="card-info">
+          <h3>Total Orders</h3>
+          <p class="stat-value">{{ statsSummary.totalOrders }}</p>
+          <span class="trend positive">▲ +8.1% today</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card-tables">
+      <div class="card-body">
+        <span class="card-icon">🍽️</span>
+        <div class="card-info">
+          <h3>Active Tables</h3>
+          <p class="stat-value">{{ statsSummary.activeTables }} / 25</p>
+          <span class="trend neutral">● Peak capacity</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-card card-average">
+      <div class="card-body">
+        <span class="card-icon">📊</span>
+        <div class="card-info">
+          <h3>Avg Ticket Value</h3>
+          <p class="stat-value">${{ statsSummary.averageBill | number:'1.2-2' }}</p>
+          <span class="trend positive">▲ +3.2% vs last week</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="details-section">
+    <div class="panel data-panel">
+      <div class="panel-header">
+        <h3>Recent Transactions</h3>
+        <button class="btn-panel-action">View All</button>
+      </div>
+      <div class="table-responsive">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Location</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Timestamp</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of recentTransactions">
+              <td><strong>{{ tx.id }}</strong></td>
+              <td>{{ tx.table }}</td>
+              <td>{{ tx.customer }}</td>
+              <td>{{ tx.items }} items</td>
+              <td>${{ tx.total | number:'1.2-2' }}</td>
+              <td class="text-muted">{{ tx.time }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-success': tx.status === 'Completed',
+                  'badge-warning': tx.status === 'Pending',
+                  'badge-danger': tx.status === 'Cancelled'
+                }">{{ tx.status }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel performance-panel">
+      <div class="panel-header">
+        <h3>Top Selling Items</h3>
+      </div>
+      <div class="performance-list">
+        <div class="perf-item" *ngFor="let item of topSellingItems">
+          <div class="perf-meta">
+            <span class="item-name">{{ item.name }}</span>
+            <span class="item-count"><strong>{{ item.count }}</strong> units</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+          </div>
+          <span class="item-category">{{ item.category }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
