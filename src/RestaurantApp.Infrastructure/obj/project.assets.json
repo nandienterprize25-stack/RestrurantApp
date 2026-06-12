@@ -3697,8 +3697,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "f:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
-              "projectPath": "f:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
+            "F:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj": {
+              "projectPath": "F:\\1_Holel_Projects_Techno\\RestrurantApp26\\src\\RestaurantApp.Core\\RestaurantApp.Core.csproj"
             }
           }
         }

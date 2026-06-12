@@ -1,0 +1,83 @@
+<div class="order-list-dashboard-wrapper">
+  
+  <header class="dashboard-section-header">
+    <div class="header-titles">
+      <h2>🧾 Master Order Registry Ledger</h2>
+      <p>System found {{ rowData.length }} parsed records in live cache storage blocks.</p>
+    </div>
+  </header>
+
+  <div class="advanced-filter-card-panel">
+    <div class="filter-inputs-grid-matrix">
+      
+      <div class="filter-node-box">
+        <label>From Date</label>
+        <input type="date" [(ngModel)]="filterModel.fromDate" (change)="searchQueryFilters()" />
+      </div>
+
+      <div class="filter-node-box">
+        <label>To Date</label>
+        <input type="date" [(ngModel)]="filterModel.toDate" (change)="searchQueryFilters()" />
+      </div>
+
+      <div class="filter-node-box">
+        <label>Invoice Number</label>
+        <input type="text" [(ngModel)]="filterModel.invoiceNo" placeholder="Search INV reference..." (keyup)="searchQueryFilters()" />
+      </div>
+
+      <div class="filter-node-box">
+        <label>Waiter / Operator</label>
+        <input type="text" [(ngModel)]="filterModel.waiter" placeholder="Staff name matching" (keyup)="searchQueryFilters()" />
+      </div>
+
+      <div class="filter-node-box">
+        <label>Table Allocation</label>
+        <input type="text" [(ngModel)]="filterModel.tableOrRoom" placeholder="Table name matching" (keyup)="searchQueryFilters()" />
+      </div>
+
+      <div class="filter-node-box">
+        <label>Order Lifecycle Status</label>
+        <select [(ngModel)]="filterModel.orderStatus" (change)="searchQueryFilters()">
+          <option value="">All Lifecycles</option>
+          <option value="Pending">Pending</option>
+          <option value="Processing">Processing</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <div class="filter-node-box">
+        <label>Payment Settlement Mode</label>
+        <select [(ngModel)]="filterModel.paymentMode" (change)="searchQueryFilters()">
+          <option value="">All Channels</option>
+          <option value="Cash">Cash Ledger</option>
+          <option value="Card">Credit/Debit Card</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="filter-actions-footer-flex">
+      <div class="left-system-triggers">
+        <button class="action-btn query-search-btn" (click)="searchQueryFilters()">🔍 Apply Data View Filter</button>
+        <button class="action-btn query-clear-btn" (click)="resetGridFilters()">🔄 Reset Query Input</button>
+      </div>
+      <div class="right-extract-triggers">
+        <button class="action-btn export-excel-trigger-btn" (click)="exportExcelPayload()">📥 Export Spreadsheet File (.Csv)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-table-frame-wrapper elevation-card-shadow ag-theme-alpine">
+    <ag-grid-angular
+      style="width: 100%; height: 100%; display: block;"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [pagination]="true"
+      [paginationPageSize]="15"
+      (gridReady)="onGridReady($event)"
+    >
+    </ag-grid-angular>
+  </div>
+
+</div>

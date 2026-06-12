@@ -36,7 +36,7 @@ export class DashboardLayoutComponent implements OnInit {
       isExpanded: false,
       subMenus: [
         { label: 'POS Invoice', route: '/orders/pos-invoice' },
-        { label: 'Order List', route: '/orders/list' },
+        { label: 'Order List', route: '/orders/order-list' },
         { label: 'Pending Order', route: '/orders/pending' },
         { label: 'Completed With Payment', route: '/orders/completed-paid' },
         { label: 'Completed with Due', route: '/orders/completed-due' },

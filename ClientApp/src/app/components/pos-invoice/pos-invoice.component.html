@@ -3,9 +3,9 @@
   <header class="pos-top-navbar">
     <div class="nav-shortcuts-left">
       <button class="nav-shortcut-btn home-btn">🏠 Home</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'New Order'" (click)="activeTab = 'New Order'">➕ New Order</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'On Going Order'" (click)="activeTab = 'On Going Order'">🔄 On Going Order</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'Today Order'" (click)="activeTab = 'Today Order'">📅 Today Order</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'New Order'" (click)="switchTab('New Order')">➕ New Order</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'On Going Order'" (click)="switchTab('On Going Order')">🔄 On Going Order ({{ activeOrders.length }})</button>
+      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'Today Order'" (click)="switchTab('Today Order')">📅 Today Order</button>
     </div>
     <div class="nav-status-right">
       <span class="status-indicator">● POS Terminal Live</span>
@@ -15,7 +15,6 @@
   <div class="pos-workspace" *ngIf="activeTab === 'New Order'">
     
     <div class="invoice-container">
-      
       <div class="invoice-meta-header">
         <div class="meta-field">
           <label>Customer Name</label>
@@ -25,115 +24,94 @@
           <label>Customer Type</label>
           <select [(ngModel)]="customerType">
             <option value="Dine In">Dine In</option>
-            <option value="Takeaway">Takeaway</option>
-            <option value="Delivery">Room Delivery</option>
+            <option value="Take Away">Take Away</option>
+            <option value="Delivery">Delivery</option>
           </select>
         </div>
         <div class="meta-field">
-          <label>Assigned Waiter</label>
-          <input type="text" [(ngModel)]="waiterName" />
+          <label>Waiter/Staff</label>
+          <input type="text" [(ngModel)]="waiterName" readonly />
         </div>
-        <div class="meta-field">
-          <label>Table / Room</label>
-          <div class="table-input-picker-wrapper" (click)="openTableSelectionModal()">
-            <input type="text" [(ngModel)]="selectedTable" readonly class="table-picker-trigger-input" />
-            <span class="picker-addon-icon">🪑</span>
+        <div class="meta-field" *ngIf="customerType === 'Dine In'">
+          <label>Table Allocation</label>
+          <button class="table-trigger-btn" (click)="openTableSelectionModal()">🪑 {{ selectedTable }}</button>
+        </div>
+      </div>
+
+      <div class="cart-items-ledger">
+        <div class="empty-cart-state" *ngIf="cart.length === 0">
+          <div class="empty-cart-art">🛒</div>
+          <p>Operational checkout ledger is currently empty</p>
+        </div>
+
+        <div class="cart-row-item" *ngFor="let item of cart">
+          <div class="item-identity">
+            <span class="item-emoji">{{ item.imageCode }}</span>
+            <div class="item-details">
+              <h4>{{ item.name }}</h4>
+              <span class="item-unit-cost">${{ item.price | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          
+          <div class="item-quantity-controls">
+            <button class="qty-btn" (click)="decrementQuantity(item)">-</button>
+            <span class="qty-display">{{ item.quantity }}</span>
+            <button class="qty-btn" (click)="incrementQuantity(item)">+</button>
+          </div>
+
+          <div class="item-total-price">
+            ${{ item.total | number:'1.2-2' }}
           </div>
         </div>
       </div>
 
-      <div class="cart-ledger-wrapper">
-        <table class="cart-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Rate</th>
-              <th class="text-center">Qty</th>
-              <th class="text-right">Total</th>
-              <th class="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of cart">
-              <td>
-                <div class="cart-item-desc">
-                  <span class="cart-emoji">{{ item.imageCode }}</span>
-                  <span class="item-title">{{ item.name }}</span>
-                </div>
-              </td>
-              <td>${{ item.price | number:'1.2-2' }}</td>
-              <td>
-                <div class="qty-stepper">
-                  <button (click)="decrementQuantity(item)">-</button>
-                  <span class="qty-value">{{ item.quantity }}</span>
-                  <button (click)="incrementQuantity(item)">+</button>
-                </div>
-              </td>
-              <td class="text-right">${{ (item.price * item.quantity) | number:'1.2-2' }}</td>
-              <td class="text-center">
-                <button class="btn-delete-row" (click)="removeFromCart(item)">🗑️</button>
-              </td>
-            </tr>
-            <tr *ngIf="cart.length === 0">
-              <td colspan="5" class="empty-cart-placeholder">
-                <div class="empty-icon">🛒</div>
-                <p>No catalog items selected yet. Tap products on the grid.</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="invoice-summary-footer">
-        <div class="summary-row">
+      <div class="invoice-financial-footer">
+        <div class="summary-line">
           <span>Subtotal</span>
-          <strong>${{ cartSubTotal | number:'1.2-2' }}</strong>
+          <span>${{ cartSubTotal | number:'1.2-2' }}</span>
         </div>
-        <div class="summary-row">
-          <span>VAT Tax ({{ vatRatePercentage }}%)</span>
-          <strong>${{ cartVatTotal | number:'1.2-2' }}</strong>
+        <div class="summary-line">
+          <span>VAT Rate ({{ vatRatePercentage }}%)</span>
+          <span>${{ cartVatTotal | number:'1.2-2' }}</span>
         </div>
-        <div class="summary-row discount-row">
-          <span>Discount (%)</span>
-          <input type="number" [(ngModel)]="discountPercentage" min="0" max="100" class="discount-input" />
-        </div>
-        
-        <div class="grand-total-block">
-          <span>Total Payable</span>
-          <span class="grand-value">${{ cartGrandTotal | number:'1.2-2' }}</span>
+        <div class="summary-line grand-total-highlight">
+          <span>Grand Total</span>
+          <span>${{ cartGrandTotal | number:'1.2-2' }}</span>
         </div>
 
-        <div class="payment-action-grid">
-          <button class="btn-pay btn-cash" (click)="processPayment('Cash')">💰 Cash Payment</button>
-          <button class="btn-pay btn-card" (click)="processPayment('Card')">💳 Card Settlement</button>
-          <button class="btn-pay btn-hold" (click)="clearCart()">❌ Clear Order</button>
+        <div class="payment-action-matrix">
+          <button class="pay-btn clear-btn" (click)="clearCart()">❌ Clear Order</button>
+          <button class="pay-btn cash-btn" (click)="processPayment('Cash')">💵 Cash Payment</button>
+          <button class="pay-btn card-btn" (click)="processPayment('Card')">💳 Card Settlement</button>
         </div>
       </div>
     </div>
 
     <div class="catalog-container">
-      <div class="catalog-search-bar">
-        <span>🔍</span>
-        <input type="text" [(ngModel)]="searchQuery" placeholder="Search menu catalog items..." />
+      <div class="catalog-filter-ribbon">
+        <div class="search-box-wrapper">
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search dish names or menu codes..." />
+        </div>
+        <div class="category-pills-container">
+          <button 
+            *ngFor="let cat of categories" 
+            class="cat-tab-pill" 
+            [class.cat-tab-active]="selectedCategory === cat"
+            (click)="selectedCategory = cat">
+            {{ cat }}
+          </button>
+        </div>
       </div>
 
-      <div class="categories-tab-strip">
-        <button *ngFor="let cat of categories" [class.tab-active]="selectedCategory === cat" (click)="selectedCategory = cat" class="category-tab-btn">
-          {{ cat }}
-        </button>
-      </div>
-
-      <div class="products-scroll-grid">
-        <div class="product-item-card" *ngFor="let prod of filteredProducts" (click)="addToCart(prod)">
-          <div class="card-badge" [class.low-stock]="prod.stock < 10">Stock: {{ prod.stock }}</div>
-          <div class="card-visual-wrapper">
-            <span class="product-art">{{ prod.imageCode }}</span>
-          </div>
-          <div class="card-details">
-            <h4>{{ prod.name }}</h4>
-            <div class="card-footer-meta">
-              <span class="card-price">${{ prod.price | number:'1.2-2' }}</span>
-              <button class="btn-quick-add">+</button>
+      <div class="products-grid-matrix">
+        <div class="product-menu-card" *ngFor="let prod of filteredProducts" (click)="addToCart(prod)">
+          <div class="prod-badge-category">{{ prod.category }}</div>
+          <div class="prod-art-frame">{{ prod.imageCode }}</div>
+          <div class="prod-text-content">
+            <h3>{{ prod.name }}</h3>
+            <div class="prod-footer-row">
+              <span class="prod-price">${{ prod.price | number:'1.2-2' }}</span>
+              <span class="prod-action-plus">＋ Add</span>
             </div>
           </div>
         </div>
@@ -142,38 +120,91 @@
 
   </div>
 
-  <div class="fallback-tab-window-pane" *ngIf="activeTab !== 'New Order'">
-    <div class="text-center">
-      <h2>📁 {{ activeTab }} Screen Pane</h2>
-      <p>Data records for this menu selection will load dynamically once production backend links are established.</p>
+  <div class="orders-monitor-view" *ngIf="activeTab === 'On Going Order'">
+    <div class="monitor-header-row">
+      <h2>🔄 Live Kitchen & Service Tracking Matrices</h2>
+      <button class="refresh-data-btn" (click)="loadAllSystemOrders()">🔄 Force Reload Grid</button>
+    </div>
+
+    <div class="empty-monitor-state" *ngIf="activeOrders.length === 0">
+      <div class="monitor-empty-icon">🍳</div>
+      <h3>No Active Orders Processing</h3>
+      <p>All items have been served or cleared safely into the archival registers.</p>
+    </div>
+
+    <div class="orders-grid-cards-layout" *ngIf="activeOrders.length > 0">
+      <div class="order-tracking-card" *ngFor="let ord of activeOrders">
+        <div class="card-header-badge-row">
+          <span class="order-id-tag">🧾 Order #{{ ord.id.substring(0,6).toUpperCase() }}</span>
+          <span class="status-pill-badge processing-badge">{{ ord.status }}</span>
+        </div>
+        
+        <div class="order-card-meta-body">
+          <p class="meta-row-info"><strong>🪑 Assignment:</strong> {{ ord.tableName || 'Take-Away / Delivery Mode' }}</p>
+          <p class="meta-row-info"><strong>🕒 Placed At:</strong> {{ ord.createdAt | date:'shortTime' }}</p>
+          <hr class="card-divider-line" />
+          
+          <div class="mini-items-scroll-box">
+            <div class="mini-item-row" *ngFor="let sub of ord.items">
+              <span>{{ sub.quantity }}x {{ sub.menuItemName || 'Catalog Product' }}</span>
+              <span>${{ sub.totalPrice | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-card-action-footer">
+          <div class="footer-financial-total">
+            <span>Total Ledger value:</span>
+            <strong>${{ ord.totalAmount | number:'1.2-2' }}</strong>
+          </div>
+          <button class="complete-order-action-btn" (click)="finalizeActiveOrderState(ord.id)">✓ Complete Settlement</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="modal-backdrop-overlay" *ngIf="isTableModalOpen" (click)="closeTableSelectionModal()">
-    <div class="table-picker-modal-window-frame" (click)="$event.stopPropagation()">
-      
+  <div class="orders-monitor-view" *ngIf="activeTab === 'Today Order'">
+    <div class="monitor-header-row">
+      <h2>📅 Historical Process Logs Ledger (Today)</h2>
+    </div>
+
+    <div class="empty-monitor-state" *ngIf="historicalOrders.length === 0">
+      <div class="monitor-empty-icon">📂</div>
+      <h3>No historical records for today yet</h3>
+    </div>
+
+    <div class="orders-grid-cards-layout" *ngIf="historicalOrders.length > 0">
+      <div class="order-tracking-card archived-card" *ngFor="let ord of historicalOrders">
+        <div class="card-header-badge-row">
+          <span class="order-id-tag">🧾 Ref: #{{ ord.id.substring(0,6).toUpperCase() }}</span>
+          <span class="status-pill-badge settled-badge">Settled</span>
+        </div>
+        <div class="order-card-meta-body">
+          <p><strong>Total Amount Cleared:</strong> ${{ ord.totalAmount | number:'1.2-2' }}</p>
+          <p><strong>Timestamp Closed:</strong> {{ ord.createdAt | date:'medium' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay-backdrop" *ngIf="isTableModalOpen">
+    <div class="table-modal-window-card">
       <div class="modal-window-header">
-        <h3>📍 Select Restaurant Table Allocation Checkpoint</h3>
+        <h3>Select Operational Dining Layout Placement</h3>
         <button class="close-modal-x-btn" (click)="closeTableSelectionModal()">✕</button>
       </div>
-
-      <div class="modal-floor-filter-strip">
-        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'All Floors'" (click)="selectedFloorFilter = 'All Floors'">All Zones</button>
+      <div class="floor-tabs-navigation-ribbon">
+        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'All Floors'" (click)="selectedFloorFilter = 'All Floors'">All Layout Maps</button>
         <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 1'" (click)="selectedFloorFilter = 'Floor 1'">Floor 1 Main</button>
         <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 2'" (click)="selectedFloorFilter = 'Floor 2'">Floor 2 Deck</button>
         <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'VIP Room'" (click)="selectedFloorFilter = 'VIP Room'">VIP Rooms Suite</button>
       </div>
 
       <div class="table-floor-grid-matrix">
-        <div 
-          *ngFor="let table of filteredTables" 
-          class="table-grid-node-card"
-          [ngClass]="{
-            'status-avail': table.status === 'Available',
-            'status-occu': table.status === 'Occupied',
-            'status-resv': table.status === 'Reserved'
-          }"
-          (click)="selectTableNode(table)">
+        <div *ngFor="let table of filteredTables" 
+             class="table-grid-node-card" 
+             [ngClass]="{'status-avail': table.status === 'Available', 'status-occu': table.status === 'Occupied', 'status-resv': table.status === 'Reserved'}" 
+             (click)="selectTableNode(table)">
           <span class="table-icon-art">🪑</span>
           <h4 class="table-node-title">{{ table.name }}</h4>
           <span class="table-node-capacity">Pax: {{ table.capacity }}</span>
@@ -186,7 +217,21 @@
         <div class="legend-item"><span class="legend-dot dot-occu"></span> Occupied</div>
         <div class="legend-item"><span class="legend-dot dot-resv"></span> Reserved</div>
       </div>
+    </div>
+  </div>
 
+  <div class="modal-overlay-backdrop custom-alert-zIndex" *ngIf="isSuccessModalOpen">
+    <div class="custom-success-alert-card animated-pop">
+      <div class="alert-success-icon-shield">✓</div>
+      <h2>Transaction Cleared Successfully!</h2>
+      <p>Operational POS sequence completed via <strong>{{ lastUsedPaymentMethod }} Settlement Mode</strong>.</p>
+      
+      <div class="alert-invoice-breakdown-box">
+        <div class="breakdown-row"><span>Receipt ID reference:</span><strong>#{{ lastCreatedOrderId.substring(0,8).toUpperCase() }}</strong></div>
+        <div class="breakdown-row"><span>Total Ledger Audited:</span><strong>${{ lastSettledAmount | number:'1.2-2' }}</strong></div>
+      </div>
+
+      <button class="alert-dismiss-action-btn" (click)="dismissSuccessConfirmationWindow()">Dismiss Notification</button>
     </div>
   </div>
 

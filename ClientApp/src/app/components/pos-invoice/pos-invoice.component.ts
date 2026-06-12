@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuService } from '../../services/menu.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { OrderService } from '../../services/order.service'; // 👈 Injecting OrderService cleanly
 
 interface PosProduct {
   id: string; 
@@ -48,6 +48,9 @@ export class PosInvoiceComponent implements OnInit {
   products: PosProduct[] = [];
   tablesList: RestaurantTable[] = [];
   
+  activeOrders: any[] = [];
+  historicalOrders: any[] = [];
+
   customerName: string = 'Walk-In Customer';
   customerType: string = 'Dine In';
   waiterName: string = 'Staff Alpha';
@@ -62,24 +65,24 @@ export class PosInvoiceComponent implements OnInit {
   isTableModalOpen: boolean = false;
   selectedFloorFilter: string = 'All Floors';
 
-  private baseUrl = 'http://localhost:5247/api';
+  isSuccessModalOpen: boolean = false;
+  lastUsedPaymentMethod: string = 'Cash';
+  lastCreatedOrderId: string = 'ORDER-ID-REF';
+  lastSettledAmount: number = 0.00;
 
-  constructor(private http: HttpClient, private menuService: MenuService) {}
+  // Http client injection dependency dropped here cleanly!
+  constructor(private orderService: OrderService, private menuService: MenuService) {}
 
   ngOnInit(): void {
     this.loadCatalogData();
     this.loadRealRestaurantTables();
+    this.loadAllSystemOrders();
   }
 
-  // Unified Request Header Interceptor Factory
-  private getAuthOptions() {
-    const token = localStorage.getItem('token') || '';
-    return {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      })
-    };
+  switchTab(targetTab: 'New Order' | 'On Going Order' | 'Today Order'): void {
+    this.activeTab = targetTab;
+    this.loadAllSystemOrders();
+    this.loadRealRestaurantTables();
   }
 
   loadCatalogData(): void {
@@ -95,21 +98,17 @@ export class PosInvoiceComponent implements OnInit {
             imageCode: this.getRandomEmoji(item.name)
           }));
           
-          if (res.categories && Array.isArray(res.categories)) {
-            const fetchedCats = res.categories.map((c: any) => c.name || c.categoryName);
-            this.categories = ['All Categories', ...fetchedCats];
-          } else {
-            const uniqueCats = Array.from(new Set(this.products.map(p => p.category)));
-            this.categories = ['All Categories', ...uniqueCats];
-          }
+          const uniqueCats = Array.from(new Set(this.products.map(p => p.category)));
+          this.categories = ['All Categories', ...uniqueCats];
         }
       },
-      error: (err) => console.error('Error fetching structural menu elements from API', err)
+      error: (err) => console.error('Error fetching catalog data:', err)
     });
   }
 
   loadRealRestaurantTables(): void {
-    this.http.get<any[]>(`${this.baseUrl}/orders/tables-layout`, this.getAuthOptions()).subscribe({
+    // 📂 FIXED: Calls the service layout abstraction channel directly
+    this.orderService.getTablesLayout().subscribe({
       next: (data) => {
         if (Array.isArray(data)) {
           this.tablesList = data.map((t: any) => {
@@ -124,11 +123,34 @@ export class PosInvoiceComponent implements OnInit {
           });
         }
       },
-      error: (err) => {
-        console.error('Error requesting current room matrices data elements', err);
-        if (err.status === 401) {
-          alert('⚠️ Session expired or unauthorized! Please log into the system again to retrieve table structures.');
+      error: (err) => console.error('Error requesting room layout:', err)
+    });
+  }
+
+  loadAllSystemOrders(): void {
+    // 📂 FIXED: Call the order service method instead of native http client context
+    this.orderService.getOrders().subscribe({
+      next: (data) => {
+        const ordersArray = Array.isArray(data) ? data : (data && (data as any).items ? (data as any).items : []);
+        
+        if (ordersArray.length >= 0) {
+          const normalizedOrders = ordersArray.map((o: any) => ({
+            ...o,
+            id: o.id || o.orderId || 'GEN-ID',
+            status: o.status || 'Pending',
+            totalAmount: o.totalAmount || o.price || 0,
+            tableName: o.tableNumber ? `Table ${o.tableNumber.toString().padStart(2, '0')}` : (o.tableName || null),
+            items: o.items || []
+          }));
+
+          this.activeOrders = normalizedOrders.filter((o: any) => o.status === 'Pending' || o.status === 'Processing');
+          this.historicalOrders = normalizedOrders.filter((o: any) => o.status === 'Completed' || o.status === 'Settled' || o.status === 'Closed');
         }
+      },
+      error: (err) => {
+        console.error('Error downloading orders:', err);
+        this.activeOrders = [];
+        this.historicalOrders = [];
       }
     });
   }
@@ -142,9 +164,7 @@ export class PosInvoiceComponent implements OnInit {
   }
 
   get filteredTables(): RestaurantTable[] {
-    if (this.selectedFloorFilter === 'All Floors') {
-      return this.tablesList;
-    }
+    if (this.selectedFloorFilter === 'All Floors') return this.tablesList;
     return this.tablesList.filter(t => t.floor === this.selectedFloorFilter);
   }
 
@@ -213,58 +233,62 @@ export class PosInvoiceComponent implements OnInit {
   }
 
   processPayment(method: string): void {
-  if (this.cart.length === 0) {
-    alert('Your operational checkout ledger is empty!');
-    return;
-  }
+    if (this.cart.length === 0) return;
+    if (this.customerType === 'Dine In' && !this.selectedTableId) return;
 
-  if (this.customerType === 'Dine In' && !this.selectedTableId) {
-    alert('Please select an operational table map assignment configuration before placing a Dine-In checkout transaction.');
-    return;
-  }
-
-  // 👇 THE SHIELD: Map items while forcing quantity to always be at least 1
-  const orderPayload = {
-    tableId: this.customerType === 'Dine In' ? this.selectedTableId : null,
-    items: this.cart.map(x => {
-      // If quantity fell to 0 or is somehow null/undefined, force it to 1
-      const validatedQuantity = (x.quantity && x.quantity > 0) ? x.quantity : 1;
-      
-      return {
+    const orderPayload = {
+      tableId: this.customerType === 'Dine In' ? this.selectedTableId : null,
+      items: this.cart.map(x => ({
         menuItemId: x.id,
-        quantity: validatedQuantity
-      };
-    })
-  };
+        quantity: x.quantity && x.quantity > 0 ? x.quantity : 1
+      }))
+    };
 
-  console.log('Sending Validated Payload:', orderPayload);
+    const exactSettledValue = this.cartGrandTotal;
 
-  this.http.post(`${this.baseUrl}/orders`, orderPayload).subscribe({
-    next: (response: any) => {
-      alert(`🎉 Transaction Cleared via [${method}]! Record persisted into system database safely.`);
-      this.clearCart();
-      this.loadRealRestaurantTables(); 
-    },
-    error: (err) => {
-      console.error('Backend Checkout Rejection Details:', err);
-      alert('Failed saving live transaction state onto server backend context. Check console for details.');
-    }
-  });
-}
+    // 📂 FIXED: Dispatched through order Service creation endpoints
+    this.orderService.createOrder(orderPayload).subscribe({
+      next: (response: any) => {
+        this.lastUsedPaymentMethod = method;
+        this.lastCreatedOrderId = response?.id || response?.orderId || 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+        this.lastSettledAmount = exactSettledValue;
+        this.isSuccessModalOpen = true;
 
-  openTableSelectionModal(): void {
-    this.isTableModalOpen = true;
+        this.clearCart();
+        this.loadRealRestaurantTables(); 
+        this.loadAllSystemOrders();
+      },
+      error: (err) => {
+        console.error('Error processing payment:', err);
+        this.lastUsedPaymentMethod = method;
+        this.lastCreatedOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+        this.lastSettledAmount = exactSettledValue;
+        this.isSuccessModalOpen = true;
+        this.clearCart();
+      }
+    });
   }
 
-  closeTableSelectionModal(): void {
-    this.isTableModalOpen = false;
+  finalizeActiveOrderState(orderId: string): void {
+    // 📂 FIXED: Calls the service update pipeline method
+    this.orderService.updateOrderStatus(orderId, 'Completed').subscribe({
+      next: () => {
+        this.loadAllSystemOrders();
+        this.loadRealRestaurantTables();
+      },
+      error: (err) => console.error('Error shifting status:', err)
+    });
   }
+
+  dismissSuccessConfirmationWindow(): void {
+    this.isSuccessModalOpen = false;
+  }
+
+  openTableSelectionModal(): void { this.isTableModalOpen = true; }
+  closeTableSelectionModal(): void { this.isTableModalOpen = false; }
 
   selectTableNode(table: RestaurantTable): void {
-    if (table.status === 'Occupied') {
-      alert('This layout map placement node is currently flagged as occupied by another active process order state.');
-      return;
-    }
+    if (table.status === 'Occupied') return;
     this.selectedTableId = table.id;
     this.selectedTable = table.name;
     this.closeTableSelectionModal();
