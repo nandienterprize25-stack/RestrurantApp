@@ -3,40 +3,44 @@
   <header class="dashboard-section-header">
     <div class="header-titles">
       <h2>🧾 Master Order Registry Ledger</h2>
-      <p>System found {{ rowData.length }} parsed records in live cache storage blocks.</p>
+      <p>System localized <strong>{{ rowData.length }} records</strong> inside active view matrix filters.</p>
     </div>
   </header>
+
+  <div class="validation-alert-banner" *ngIf="validationErrorMessage">
+    {{ validationErrorMessage }}
+  </div>
 
   <div class="advanced-filter-card-panel">
     <div class="filter-inputs-grid-matrix">
       
       <div class="filter-node-box">
-        <label>From Date</label>
+        <label>From Date <span class="required-star-mark">*</span></label>
         <input type="date" [(ngModel)]="filterModel.fromDate" (change)="searchQueryFilters()" />
       </div>
 
       <div class="filter-node-box">
-        <label>To Date</label>
+        <label>To Date <span class="required-star-mark">*</span></label>
         <input type="date" [(ngModel)]="filterModel.toDate" (change)="searchQueryFilters()" />
       </div>
 
       <div class="filter-node-box">
         <label>Invoice Number</label>
-        <input type="text" [(ngModel)]="filterModel.invoiceNo" placeholder="Search INV reference..." (keyup)="searchQueryFilters()" />
+        <input type="text" [(ngModel)]="filterModel.invoiceNo" placeholder="Search reference..." (keyup)="searchQueryFilters()" />
       </div>
 
       <div class="filter-node-box">
         <label>Waiter / Operator</label>
-        <input type="text" [(ngModel)]="filterModel.waiter" placeholder="Staff name matching" (keyup)="searchQueryFilters()" />
+        <input type="text" [(ngModel)]="filterModel.waiter" placeholder="Staff Name" (keyup)="searchQueryFilters()" />
       </div>
 
       <div class="filter-node-box">
         <label>Table Allocation</label>
-        <input type="text" [(ngModel)]="filterModel.tableOrRoom" placeholder="Table name matching" (keyup)="searchQueryFilters()" />
+        <input type="text" [(ngModel)]="filterModel.tableOrRoom" placeholder="Table / room" (keyup)="searchQueryFilters()" />
       </div>
 
       <div class="filter-node-box">
-        <label>Order Lifecycle Status</label>
+        <label>Order Status</label>
         <select [(ngModel)]="filterModel.orderStatus" (change)="searchQueryFilters()">
           <option value="">All Lifecycles</option>
           <option value="Pending">Pending</option>
@@ -46,7 +50,7 @@
       </div>
 
       <div class="filter-node-box">
-        <label>Payment Settlement Mode</label>
+        <label>Payment Mode</label>
         <select [(ngModel)]="filterModel.paymentMode" (change)="searchQueryFilters()">
           <option value="">All Channels</option>
           <option value="Cash">Cash Ledger</option>
@@ -58,8 +62,8 @@
 
     <div class="filter-actions-footer-flex">
       <div class="left-system-triggers">
-        <button class="action-btn query-search-btn" (click)="searchQueryFilters()">🔍 Apply Data View Filter</button>
-        <button class="action-btn query-clear-btn" (click)="resetGridFilters()">🔄 Reset Query Input</button>
+        <button class="action-btn query-search-btn" (click)="searchQueryFilters()">🔍 Run Data Filters</button>
+        <button class="action-btn query-clear-btn" (click)="resetGridFilters()">🔄 Clear Filters</button>
       </div>
       <div class="right-extract-triggers">
         <button class="action-btn export-excel-trigger-btn" (click)="exportExcelPayload()">📥 Export Spreadsheet File (.Csv)</button>
@@ -67,17 +71,18 @@
     </div>
   </div>
 
-  <div class="grid-table-frame-wrapper elevation-card-shadow ag-theme-alpine">
-    <ag-grid-angular
-      style="width: 100%; height: 100%; display: block;"
-      [rowData]="rowData"
-      [columnDefs]="columnDefs"
-      [defaultColDef]="defaultColDef"
-      [pagination]="true"
-      [paginationPageSize]="15"
-      (gridReady)="onGridReady($event)"
-    >
-    </ag-grid-angular>
-  </div>
+<div class="grid-table-frame-wrapper ag-theme-alpine">
+  <ag-grid-angular
+    style="width: 100%; height: 100%; display: block;"
+    [rowData]="rowData"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [pagination]="true"
+    [paginationPageSize]="15"
+    [paginationPageSizeSelector]="[15, 30, 50, 100]"
+    (gridReady)="onGridReady($event)"
+  >
+  </ag-grid-angular>
+</div>
 
 </div>

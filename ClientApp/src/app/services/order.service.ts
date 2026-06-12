@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient,HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order, CreateOrderRequest } from '../models'; 
 import { environment } from '../../environments/environment'; // Make sure this path matches your project structure
@@ -13,9 +13,15 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  getOrders(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
-  }
+ getOrders(): Observable<any[]> {
+  const token = localStorage.getItem('token');
+  
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<any[]>(this.apiUrl, { headers });
+}
 
   getOrder(id: string): Observable<Order> {
     return this.http.get<Order>(`${this.apiUrl}/${id}`);

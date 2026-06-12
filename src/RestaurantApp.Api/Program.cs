@@ -2,11 +2,45 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantApp.Api.Extensions;
 using RestaurantApp.Infrastructure.Data;
 
+using Microsoft.OpenApi;
+using Microsoft.Extensions.DependencyInjection;
+
+
 // 1. 👇 MUST BE FIRST: Clear default map BEFORE framework builder objects load assemblies
 System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRestaurantServices(builder.Configuration);
+
+//
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Restaurant API", 
+        Version = "v1" 
+    });
+
+    // 1. Define the Security Scheme configuration
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http, 
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token in this format: Bearer {your_token_here}"
+    });
+
+    // 2. Use the Swashbuckle v10 Document lambda syntax with a fresh List<string>
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>() // 👈 Changed here
+    });
+});
+//
+
 
 builder.Services.AddCors(options =>
 {

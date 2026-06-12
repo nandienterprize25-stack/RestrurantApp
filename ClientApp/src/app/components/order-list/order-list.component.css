@@ -1,8 +1,8 @@
 /* ==========================================================================
    AG-GRID THEMING ENGINE RE-ENFORCEMENTS
    ========================================================================== */
-@import 'ag-grid-community/styles/ag-grid.css';
-@import 'ag-grid-community/styles/ag-theme-alpine.css';
+/* @import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-alpine.css'; */
 
 .order-list-dashboard-wrapper {
   display: flex;
@@ -120,3 +120,31 @@
 ::v-deep .status-pending { background-color: #fef3c7; color: #d97706; }
 ::v-deep .status-processing { background-color: #dbeafe; color: #1d4ed8; }
 ::v-deep .status-completed { background-color: #dcfce7; color: #15803d; }
+
+/* Styling for Required Field Indicators */
+.required-star-mark {
+  color: #dc2626 !important;
+  font-weight: bold;
+  margin-left: 3px;
+  font-size: 14px;
+}
+
+/* Validation Alert Banner Formatting */
+.validation-alert-banner {
+  background-color: #fef2f2;
+  border-left: 5px solid #ef4444;
+  color: #991b1b;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Ensure the grid wrapper provides a fixed context box */
+.grid-table-frame-wrapper {
+  width: 100%;
+  height: 550px; /* 👈 This gives the grid structural height */
+  margin-top: 15px;
+}
