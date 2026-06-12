@@ -5,13 +5,15 @@ public enum OrderStatus
     New,
     InProgress,
     Completed,
-    Cancelled
+    Cancelled,
+    Pending
 }
 
 public class Order
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid TableId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid? TableId { get; set; }
     public Table? Table { get; set; }
     public Guid CreatedById { get; set; }
     public User? CreatedBy { get; set; }

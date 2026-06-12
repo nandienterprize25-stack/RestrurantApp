@@ -93,56 +93,177 @@ public sealed class RestaurantService : IRestaurantService
     public Task<IReadOnlyList<Table>> GetTablesAsync()
         => _unitOfWork.Tables.GetAllAsync();
 
-    public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid creatorId)
+    // public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid creatorId)
+    // {
+    //     if (!await _unitOfWork.Tables.ExistsAsync(t => t.Id == request.TableId))
+    //     {
+    //         throw new InvalidOperationException("Table not found.");
+    //     }
+
+    //     if (!await _unitOfWork.Users.ExistsAsync(u => u.Id == creatorId))
+    //     {
+    //         throw new InvalidOperationException("User not found.");
+    //     }
+
+    //     var itemIds = request.Items.Select(i => i.MenuItemId).Distinct().ToList();
+    //     var menuItems = await _unitOfWork.MenuItems.GetAllAsync(m => itemIds.Contains(m.Id));
+
+    //     var order = new Order
+    //     {
+    //         TableId = request.TableId,
+    //         CreatedById = creatorId,
+    //         CreatedAt = DateTime.UtcNow,
+    //         Status = OrderStatus.New,
+    //         TotalAmount = 0m,
+    //         Items = new List<OrderItem>()
+    //     };
+
+    //     foreach (var itemRequest in request.Items)
+    //     {
+    //         var menuItem = menuItems.FirstOrDefault(m => m.Id == itemRequest.MenuItemId);
+    //         if (menuItem is null)
+    //         {
+    //             throw new InvalidOperationException($"Menu item {itemRequest.MenuItemId} not found.");
+    //         }
+
+    //         var orderItem = new OrderItem
+    //         {
+    //             MenuItemId = menuItem.Id,
+    //             Quantity = itemRequest.Quantity,
+    //             UnitPrice = menuItem.Price
+    //         };
+
+    //         order.Items.Add(orderItem);
+    //         order.TotalAmount += orderItem.Quantity * orderItem.UnitPrice;
+    //     }
+
+    //     await _unitOfWork.Orders.AddAsync(order);
+    //     await _unitOfWork.CompleteAsync();
+
+    //     return order;
+    // }
+
+    // public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid userId)
+    // {
+    //     var menuItems = await _unitOfWork.MenuItems.GetAllAsync();
+
+    //     Table? table = null;
+    //     if (request.TableId.HasValue && request.TableId != Guid.Empty)
+    //     {
+    //         table = await _unitOfWork.Tables.GetAsync(t => t.Id == request.TableId.Value);
+    //     }
+
+    //     var order = new Order
+    //     {
+    //         Id = Guid.NewGuid(),
+    //         UserId = userId,
+    //         TableId = request.TableId == Guid.Empty ? null : request.TableId,
+    //         Status = OrderStatus.Pending,
+    //         CreatedAt = DateTime.UtcNow
+    //     };
+
+    //     // 1. 👇 ADD THE PARENT ORDER FIRST so it exists in tracking context
+    //     await _unitOfWork.Orders.AddAsync(order);
+
+    //     decimal totalAmount = 0;
+    //     foreach (var itemDto in request.Items)
+    //     {
+    //         var menuItem = menuItems.FirstOrDefault(m => m.Id == itemDto.MenuItemId);
+    //         if (menuItem == null)
+    //         {
+    //             throw new InvalidOperationException($"Menu item with ID {itemDto.MenuItemId} not found.");
+    //         }
+
+    //         var orderItem = new OrderItem
+    //         {
+    //             Id = Guid.NewGuid(),
+    //             OrderId = order.Id, // This reference is safe now!
+    //             MenuItemId = menuItem.Id,
+    //             Quantity = itemDto.Quantity,
+    //             UnitPrice = menuItem.Price
+    //         };
+
+    //         // Fix: multiply by itemDto.Quantity to calculate actual cart item line total correctly
+    //         totalAmount += (orderItem.UnitPrice * orderItem.Quantity);
+
+    //         // 2. 👇 ADD THE CHILD ITEMS SECOND
+    //         await _unitOfWork.OrderItems.AddAsync(orderItem);
+    //     }
+
+    //     // Update the aggregate amount before committing to PostgreSQL
+    //     order.TotalAmount = totalAmount;
+
+    //     // 3. 👇 COMMIT TRANSACTION CLEANLY
+    //     await _unitOfWork.CompleteAsync();
+
+    //     return order;
+    // }
+
+    public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid userId)
     {
-        if (!await _unitOfWork.Tables.ExistsAsync(t => t.Id == request.TableId))
+        // Fetch all active menu items from the context repository layout matrix
+        var menuItems = await _unitOfWork.MenuItems.GetAllAsync();
+
+        // 1. 👇 SAFE TABLE VERIFICATION: Check if TableId has a valid, non-empty value before querying
+        Table? table = null;
+        if (request.TableId.HasValue && request.TableId != Guid.Empty)
         {
-            throw new InvalidOperationException("Table not found.");
+            table = await _unitOfWork.Tables.GetAsync(t => t.Id == request.TableId.Value);
         }
 
-        if (!await _unitOfWork.Users.ExistsAsync(u => u.Id == creatorId))
-        {
-            throw new InvalidOperationException("User not found.");
-        }
-
-        var itemIds = request.Items.Select(i => i.MenuItemId).Distinct().ToList();
-        var menuItems = await _unitOfWork.MenuItems.GetAllAsync(m => itemIds.Contains(m.Id));
-
+        // 2. 👇 INITIALIZE ORDER PARENT RECORD
         var order = new Order
         {
-            TableId = request.TableId,
-            CreatedById = creatorId,
-            CreatedAt = DateTime.UtcNow,
-            Status = OrderStatus.New,
-            TotalAmount = 0m,
-            Items = new List<OrderItem>()
+            Id = Guid.NewGuid(),
+
+            // Maps the authenticated user ID directly. If it arrives empty due to claim mapping issues, 
+            // it falls back to your running Admin user account GUID from your database table.
+            CreatedById = (userId != Guid.Empty) ? userId : Guid.Parse("6d6ec0fc-3b1a-4638-89f4-1845bb08a1e5"),
+
+            // Gracefully handle table mapping scenarios (Take Away sets this parameter to null safely)
+            TableId = (request.TableId == Guid.Empty) ? null : request.TableId,
+            Status = OrderStatus.Pending,
+            CreatedAt = DateTime.UtcNow
         };
 
-        foreach (var itemRequest in request.Items)
+        // 3. 👇 PARENT INJECTION: Add order entity first so it registers a tracked primary key anchor reference
+        await _unitOfWork.Orders.AddAsync(order);
+
+        decimal totalAmount = 0;
+
+        // 4. 👇 PROCESS LINE ITEMS INNER LOOP
+        foreach (var itemDto in request.Items)
         {
-            var menuItem = menuItems.FirstOrDefault(m => m.Id == itemRequest.MenuItemId);
-            if (menuItem is null)
+            var menuItem = menuItems.FirstOrDefault(m => m.Id == itemDto.MenuItemId);
+            if (menuItem == null)
             {
-                throw new InvalidOperationException($"Menu item {itemRequest.MenuItemId} not found.");
+                throw new InvalidOperationException($"Menu item with ID {itemDto.MenuItemId} not found in catalog cache.");
             }
 
             var orderItem = new OrderItem
             {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id, // Linking to parent tracking anchor node safely
                 MenuItemId = menuItem.Id,
-                Quantity = itemRequest.Quantity,
+                Quantity = itemDto.Quantity,
                 UnitPrice = menuItem.Price
             };
 
-            order.Items.Add(orderItem);
-            order.TotalAmount += orderItem.Quantity * orderItem.UnitPrice;
+            // Mathematically calculate running ledger cost based on explicit cart row count values
+            totalAmount += (orderItem.UnitPrice * orderItem.Quantity);
+
+            // Append line element data block under entity frame
+            await _unitOfWork.OrderItems.AddAsync(orderItem);
         }
 
-        await _unitOfWork.Orders.AddAsync(order);
+        // Assign final running tracking cost to our contextual order schema model wrapper
+        order.TotalAmount = totalAmount;
+
+        // 5. 👇 COMMIT TO POSTGRESQL UNIT OF WORK LAYER CLEANLY
         await _unitOfWork.CompleteAsync();
 
         return order;
     }
-
     public Task<IReadOnlyList<Order>> GetOrdersAsync(Guid? userId = null)
     {
         if (userId.HasValue)

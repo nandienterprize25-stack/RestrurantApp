@@ -47,11 +47,12 @@ public static class DatabaseSeeder
 
         if (!await context.Tables.AnyAsync())
         {
-            await context.Tables.AddRangeAsync(
-                new Table { Number = 1, Capacity = 4 },
-                new Table { Number = 2, Capacity = 4 },
-                new Table { Number = 3, Capacity = 6 }
-            );
+            context.Tables.AddRange(
+        new Table { Id = Guid.NewGuid(), Number = 1, Capacity = 2, Status = TableStatus.Available },
+        new Table { Id = Guid.NewGuid(), Number = 2, Capacity = 4, Status = TableStatus.Available },
+        new Table { Id = Guid.NewGuid(), Number = 3, Capacity = 4, Status = TableStatus.Available },
+        new Table { Id = Guid.NewGuid(), Number = 4, Capacity = 6, Status = TableStatus.Available }
+    );
         }
 
         await context.SaveChangesAsync();

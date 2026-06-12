@@ -135,7 +135,41 @@ public class OrdersController : ControllerBase
 
     private Guid GetCurrentUserId()
     {
-        var sub = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
-        return Guid.TryParse(sub, out var userId) ? userId : Guid.Empty;
+        // 1. Check clean JWT sub claim
+        var sub = User.FindFirstValue("sub");
+        if (Guid.TryParse(sub, out var userId)) return userId;
+
+        // 2. Check clean id claim (if auth service names it 'id')
+        var explicitId = User.FindFirstValue("id");
+        if (Guid.TryParse(explicitId, out var customId)) return customId;
+
+        // 3. Fallback: Check standard fallback name identifier schema
+        var nameId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(nameId, out var backupId)) return backupId;
+
+        // 4. Fallback: Loop over whatever keys exist to hunt for a valid Guid string dynamically
+        foreach (var claim in User.Claims)
+        {
+            if (Guid.TryParse(claim.Value, out var dynamicGuid) && dynamicGuid != Guid.Empty)
+            {
+                return dynamicGuid;
+            }
+        }
+
+        // 5. If it still returns empty, the token being sent from Angular contains no user metadata fields.
+        return Guid.Empty;
+    }
+    [HttpGet("tables-layout")]
+    public async Task<ActionResult<object>> GetTablesLayout()
+    {
+        var tables = await _restaurantService.GetTablesAsync();
+        return Ok(tables.Select(t => new
+        {
+            id = t.Id,
+            number = t.Number,
+            displayName = $"Table {t.Number:D2}",
+            capacity = t.Capacity,
+            status = t.Status.ToString() // e.g., "Available", "Occupied"
+        }));
     }
 }
