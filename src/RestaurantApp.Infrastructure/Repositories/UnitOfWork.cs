@@ -11,7 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private Repository<User>? _users;
     private Repository<Category>? _categories;
     private Repository<MenuItem>? _menuItems;
-    private Repository<Table>? _tables;
+    private Repository<RestaurantTable>? _tables;
     private Repository<Order>? _orders;
     private Repository<OrderItem>? _orderItems;
 
@@ -23,7 +23,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<User> Users => _users ??= new Repository<User>(_context);
     public IRepository<Category> Categories => _categories ??= new Repository<Category>(_context);
     public IRepository<MenuItem> MenuItems => _menuItems ??= new Repository<MenuItem>(_context);
-    public IRepository<Table> Tables => _tables ??= new Repository<Table>(_context);
+    public IRepository<RestaurantTable> Tables => _tables ??= new Repository<RestaurantTable>(_context);
     public IRepository<Order> Orders => _orders ??= new Repository<Order>(_context);
     public IRepository<OrderItem> OrderItems => _orderItems ??= new Repository<OrderItem>(_context);
 

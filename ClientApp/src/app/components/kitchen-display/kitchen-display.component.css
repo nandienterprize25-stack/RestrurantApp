@@ -1,0 +1,15 @@
+.kds-dashboard-container button:hover {
+  filter: brightness(1.15);
+}
+
+/* Custom layout scrollbar engine handling for internal card loops */
+.kds-dashboard-container div::-webkit-scrollbar {
+  width: 5px;
+}
+.kds-dashboard-container div::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+.kds-dashboard-container div::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}

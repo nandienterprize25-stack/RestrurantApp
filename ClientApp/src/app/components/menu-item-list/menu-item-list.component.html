@@ -1,0 +1,169 @@
+<div class="food-mgmt-container-wrapper">
+  
+  <div class="action-bar-top-panel">
+    <div class="filter-controls-group">
+      <label style="font-weight: 600; color: #475569;">Filter Category:</label>
+      <select class="form-select-input-control" [(ngModel)]="selectedCategoryFilter" (change)="refreshGridDataset()">
+        <option value="">✨ View All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+    </div>
+    
+    <button class="primary-trigger-action-btn" (value)="true" (click)="openCreateForm()">
+      ➕ Add Menu Dish Item
+    </button>
+  </div>
+
+  <div style="flex: 1; width: 100%;" class="ag-theme-alpine grid-table-frame-wrapper">
+    <ag-grid-angular
+      style="width: 100%; height: 100%;"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      [pagination]="true"
+      [paginationPageSize]="10"
+      (gridReady)="onGridReady($event)"
+      (cellClicked)="onCellClicked($event)">
+    </ag-grid-angular>
+  </div>
+
+  <div class="modal-display-overlay-backdrop" *ngIf="isFormModalOpen">
+    <div class="modal-content-scroller-box">
+      
+      <div class="modal-header-banner">
+        <h3 style="margin:0; font-size: 18px; font-weight:700;">
+          {{ isEditMode ? '✏️ Edit Menu Record Details' : '📦 Instantiate New Menu Record Asset' }}
+        </h3>
+        <button style="background:none; border:none; font-size:20px; cursor:pointer;" (click)="closeFormModal()">✕</button>
+      </div>
+
+      <div class="modal-body-scroller">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">Item/Dish Name *</label>
+            <input type="text" class="form-txt-input-control" style="width:100%;" [(ngModel)]="currentFormModel.name">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">Category Placement Mapping *</label>
+            <select class="form-select-input-control" style="width:100%;" [(ngModel)]="currentFormModel.categoryId">
+              <option value="" disabled selected>Choose target grouping...</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">Image Document URL Reference</label>
+          <input type="text" class="form-txt-input-control" style="width:100%;" [(ngModel)]="currentFormModel.imageUrl">
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">Description Ledger Information</label>
+          <textarea class="form-txt-input-control" style="width:100%; height:60px; resize:none;" [(ngModel)]="currentFormModel.description"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 24px; background: #f1f5f9; padding: 10px 16px; border-radius: 6px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" [(ngModel)]="currentFormModel.isActive"> Item status is Active
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:600; color: #b45309; cursor:pointer;">
+            <input type="checkbox" [(ngModel)]="currentFormModel.isGroupItem"> 📦 This Item is a Package / Combo Meal Group
+          </label>
+        </div>
+
+        <div class="sub-form-block-section">
+          <div class="sub-form-header-title">
+            <span>🍳 Sizing & Pricing Configurations</span>
+            <button class="form-txt-input-control" style="padding:2px 8px; font-size:12px; cursor:pointer;" (click)="addVariantRow()">➕ Add Portion Size</button>
+          </div>
+          <table class="nested-interactive-table">
+            <thead>
+              <tr>
+                <th>Size Name (e.g., Regular, Large)</th>
+                <th>Price ($)</th>
+                <th>Tax (%)</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let variant of currentFormModel.variants; let i = index">
+                <td><input type="text" class="form-txt-input-control" style="width:100%;" [(ngModel)]="variant.variantName" placeholder="Size designation"></td>
+                <td><input type="number" class="form-txt-input-control" style="width:100%;" [(ngModel)]="variant.price"></td>
+                <td><input type="number" class="form-txt-input-control" style="width:100%;" [(ngModel)]="variant.taxPercentage"></td>
+                <td>
+                  <button class="btn-danger-trash-link" *ngIf="currentFormModel.variants.length > 1" (click)="removeVariantRow(i)">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sub-form-block-section">
+          <div class="sub-form-header-title">
+            <span>🕒 Availability Timing Thresholds</span>
+            <button class="form-txt-input-control" style="padding:2px 8px; font-size:12px; cursor:pointer;" (click)="addAvailabilityRow()">➕ Add Schedule Window</button>
+          </div>
+          <table class="nested-interactive-table">
+            <thead>
+              <tr>
+                <th>From (HH:MM:SS)</th>
+                <th>To (HH:MM:SS)</th>
+                <th>All-Day Availability</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let avail of currentFormModel.availabilities; let i = index">
+                <td><input type="text" class="form-txt-input-control" style="width:100%;" [(ngModel)]="avail.availableFrom" [disabled]="avail.isAvailableAllDay"></td>
+                <td><input type="text" class="form-txt-input-control" style="width:100%;" [(ngModel)]="avail.availableTo" [disabled]="avail.isAvailableAllDay"></td>
+                <td>
+<input type="checkbox" [(ngModel)]="avail.isAvailableAllDay" (change)="toggleAllDaySchedule(avail)"> Serving All Day long
+                </td>
+                <td>
+                  <button class="btn-danger-trash-link" (click)="removeAvailabilityRow(i)">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sub-form-block-section" *ngIf="currentFormModel.isGroupItem">
+          <div class="sub-form-header-title" style="color: #b45309;">
+            <span>📦 Combo Package Contents Mapping Matrix</span>
+            <button class="form-txt-input-control" style="padding:2px 8px; font-size:12px; cursor:pointer;" (click)="addComboComponentRow()">➕ Include Dish Asset</button>
+          </div>
+          <table class="nested-interactive-table">
+            <thead>
+              <tr>
+                <th>Select Inner Component MenuItem</th>
+                <th style="width:120px;">Quantity</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let comp of currentFormModel.groupComponents; let i = index">
+                <td>
+                  <select class="form-select-input-control" style="width:100%;" [(ngModel)]="comp.childMenuItemId">
+                    <option value="" disabled>Select dish target...</option>
+                    <option *ngFor="let item of allAvailableItemsForComboSelection" [value]="item.id">{{ item.name }}</option>
+                  </select>
+                </td>
+                <td><input type="number" class="form-txt-input-control" style="width:100%;" [(ngModel)]="comp.quantity" min="1"></td>
+                <td>
+                  <button class="btn-danger-trash-link" (click)="removeComboComponentRow(i)">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="modal-footer-action-row">
+        <button class="form-txt-input-control" style="cursor:pointer; background:#e2e8f0;" (click)="closeFormModal()">Cancel</button>
+        <button class="primary-trigger-action-btn" (click)="saveFormSubmit()">💾 Save Menu Item Changes</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

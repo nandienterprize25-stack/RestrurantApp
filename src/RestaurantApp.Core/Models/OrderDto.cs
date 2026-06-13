@@ -25,4 +25,51 @@ namespace RestaurantApp.Core.Models
         public int Quantity { get; set; }
         public decimal Price { get; set; }
     }
+
+    public class CreateOrderItemDto
+    {
+        public Guid MenuItemId { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+        public string VariantName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TaxPercentage { get; set; }
+    }
+
+    public class CreateOrderDto
+    {
+        public Guid TableId { get; set; }
+        public string WaiterName { get; set; } = string.Empty;
+        public List<CreateOrderItemDto> Items { get; set; } = new List<CreateOrderItemDto>();
+        public string PaymentMode { get; set; } = "Cash";
+    }
+
+    public class OrderResponseDto
+    {
+        public Guid Id { get; set; }
+        public string InvoiceNo { get; set; } = string.Empty;
+        public Guid? TableId { get; set; }
+        public string TableNumber { get; set; } = string.Empty; // 👈 Changed from int to string
+        public string WaiterName { get; set; } = string.Empty;
+        public string OrderStatus { get; set; } = string.Empty;
+        public string PaymentMode { get; set; } = string.Empty;
+        public string PaymentStatus { get; set; } = string.Empty;
+        public decimal SubTotal { get; set; }
+        public decimal TaxAmount { get; set; }
+        public decimal GrandTotal { get; set; }
+        public DateTime OrderDate { get; set; }
+        public List<OrderItemResponseDto> OrderItems { get; set; } = new List<OrderItemResponseDto>();
+    }
+
+    public class OrderItemResponseDto
+    {
+        public Guid Id { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+        public string VariantName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
+    }
+
+
 }

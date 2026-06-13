@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RestaurantApp.Infrastructure.Data;
@@ -11,9 +12,11 @@ using RestaurantApp.Infrastructure.Data;
 namespace RestaurantApp.Infrastructure.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612183319_AddFoodManagementEntities")]
+    partial class AddFoodManagementEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +42,6 @@ namespace RestaurantApp.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsOffer")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -51,9 +51,6 @@ namespace RestaurantApp.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.HasIndex("ParentCategoryId");
 
@@ -188,51 +185,25 @@ namespace RestaurantApp.Infrastructure.Migrations
                     b.Property<Guid>("CreatedById")
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("GrandTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("InvoiceNo")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OrderStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("PaymentMode")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<decimal>("SubTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("TableId")
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("TaxAmount")
+                    b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<string>("WaiterName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("TableId");
 
                     b.ToTable("Orders");
                 });
@@ -243,11 +214,6 @@ namespace RestaurantApp.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
                     b.Property<Guid>("MenuItemId")
                         .HasColumnType("uuid");
 
@@ -257,86 +223,38 @@ namespace RestaurantApp.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("TaxPercentage")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<string>("VariantName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("MenuItemId");
 
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("RestaurantApp.Core.Entities.RestaurantTable", b =>
+            modelBuilder.Entity("RestaurantApp.Core.Entities.Table", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("SeatingCapacity")
+                    b.Property<int>("Number")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasDefaultValue("Available");
-
-                    b.Property<Guid>("TableAreaId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TableNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TableAreaId");
 
                     b.ToTable("Tables");
-                });
-
-            modelBuilder.Entity("RestaurantApp.Core.Entities.TableArea", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AreaName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TableAreas");
                 });
 
             modelBuilder.Entity("RestaurantApp.Core.Entities.User", b =>
@@ -450,29 +368,32 @@ namespace RestaurantApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RestaurantApp.Core.Entities.Table", "Table")
+                        .WithMany()
+                        .HasForeignKey("TableId");
+
                     b.Navigation("CreatedBy");
+
+                    b.Navigation("Table");
                 });
 
             modelBuilder.Entity("RestaurantApp.Core.Entities.OrderItem", b =>
                 {
+                    b.HasOne("RestaurantApp.Core.Entities.MenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("RestaurantApp.Core.Entities.Order", "Order")
-                        .WithMany("OrderItems")
+                        .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("MenuItem");
+
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("RestaurantApp.Core.Entities.RestaurantTable", b =>
-                {
-                    b.HasOne("RestaurantApp.Core.Entities.TableArea", "TableArea")
-                        .WithMany("Tables")
-                        .HasForeignKey("TableAreaId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("TableArea");
                 });
 
             modelBuilder.Entity("RestaurantApp.Core.Entities.Category", b =>
@@ -493,12 +414,7 @@ namespace RestaurantApp.Infrastructure.Migrations
 
             modelBuilder.Entity("RestaurantApp.Core.Entities.Order", b =>
                 {
-                    b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("RestaurantApp.Core.Entities.TableArea", b =>
-                {
-                    b.Navigation("Tables");
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("RestaurantApp.Core.Entities.User", b =>

@@ -37,7 +37,7 @@ public class OrdersController : ControllerBase
                 .Select(item => item.ToResponse(menuItems.FirstOrDefault(m => m.Id == item.MenuItemId)?.Name ?? string.Empty))
                 .ToList();
 
-            var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.Number ?? 0;
+            var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.TableNumber ?? string.Empty;
             var creator = users.FirstOrDefault(u => u.Id == order.CreatedById)?.Username ?? string.Empty;
             response.Add(order.ToResponse(tableNumber, creator, orderItems));
         }
@@ -60,7 +60,7 @@ public class OrdersController : ControllerBase
         var orderItems = await _restaurantService.GetOrderItemsAsync(order.Id);
 
         var responseItems = orderItems.Select(item => item.ToResponse(menuItems.FirstOrDefault(m => m.Id == item.MenuItemId)?.Name ?? string.Empty)).ToList();
-        var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.Number ?? 0;
+        var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.TableNumber ?? string.Empty;
         var creator = users.FirstOrDefault(u => u.Id == order.CreatedById)?.Username ?? string.Empty;
 
         return Ok(order.ToResponse(tableNumber, creator, responseItems));
@@ -73,7 +73,7 @@ public class OrdersController : ControllerBase
         var order = await _restaurantService.CreateOrderAsync(request, userId);
         var orderItems = await _restaurantService.GetOrderItemsAsync(order.Id);
         var menuItems = await _restaurantService.GetMenuItemsAsync();
-        var tableNumber = (await _restaurantService.GetTablesAsync()).FirstOrDefault(t => t.Id == order.TableId)?.Number ?? 0;
+        var tableNumber = (await _restaurantService.GetTablesAsync()).FirstOrDefault(t => t.Id == order.TableId)?.TableNumber ?? string.Empty;
         var creator = (await _restaurantService.GetUserByIdAsync(order.CreatedById))?.Username ?? string.Empty;
 
         var responseItems = orderItems.Select(item => item.ToResponse(menuItems.FirstOrDefault(m => m.Id == item.MenuItemId)?.Name ?? string.Empty)).ToList();
@@ -166,10 +166,30 @@ public class OrdersController : ControllerBase
         return Ok(tables.Select(t => new
         {
             id = t.Id,
-            number = t.Number,
-            displayName = $"Table {t.Number:D2}",
-            capacity = t.Capacity,
+            number = t.TableNumber,
+            displayName = $"Table {t.TableNumber:D2}",
+            capacity = t.SeatingCapacity,
             status = t.Status.ToString() // e.g., "Available", "Occupied"
         }));
     }
+
+    [HttpPut("{id}/status")]
+public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateStatusRequest request)
+{
+    var order = await _restaurantService.GetOrderAsync(id);
+    if (order is null)
+    {
+        return NotFound(new { message = "Target transaction element trace absent." });
+    }
+
+    // Update status string/enum based on your domain rule logic execution
+    await _restaurantService.UpdateOrderStatusAsync(id, request.Status);
+    return NoContent();
+}
+
+// Simple request wrapper payload matching the Angular body signature
+public class UpdateStatusRequest
+{
+    public string Status { get; set; } = string.Empty;
+}
 }

@@ -44,17 +44,58 @@ public static class DatabaseSeeder
                 new MenuItem { Name = "Craft Lemonade", Description = "House-made lemonade with mint.", Price = 5.20m, CategoryId = drinks.Id }
             );
         }
+        // 1. Seed Table Areas if none exist yet
+        if (!await context.TableAreas.AnyAsync())
+        {
+            await context.TableAreas.AddRangeAsync(
+                new TableArea { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), AreaName = "MAIN DINING HALL", IsActive = true },
+                new TableArea { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), AreaName = "VIP LOUNGE", IsActive = true }
+            );
+            await context.SaveChangesAsync();
+        }
 
+        // 2. Grab a default Area Id to map the tables to
+        var defaultArea = await context.TableAreas.FirstAsync();
+
+        // 3. Seed Tables with the mandatory relationship tracking ID
         if (!await context.Tables.AnyAsync())
         {
             context.Tables.AddRange(
-        new Table { Id = Guid.NewGuid(), Number = 1, Capacity = 2, Status = TableStatus.Available },
-        new Table { Id = Guid.NewGuid(), Number = 2, Capacity = 4, Status = TableStatus.Available },
-        new Table { Id = Guid.NewGuid(), Number = 3, Capacity = 4, Status = TableStatus.Available },
-        new Table { Id = Guid.NewGuid(), Number = 4, Capacity = 6, Status = TableStatus.Available }
-    );
-        }
+                new RestaurantTable
+                {
+                    Id = Guid.NewGuid(),
+                    TableNumber = "T1",
+                    SeatingCapacity = 2,
+                    Status = TableStatus.Available.ToString(),
+                    TableAreaId = defaultArea.Id // 👈 Add this line
+                },
+                new RestaurantTable
+                {
+                    Id = Guid.NewGuid(),
+                    TableNumber = "T2",
+                    SeatingCapacity = 4,
+                    Status = TableStatus.Available.ToString(),
+                    TableAreaId = defaultArea.Id // 👈 Add this line
+                },
+                new RestaurantTable
+                {
+                    Id = Guid.NewGuid(),
+                    TableNumber = "T3",
+                    SeatingCapacity = 4,
+                    Status = TableStatus.Available.ToString(),
+                    TableAreaId = defaultArea.Id // 👈 Add this line
+                },
+                new RestaurantTable
+                {
+                    Id = Guid.NewGuid(),
+                    TableNumber = "T4",
+                    SeatingCapacity = 6,
+                    Status = TableStatus.Available.ToString(),
+                    TableAreaId = defaultArea.Id // 👈 Add this line
+                }
+            );
 
-        await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+        }
     }
 }

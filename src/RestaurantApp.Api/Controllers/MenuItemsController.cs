@@ -1,40 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantApp.Api.Mapping;
-using RestaurantApp.Api.Models;
-using RestaurantApp.Api.Services;
-using RestaurantApp.Core.Models;
+using RestaurantApp.Application.DTOs;
+using RestaurantApp.Application.Interfaces;
 
-namespace RestaurantApp.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class MenuItemsController : ControllerBase
+namespace RestaurantApp.Api.Controllers
 {
-    private readonly IRestaurantService _restaurantService;
-
-    public MenuItemsController(IRestaurantService restaurantService)
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MenuItemsController : ControllerBase
     {
-        _restaurantService = restaurantService;
-    }
+        private readonly IMenuItemService _menuItemService;
 
-    [HttpGet]
-    public async Task<ActionResult<object>> GetMenuItems()
-    {
-        var menuItems = await _restaurantService.GetMenuItemsAsync();
-        var categories = await _restaurantService.GetCategoriesAsync();
-        return Ok(new
+        public MenuItemsController(IMenuItemService menuItemService)
         {
-            Items = menuItems.Select(x => x.ToResponse()),
-            Categories = categories.Select(x => x.ToResponse())
-        });
-    }
+            _menuItemService = menuItemService;
+        }
 
-    [Authorize(Roles = "Admin")]
-    [HttpPost]
-    public async Task<ActionResult<MenuItemResponse>> CreateMenuItem([FromBody] MenuItemRequest request)
-    {
-        var menuItem = await _restaurantService.AddMenuItemAsync(request);
-        return CreatedAtAction(nameof(GetMenuItems), menuItem.ToResponse());
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<MenuItemDto>>> GetAll([FromQuery] bool includeInactive = false, [FromQuery] Guid? categoryId = null)
+        {
+            var items = await _menuItemService.GetAllMenuItemsAsync(includeInactive, categoryId);
+            return Ok(items);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<MenuItemDto>> GetById(Guid id)
+        {
+            var item = await _menuItemService.GetMenuItemByIdAsync(id);
+            if (item == null) return NotFound(new { message = "Menu Item not found." });
+            return Ok(item);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<MenuItemDto>> Create(CreateMenuItemDto dto)
+        {
+            var createdItem = await _menuItemService.CreateMenuItemAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = createdItem.Id }, createdItem);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, UpdateMenuItemDto dto)
+        {
+            var success = await _menuItemService.UpdateMenuItemAsync(id, dto);
+            if (!success) return NotFound(new { message = "Menu Item not found." });
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var success = await _menuItemService.DeleteMenuItemAsync(id);
+            if (!success) return NotFound(new { message = "Menu Item not found." });
+            return NoContent();
+        }
     }
 }

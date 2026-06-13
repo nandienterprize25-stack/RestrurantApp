@@ -33,36 +33,40 @@ public static class ResponseMappings
             Name = category.Name
         };
 
-    public static TableResponse ToResponse(this Table table)
+    public static TableResponse ToResponse(this RestaurantTable table)
         => new()
         {
             Id = table.Id,
-            Number = table.Number,
-            Capacity = table.Capacity,
+            Number = table.TableNumber,
+            Capacity = table.SeatingCapacity,
             Status = table.Status.ToString()
         };
 
-    public static OrderItemResponse ToResponse(this OrderItem item, string menuItemName)
-        => new()
+   public static OrderItemResponse ToResponse(this OrderItem item, string menuItemName)
         {
-            Id = item.Id,
-            MenuItemId = item.MenuItemId,
-            MenuItemName = menuItemName,
-            Quantity = item.Quantity,
-            UnitPrice = item.UnitPrice
-        };
+            return new OrderItemResponse
+            {
+                Id = item.Id,
+                MenuItemId = item.MenuItemId,
+                MenuItemName = menuItemName,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                //TotalPrice = item.Quantity * item.UnitPrice
+            };
+        }
 
-    public static OrderResponse ToResponse(this Order order, int tableNumber, string createdByUsername, IReadOnlyList<OrderItemResponse> items)
-        => new()
+        public static OrderResponse ToResponse(this Order order, string tableNumber, string creatorName, List<OrderItemResponse> items)
         {
-            Id = order.Id,
-            TableId = order.TableId,
-            TableNumber = tableNumber,
-            CreatedById = order.CreatedById,
-            CreatedByUsername = createdByUsername,
-            CreatedAt = order.CreatedAt,
-            Status = order.Status.ToString(),
-            TotalAmount = order.TotalAmount,
-            Items = items
-        };
-}
+            return new OrderResponse
+            {
+                Id = order.Id,
+                TableId = order.TableId,
+                TableNumber = tableNumber,
+                CreatedByUsername = creatorName,
+                Status = order.OrderStatus.ToString(),
+                TotalAmount = order.GrandTotal,
+                CreatedAt = order.CreatedAt,
+                Items = items
+            };
+        }
+        }

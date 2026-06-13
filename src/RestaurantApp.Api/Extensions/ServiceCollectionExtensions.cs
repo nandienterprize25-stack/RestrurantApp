@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantApp.Api.Middleware;
 using RestaurantApp.Api.Services;
+using RestaurantApp.Application.Interfaces;
+using RestaurantApp.Application.Services;
 using RestaurantApp.Application.Validators;
 using RestaurantApp.Core;
 using RestaurantApp.Core.Interfaces;
@@ -35,6 +37,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReportGenerator, ReportGenerator>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRestaurantService, RestaurantService>();
+        // Register the category application workflow container mappings
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IMenuItemService, 
+        MenuItemService>();
+        services.AddScoped<IOrderLifecycleService, OrderLifecycleService>();
 
         services.AddAuthentication(options =>
         {

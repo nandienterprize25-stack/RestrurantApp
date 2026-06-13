@@ -1,0 +1,95 @@
+using System;
+using System.Collections.Generic;
+
+namespace RestaurantApp.Application.DTOs
+{
+    // --- MAIN DTOs ---
+    public class MenuItemDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+        public bool IsGroupItem { get; set; }
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+
+        public List<FoodVariantDto> Variants { get; set; } = new();
+        public List<FoodAvailabilityDto> Availabilities { get; set; } = new();
+        public List<GroupItemChildDto> GroupComponents { get; set; } = new();
+    }
+
+    public class CreateMenuItemDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
+        public bool IsGroupItem { get; set; }
+
+        // Child payload options allowed during initialization
+        public List<CreateFoodVariantDto> Variants { get; set; } = new();
+        public List<CreateFoodAvailabilityDto> Availabilities { get; set; } = new();
+        public List<CreateGroupItemChildDto> GroupComponents { get; set; } = new();
+    }
+
+    public class UpdateMenuItemDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsGroupItem { get; set; }
+
+        public List<CreateFoodVariantDto> Variants { get; set; } = new();
+        public List<CreateFoodAvailabilityDto> Availabilities { get; set; } = new();
+        public List<CreateGroupItemChildDto> GroupComponents { get; set; } = new();
+    }
+
+    // --- NESTED SUB-ELEMENT DTOs ---
+    public class FoodVariantDto
+    {
+        public Guid Id { get; set; }
+        public string VariantName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public decimal TaxPercentage { get; set; }
+    }
+
+    public class CreateFoodVariantDto
+    {
+        public string VariantName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public decimal TaxPercentage { get; set; }
+    }
+
+    public class FoodAvailabilityDto
+    {
+        public Guid Id { get; set; }
+        public TimeSpan AvailableFrom { get; set; }
+        public TimeSpan AvailableTo { get; set; }
+        public bool IsAvailableAllDay { get; set; }
+    }
+
+    public class CreateFoodAvailabilityDto
+    {
+        public TimeSpan AvailableFrom { get; set; }
+        public TimeSpan AvailableTo { get; set; }
+        public bool IsAvailableAllDay { get; set; }
+    }
+
+    public class GroupItemChildDto
+    {
+        public Guid Id { get; set; }
+        public Guid ChildMenuItemId { get; set; }
+        public string ChildMenuItemName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+    }
+
+    public class CreateGroupItemChildDto
+    {
+        public Guid ChildMenuItemId { get; set; }
+        public int Quantity { get; set; }
+    }
+}

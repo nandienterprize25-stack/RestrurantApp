@@ -37,6 +37,8 @@ export class DashboardLayoutComponent implements OnInit {
       subMenus: [
         { label: 'POS Invoice', route: '/orders/pos-invoice' },
         { label: 'Order List', route: '/orders/order-list' },
+        // 👈 ADDED LIVE KITCHEN DISPLAY MONITOR ROUTE CHANNEL HERE
+        { label: 'Kitchen Monitor (KDS)', route: '/orders/kitchen-display' },
         { label: 'Pending Order', route: '/orders/pending' },
         { label: 'Completed With Payment', route: '/orders/completed-paid' },
         { label: 'Completed with Due', route: '/orders/completed-due' },
@@ -71,15 +73,54 @@ export class DashboardLayoutComponent implements OnInit {
         { label: 'Stock Reorder Alerts', route: '/purchase/reorder' }
       ]
     },
+    // {
+    //   label: 'Food Management',
+    //   icon: '📜',
+    //   isExpanded: false,
+    //   subMenus: [
+    // { label: 'Menu Dishes Grid', route: '/food-management/menu-items' },
+    //     { label: 'Categories Layout', route: '/food-management/categories' },
+    //     { label: 'Food Addons Setup', route: '/food-management/addons' },
+    //     { label: 'Variants & Size Matrix', route: '/food-management/variants' },
+    //     { label: 'Availability Schedules', route: '/food-management/availability' },
+    //     { label: 'Combo & Group Items', route: '/food-management/combos' }
+    //   ]
+    // },
+    // 🗂️ 1. MANAGE CATEGORY DRAWER
     {
-      label: 'Food Management',
-      icon: '📜',
+      label: 'Manage Category',
+      icon: '📁',
       isExpanded: false,
       subMenus: [
-        { label: 'Menu Overview', route: '/menu' },
-        { label: 'Categories Config', route: '/food/categories' },
-        { label: 'Modifiers & Addons', route: '/food/modifiers' },
-        { label: 'Recipe Combinations', route: '/food/recipes' }
+        { label: 'Add Category', route: '/category/add' },
+        { label: 'Category List', route: '/category/list' }
+      ]
+    },
+
+    // 🍔 2. MANAGE FOOD DRAWER
+    {
+      label: 'Manage Food',
+      icon: '🍕',
+      isExpanded: false,
+      subMenus: [
+        { label: 'Add Food', route: '/food/add' },
+        { label: 'Food List', route: '/food/list' },
+        { label: 'Add Group Item', route: '/food/add-group' },
+        { label: 'Food Variant', route: '/food/variants' },
+        { label: 'Food Availability', route: '/food/availability' },
+        { label: 'Menu Type', route: '/food/menu-types' }
+      ]
+    },
+
+    // ➕ 3. MENU ADD-ONS DRAWER
+    {
+      label: 'Menu Add-ons',
+      icon: '🧂',
+      isExpanded: false,
+      subMenus: [
+        { label: 'Add Add-ons', route: '/addons/add' },
+        { label: 'Add-ons List', route: '/addons/list' },
+        { label: 'Add-ons Assign List', route: '/addons/assign-list' }
       ]
     },
     {

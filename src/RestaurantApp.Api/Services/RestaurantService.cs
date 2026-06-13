@@ -90,7 +90,7 @@ public sealed class RestaurantService : IRestaurantService
     public Task<IReadOnlyList<Category>> GetCategoriesAsync()
         => _unitOfWork.Categories.GetAllAsync();
 
-    public Task<IReadOnlyList<Table>> GetTablesAsync()
+    public Task<IReadOnlyList<RestaurantTable>> GetTablesAsync()
         => _unitOfWork.Tables.GetAllAsync();
 
     // public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid creatorId)
@@ -205,7 +205,7 @@ public sealed class RestaurantService : IRestaurantService
         var menuItems = await _unitOfWork.MenuItems.GetAllAsync();
 
         // 1. 👇 SAFE TABLE VERIFICATION: Check if TableId has a valid, non-empty value before querying
-        Table? table = null;
+        RestaurantTable? table = null;
         if (request.TableId.HasValue && request.TableId != Guid.Empty)
         {
             table = await _unitOfWork.Tables.GetAsync(t => t.Id == request.TableId.Value);
@@ -222,7 +222,7 @@ public sealed class RestaurantService : IRestaurantService
 
             // Gracefully handle table mapping scenarios (Take Away sets this parameter to null safely)
             TableId = (request.TableId == Guid.Empty) ? null : request.TableId,
-            Status = OrderStatus.Pending,
+            OrderStatus = OrderStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -257,7 +257,7 @@ public sealed class RestaurantService : IRestaurantService
         }
 
         // Assign final running tracking cost to our contextual order schema model wrapper
-        order.TotalAmount = totalAmount;
+        order.GrandTotal = totalAmount;
 
         // 5. 👇 COMMIT TO POSTGRESQL UNIT OF WORK LAYER CLEANLY
         await _unitOfWork.CompleteAsync();
@@ -289,18 +289,64 @@ public sealed class RestaurantService : IRestaurantService
     public Task<byte[]> CreateOrderPdfReportAsync(Order order, IReadOnlyList<OrderItemResponse> items)
     {
         var rows = items.Select(item => (item.MenuItemName, item.Quantity, item.UnitPrice, item.TotalPrice));
-        return Task.FromResult(_reportGenerator.CreateOrderPdfReport(rows, order.Id.ToString("N"), order.TotalAmount));
+        return Task.FromResult(_reportGenerator.CreateOrderPdfReport(rows, order.Id.ToString("N"), order.GrandTotal));
     }
 
     public Task<byte[]> CreateOrderExcelReportAsync(Order order, IReadOnlyList<OrderItemResponse> items)
     {
         var rows = items.Select(item => (item.MenuItemName, item.Quantity, item.UnitPrice, item.TotalPrice));
-        return Task.FromResult(_reportGenerator.CreateOrderExcelReport(rows, order.Id.ToString("N"), order.TotalAmount));
+        return Task.FromResult(_reportGenerator.CreateOrderExcelReport(rows, order.Id.ToString("N"), order.GrandTotal));
     }
 
     public Task<string> CreateOrderCsvReportAsync(Order order, IReadOnlyList<OrderItemResponse> items)
     {
         var rows = items.Select(item => (item.MenuItemName, item.Quantity, item.UnitPrice, item.TotalPrice));
-        return Task.FromResult(_reportGenerator.CreateOrderCsvReport(rows, order.Id.ToString("N"), order.TotalAmount));
+        return Task.FromResult(_reportGenerator.CreateOrderCsvReport(rows, order.Id.ToString("N"), order.GrandTotal));
     }
+
+
+    // 👈 ADD THIS FULL METHOD BLOCK
+    public async Task UpdateOrderStatusAsync(Guid orderId, string status)
+    {
+        // 1. Fetch matching order entry out of the UnitOfWork tracked domain context
+        var order = await _unitOfWork.Orders.GetAsync(o => o.Id == orderId);
+        if (order == null) throw new KeyNotFoundException("Target order structure trace absent.");
+
+        // 2. Safely parse and assign the status state change over parameter
+        if (Enum.TryParse<OrderStatus>(status, true, out var parsedStatus))
+        {
+            order.OrderStatus = parsedStatus;
+            _unitOfWork.Orders.Update(order);
+
+            // 3. Automated System rule: If order is completed or cancelled, free the table placement!
+            if (parsedStatus == OrderStatus.Completed || parsedStatus == OrderStatus.Cancelled)
+            {
+                var table = await _unitOfWork.Tables.GetAsync(t => t.Id == order.TableId);
+                if (table != null)
+                {
+                    table.Status = TableStatus.Available.ToString();
+                    _unitOfWork.Tables.Update(table);
+                }
+            }
+            else if (parsedStatus == OrderStatus.InProgress)
+            {
+                // Ensure table status remains Occupied while processing in the kitchen
+                var table = await _unitOfWork.Tables.GetAsync(t => t.Id == order.TableId);
+                if (table != null)
+                {
+                    table.Status = TableStatus.Occupied.ToString();
+                    _unitOfWork.Tables.Update(table);
+                }
+            }
+
+            // 4. Save tracking modifications to persistence layer
+            await _unitOfWork.CompleteAsync();
+        }
+        else
+        {
+            throw new ArgumentException($"Invalid operational order status value requested: '{status}'");
+        }
+    }
+
+    
 }

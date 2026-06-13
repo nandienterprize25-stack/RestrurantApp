@@ -12,7 +12,7 @@ public interface IRestaurantService
     Task<IReadOnlyList<MenuItem>> GetMenuItemsAsync();
     Task<MenuItem> AddMenuItemAsync(MenuItemRequest request);
     Task<IReadOnlyList<Category>> GetCategoriesAsync();
-    Task<IReadOnlyList<Table>> GetTablesAsync();
+    Task<IReadOnlyList<RestaurantTable>> GetTablesAsync();
     Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid creatorId);
     Task<IReadOnlyList<Order>> GetOrdersAsync(Guid? userId = null);
     Task<Order?> GetOrderAsync(Guid orderId);
@@ -22,4 +22,8 @@ public interface IRestaurantService
     Task<byte[]> CreateOrderPdfReportAsync(Order order, IReadOnlyList<OrderItemResponse> items);
     Task<byte[]> CreateOrderExcelReportAsync(Order order, IReadOnlyList<OrderItemResponse> items);
     Task<string> CreateOrderCsvReportAsync(Order order, IReadOnlyList<OrderItemResponse> items);
+
+    // 👈 ADD THIS METHOD SIGNATURE
+    Task UpdateOrderStatusAsync(Guid orderId, string status);
+
 }

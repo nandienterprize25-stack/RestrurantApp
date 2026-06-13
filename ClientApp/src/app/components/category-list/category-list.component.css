@@ -1,0 +1,198 @@
+/* Re-use your primary core grid wrappers templates alignments */
+.food-mgmt-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+  padding: 20px;
+  background-color: #f8fafc;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.action-bar-top-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.primary-trigger-action-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  transition: background-color 0.2s ease;
+}
+
+.primary-trigger-action-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.form-select-input-control, .form-txt-input-control {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  background-color: #ffffff;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.form-txt-input-control:focus, .form-select-input-control:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+/* --- INTERACTIVE ACTION TRIGGER BUTTON MATRIX WITHIN GRID PILLS --- */
+::v-deep .action-trigger-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  transition: all 0.15s ease-in-out;
+}
+
+::v-deep .action-trigger-btn:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* --- OVERLAY BACKDROP ARCHITECTURES PANELS DISPLAY RULES --- */
+.modal-display-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content-scroller-box {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  animation: modalFadeInUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header-banner {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #0f172a;
+}
+
+.modal-body-scroller {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-footer-action-row {
+  padding: 14px 20px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: #f8fafc;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+@keyframes modalFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Custom Center Popup Alert Window Framework */
+.custom-alert-backdrop {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 10005;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.custom-alert-card {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 400px;
+  padding: 20px;
+  border-left: 5px solid #ef4444;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Inline Field Level Error Text Messaging Indicators */
+.inline-error-msg {
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  display: block;
+}
+
+.input-invalid-border {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+/* Styling mandatory indicator fields */
+.required-asterisk {
+  color: #ef4444 !important;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* Form input field validation styling overrides */
+.form-txt-input-control.input-invalid-border {
+  border: 1.5px solid #ef4444 !important;
+  background-color: #fef2f2 !important;
+  outline: none;
+}
+
+.form-txt-input-control.input-invalid-border:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Inline verification error blocks layout rules */
+.inline-error-msg {
+  color: #ef4444 !important;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
