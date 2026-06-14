@@ -8,15 +8,24 @@
         <button type="button" class="primary-trigger-action-btn" style="cursor: pointer; background: #1e293b; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 13px; font-family: sans-serif;" (click)="openCreateModal()">➕ Add Category</button>
     </div>
 
-    <div class="ag-theme-alpine grid-table-frame-wrapper" style="width: 100%; height: 500px; min-height: 450px; margin-top: 10px;">
-        <ag-grid-angular style="width: 100%; height: 100%; display: block;" theme="legacy" [rowData]="rowData" [columnDefs]="columnDefs"
-            [pagination]="true" [paginationPageSize]="10" [paginationPageSizeSelector]="[10, 20, 50]"
-            (gridReady)="onGridReady($event)" (cellClicked)="onCellClicked($event)">
+    <div class="grid-table-frame-wrapper" style="width: 100%; margin-top: 10px;">
+        <ag-grid-angular 
+            style="width: 100%; height: 500px;" 
+            class="ag-theme-alpine"
+            theme="legacy"
+            [rowData]="rowData" 
+            [columnDefs]="columnDefs"
+            [pagination]="true" 
+            [paginationPageSize]="10" 
+            [paginationPageSizeSelector]="[10, 20, 50]"
+            (gridReady)="onGridReady($event)" 
+            (cellClicked)="onCellClicked($event)">
         </ag-grid-angular>
     </div>
 
-    <div class="modal-display-overlay-backdrop" *ngIf="isModalOpen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 999;">
-        <div class="modal-content-scroller-box" style="width: 500px; background: white; padding: 28px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);" [formGroup]="categoryForm">
+    <div class="modal-display-overlay-backdrop" *ngIf="isModalOpen" #backdropRef (mousedown)="$event.target === backdropRef ? closeModal() : null" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 999;">
+        
+        <form class="modal-content-scroller-box" style="width: 500px; background: white; padding: 28px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);" [formGroup]="categoryForm" (ngSubmit)="saveCategoryData()">
             
             <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 700; color:#0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; font-family: sans-serif;">
                 {{ isEditMode ? '📝 Edit Category Configuration' : '✨ Create New Category Classification' }}
@@ -24,7 +33,7 @@
 
             <div class="form-input-field-group" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
                 <label style="font-size: 13px; font-weight: 600; color: #334155; font-family: sans-serif;">Category Name <span style="color:#ef4444;">*</span></label>
-                <input type="text" formControlName="name" placeholder="e.g. BENGALI, FAST FOOD..." style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;" />
+                <input type="text" id="categoryNameInputField" formControlName="name" placeholder="e.g. BENGALI, FAST FOOD..." style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;" />
             </div>
 
             <div class="form-input-field-group" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
@@ -34,9 +43,9 @@
 
             <div class="form-input-field-group" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
                 <label style="font-size: 13px; font-weight: 600; color: #334155; font-family: sans-serif;">Category Image</label>
-                <input type="file" id="imageFileInput" accept="image/*" (change)="onFileSelected($event)" style="display: none;" />
+                <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display: none;" />
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <button type="button" style="cursor:pointer; background:#f8fafc; border: 1px dashed #cbd5e1; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #475569; text-align: left; flex: 1; font-weight: 500; font-family: sans-serif;" onclick="document.getElementById('imageFileInput').click()">
+                    <button type="button" style="cursor:pointer; background:#f8fafc; border: 1px dashed #cbd5e1; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #475569; text-align: left; flex: 1; font-weight: 500; font-family: sans-serif;" (click)="fileInput.click()">
                         📁 Select Image File from PC...
                     </button>
                     <img *ngIf="categoryForm.get('imageUrl')?.value" [src]="categoryForm.get('imageUrl')?.value" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1;" />
@@ -62,41 +71,25 @@
 
             <div class="modal-control-action-row" style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #e2e8f0; padding-top:16px;">
                 <button type="button" style="cursor:pointer; background:#f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding:9px 18px; border-radius:6px; font-size:13px; font-weight: 600; font-family: sans-serif;" (click)="closeModal()">Cancel</button>
-                <button type="button" style="cursor:pointer; background:#1e293b; color:white; border:none; padding:9px 22px; border-radius:6px; font-size:13px; font-weight: 600; display: flex; align-items: center; gap: 6px; font-family: sans-serif;" (click)="saveCategoryData()">💾 Save Category</button>
+                
+                <button type="submit" style="cursor:pointer; background:#1e293b; color:white; border:none; padding:9px 22px; border-radius:6px; font-size:13px; font-weight: 600; display: flex; align-items: center; gap: 6px; font-family: sans-serif;">💾 Save Category</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="custom-alert-backdrop" *ngIf="customAlertOpen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-        <div class="custom-alert-card" style="background: white; padding: 26px; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 400px; text-align: center; border-top: 4px solid #1e293b;" [style.border-top-color]="customAlertTitle.includes('Delete') ? '#ef4444' : (customAlertTitle.includes('Completed') || customAlertTitle.includes('Success') ? '#10b981' : '#f59e0b')">
-            
+        <div class="custom-alert-card" style="background: white; padding: 26px; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); width: 400px; text-align: center; border-top: 4px solid #1e293b;" [style.border-top-color]="customAlertTitle.includes('Delete') ? '#ef4444' : (customAlertTitle.includes('Success') || customAlertTitle.includes('Completed') ? '#10b981' : '#f59e0b')">
             <div style="font-size: 36px; margin-bottom: 12px;">
-                <span *ngIf="customAlertTitle.includes('Completed') || customAlertTitle.includes('Success')">✅</span>
+                <span *ngIf="customAlertTitle.includes('Success') || customAlertTitle.includes('Completed')">✅</span>
                 <span *ngIf="customAlertTitle.includes('Delete')">🗑️</span>
-                <span *ngIf="!customAlertTitle.includes('Completed') && !customAlertTitle.includes('Success') && !customAlertTitle.includes('Delete')">⚠️</span>
+                <span *ngIf="!customAlertTitle.includes('Success') && !customAlertTitle.includes('Completed') && !customAlertTitle.includes('Delete')">⚠️</span>
             </div>
-
-            <h4 style="margin: 0 0 10px 0; color: #0f172a; font-size: 18px; font-weight: 700; font-family: sans-serif;">
-                {{ customAlertTitle }}
-            </h4>
-            
-            <p style="margin: 0 0 24px 0; color: #475569; font-size: 14px; line-height: 1.5; padding: 0 10px; font-family: sans-serif;">
-                {{ customAlertMessage }}
-            </p>
-            
+            <h4 style="margin: 0 0 10px 0; color: #0f172a; font-size: 18px; font-weight: 700; font-family: sans-serif;">{{ customAlertTitle }}</h4>
+            <p style="margin: 0 0 24px 0; color: #475569; font-size: 14px; line-height: 1.5; padding: 0 10px; font-family: sans-serif;">{{ customAlertMessage }}</p>
             <div style="display: flex; justify-content: center; gap: 12px;">
-                <button type="button" *ngIf="customAlertTitle.includes('Delete')" (click)="customAlertOpen = false" 
-                    style="cursor:pointer; background: white; color:#475569; border: 1px solid #cbd5e1; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: sans-serif;">
-                    Cancel
-                </button>
-                
-                <button type="button" (click)="handleAlertConfirmation()" 
-                    [style.background]="customAlertTitle.includes('Delete') ? '#ef4444' : '#1e293b'"
-                    style="cursor:pointer; color:white; border:none; padding: 9px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: sans-serif;">
-                    {{ customAlertTitle.includes('Delete') ? 'Yes, Delete' : 'OK' }}
-                </button>
+                <button type="button" *ngIf="customAlertTitle.includes('Delete')" (click)="customAlertOpen = false" style="cursor:pointer; background: white; color:#475569; border: 1px solid #cbd5e1; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: sans-serif;">Cancel</button>
+                <button type="button" (click)="handleAlertConfirmation()" [style.background]="customAlertTitle.includes('Delete') ? '#ef4444' : '#1e293b'" style="cursor:pointer; color:white; border:none; padding: 9px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: sans-serif;">{{ customAlertTitle.includes('Delete') ? 'Yes, Delete' : 'OK' }}</button>
             </div>
         </div>
     </div>
-
 </div>

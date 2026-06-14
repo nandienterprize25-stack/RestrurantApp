@@ -243,17 +243,20 @@ export class MenuComponent implements OnInit {
   }
 
   loadMenu() {
-    this.menuService.getMenuItems().subscribe({
-      next: (data: any) => {
-        this.menuItems = data.items;
-        this.categories = data.categories;
-        if (this.categories.length > 0) {
-          this.selectCategory(this.categories[0]);
-        }
-      },
-      error: (err) => console.error('Error loading menu', err)
-    });
-  }
+  this.menuService.getMenuItems().subscribe({
+    next: (data: any) => {
+      // Safely fallback to an empty array if data or properties are null/undefined
+      this.menuItems = data?.items || [];
+      this.categories = data?.categories || [];
+      
+      // ✅ Added safety check here using optional chaining
+      if (this.categories?.length > 0) {
+        this.selectCategory(this.categories[0]);
+      }
+    },
+    error: (err) => console.error('Error loading menu', err)
+  });
+}
 
   selectCategory(category: Category) {
     this.selectedCategory = category;

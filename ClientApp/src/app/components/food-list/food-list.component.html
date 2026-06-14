@@ -1,0 +1,81 @@
+<div class="food-mgmt-container-wrapper">
+
+    <div class="action-bar-top-panel">
+        <div>
+            <h2 style="margin:0; font-size: 20px; color:#0f172a; font-weight: 700; font-family: sans-serif;">Manage Food Menu Items</h2>
+            <p style="margin:4px 0 0 0; font-size: 13px; color:#64748b; font-family: sans-serif;">Create, configure, and modify items, pricing strategies, and image catalog details.</p>
+        </div>
+        <button type="button" class="primary-trigger-action-btn" style="background: #1e293b;" (click)="openCreateModal()">➕ Add Food Item</button>
+    </div>
+
+    <div class="grid-table-frame-wrapper" style="width: 100%; margin-top: 10px;">
+        <ag-grid-angular 
+            style="width: 100%; height: 520px;" 
+            class="ag-theme-alpine"
+            [rowData]="rowData" 
+            [columnDefs]="columnDefs"
+            [pagination]="true" 
+            [paginationPageSize]="10" 
+            [paginationPageSizeSelector]="[10, 20, 50]"
+            (gridReady)="onGridReady($event)" 
+            (cellClicked)="onCellClicked($event)">
+        </ag-grid-angular>
+    </div>
+
+    <div class="category-modal-backdrop" *ngIf="isModalOpen" #backdropRef (mousedown)="$event.target === backdropRef ? closeModal() : null">
+        
+        <form class="modal-content-container-card" style="width: 520px; background: white; padding: 28px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);" [formGroup]="foodForm" (ngSubmit)="saveFoodData()">
+            
+            <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 700; color:#0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; font-family: sans-serif;">
+                {{ isEditMode ? '📝 Edit Food Item Configuration' : '✨ Add New Menu Item' }}
+            </h3>
+
+            <div class="form-input-field-group" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Food Item Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" formControlName="name" placeholder="e.g. Chicken Biryani, Butter Naan..." style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;" />
+            </div>
+
+            <div style="display: flex; gap: 16px; margin-bottom: 14px;">
+                <div class="form-input-field-group" style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 13px; font-weight: 600; color: #334155;">Assigned Category <span style="color:#ef4444;">*</span></label>
+                    <select formControlName="categoryId" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                        <option [ngValue]="null">-- Select Menu Classification --</option>
+                        <option *ngFor="let cat of categoriesList" [ngValue]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <div class="form-input-field-group" style="width: 140px; display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 13px; font-weight: 600; color: #334155;">Selling Price (₹) <span style="color:#ef4444;">*</span></label>
+                    <input type="number" formControlName="price" min="0" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;" />
+                </div>
+            </div>
+
+            <div class="form-input-field-group" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Culinary Ingredients / Description</label>
+                <textarea formControlName="description" rows="3" placeholder="Specify food ingredients details or portion notes..." style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; resize: none;"></textarea>
+            </div>
+
+            <div class="form-input-field-group" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 13px; font-weight: 600; color: #334155;">Item Asset Image</label>
+                <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display: none;" />
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button type="button" style="cursor:pointer; background:#f8fafc; border: 1px dashed #cbd5e1; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #475569; flex: 1; font-weight: 500;" (click)="fileInput.click()">
+                        📁 Upload Base64 Display Asset...
+                    </button>
+                    <img *ngIf="foodForm.get('imageUrl')?.value" [src]="foodForm.get('imageUrl')?.value" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1;" />
+                </div>
+            </div>
+
+            <div style="display: flex; margin-bottom: 24px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                    <input type="checkbox" formControlName="isActive" style="width: 16px; height: 16px; cursor: pointer;" /> Item Available for Ordering
+                </label>
+            </div>
+
+            <div class="modal-control-action-row" style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid #e2e8f0; padding-top:16px;">
+                <button type="button" style="cursor:pointer; background:#f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600;" (click)="closeModal()">Cancel</button>
+                <button type="submit" style="cursor:pointer; background:#1e293b; color:white; border:none; padding: 9px 22px; border-radius: 6px; font-size: 13px; font-weight: 600;">💾 Save Food Item</button>
+            </div>
+        </form>
+    </div>
+</div>

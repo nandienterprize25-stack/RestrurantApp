@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FoodManagementService } from '../../services/food-management.service';
-import { Category } from '../../models/food-management.models';
+import { MenuItem, Category } from '../../models/food-management.models';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef, GridApi, GridReadyEvent, ModuleRegistry } from 'ag-grid-community';
 import { ClientSideRowModelModule, PaginationModule, ColumnAutoSizeModule, ValidationModule, TextFilterModule, CustomEditorModule } from 'ag-grid-community';
@@ -13,28 +13,24 @@ import { CustomAlertService } from '../../services/custom-alert.service';
 ModuleRegistry.registerModules([ClientSideRowModelModule, PaginationModule, ColumnAutoSizeModule, ValidationModule, TextFilterModule, CustomEditorModule]);
 
 @Component({
-    selector: 'app-category-list',
+    selector: 'app-food-list',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, AgGridAngular],
-    templateUrl: './category-list.component.html',
-    styleUrls: ['./category-list.component.css']
+    templateUrl: './food-list.component.html',
+    styleUrls: ['./food-list.component.css']
 })
-export class CategoryListComponent implements OnInit {
+export class FoodListComponent implements OnInit {
     private gridApi!: GridApi;
 
-    categoryForm!: FormGroup;
-    rowData: Category[] = [];
-    parentCategoriesList: Category[] = [];
+    foodForm!: FormGroup;
+    rowData: MenuItem[] = [];
+    categoriesList: Category[] = [];
 
     isModalOpen: boolean = false;
     isEditMode: boolean = false;
 
-    // THE FIX: Explicitly track the active item identity separate from the form controls
-    selectedCategoryId: string | null = null;
-
-    customAlertOpen: boolean = false;
-    customAlertTitle: string = '';
-    customAlertMessage: string = '';
+    // THE FIRST-CLICK FIX PATTERN: Tracks the active identity out-of-bounds of form controls
+    selectedFoodId: string | null = null;
     private pendingDeleteId: string | null = null; 
 
     columnDefs: ColDef[] = [
@@ -50,14 +46,21 @@ export class CategoryListComponent implements OnInit {
             }
         },
         {
-            headerName: 'Category Name',
+            headerName: 'Food Item Name',
             field: 'name',
             sortable: true,
             filter: true,
             flex: 120,
             valueFormatter: (params) => params.value ? params.value.toUpperCase() : ''
         },
-        { headerName: 'Parent Category', field: 'parentCategoryName', sortable: true, filter: true, flex: 100 },
+        { headerName: 'Category', field: 'categoryName', sortable: true, filter: true, flex: 100 },
+        { 
+            headerName: 'Price', 
+            field: 'price', 
+            sortable: true, 
+            width: 100,
+            valueFormatter: (params) => params.value ? `₹${params.value}` : '₹0' 
+        },
         {
             headerName: 'Status',
             field: 'isActive',
@@ -93,18 +96,19 @@ export class CategoryListComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.refreshCategoriesGrid();
+        this.loadFormContextData();
+        this.refreshFoodGrid();
     }
 
     private initializeReactiveFormStructure(): void {
-        this.categoryForm = this.fb.group({
+        this.foodForm = this.fb.group({
             id: [''],
             name: ['', [Validators.required, Validators.maxLength(100)]],
             description: ['', [Validators.maxLength(500)]],
+            price: [0, [Validators.required, Validators.min(0)]],
             imageUrl: [''],
             isActive: [true],
-            isOffer: [false],
-            parentCategoryId: [null]
+            categoryId: [null, Validators.required]
         });
     }
 
@@ -113,28 +117,35 @@ export class CategoryListComponent implements OnInit {
         this.gridApi.sizeColumnsToFit();
     }
 
-    refreshCategoriesGrid(): void {
+    private loadFormContextData(): void {
         this.foodService.getCategories(true).subscribe({
-            next: (data) => {
-                this.rowData = data;
-                this.parentCategoriesList = data.filter(c => !c.parentCategoryId);
-            },
-            error: (err) => {
-                this.logger.logError('Failed to pull data context', err);
-            }
+            next: (data) => this.categoriesList = data,
+            error: (err) => this.logger.logError('Failed to load drop-down context categories', err)
+        });
+    }
+
+    refreshFoodGrid(): void {
+        // Maps directly to service endpoint
+        this.foodService.getMenuItems(true).subscribe({
+            next: (data) => this.rowData = data,
+            error: (err) => this.logger.logError('Failed to pull food items context', err)
         });
     }
 
     onCellClicked(event: any): void {
         const targetElement = event.event.target as HTMLElement;
         const actionAttr = targetElement.getAttribute('data-action');
-        const selectedCategoryData = event.data;
+        const selectedFoodData = event.data;
 
         if (actionAttr === 'edit') {
-            this.openEditModal(selectedCategoryData);
+            this.openEditModal(selectedFoodData);
         } else if (actionAttr === 'delete') {
-            this.pendingDeleteId = selectedCategoryData.id;
-            this.triggerCustomAlert('Confirm Delete', `Are you sure you want to permanently remove the "${selectedCategoryData.name.toUpperCase()}" category item?`);
+            this.pendingDeleteId = selectedFoodData.id;
+            this.alertService.confirm(
+                `Are you sure you want to permanently remove "${selectedFoodData.name.toUpperCase()}"?`,
+                () => this.executeFoodDeletion(),
+                () => this.pendingDeleteId = null
+            );
         }
     }
 
@@ -146,21 +157,21 @@ export class CategoryListComponent implements OnInit {
             }
         }
         this.isEditMode = false;
-        this.selectedCategoryId = null; // Reset variable state safely
+        this.selectedFoodId = null;
 
-        this.categoryForm.reset({
+        this.foodForm.reset({
             id: '',
             name: '',
             description: '',
+            price: 0,
             imageUrl: '',
             isActive: true,
-            isOffer: false,
-            parentCategoryId: null
+            categoryId: null
         });
         this.isModalOpen = true;
     }
 
-    openEditModal(category: Category): void {
+    openEditModal(food: MenuItem): void {
         if (this.gridApi) {
             this.gridApi.deselectAll();
             if (typeof this.gridApi.stopEditing === 'function') {
@@ -168,93 +179,72 @@ export class CategoryListComponent implements OnInit {
             }
         }
         this.isEditMode = true;
-        
-        // Save the unique record key immediately on row activation click
-        this.selectedCategoryId = category.id;
+        this.selectedFoodId = food.id; // Isolate memory state safely
 
-        this.categoryForm.patchValue(category);
+        this.foodForm.patchValue(food);
         this.isModalOpen = true;
-    }
-
-    triggerCustomAlert(title: string, msg: string): void {
-        this.customAlertTitle = title;
-        this.customAlertMessage = msg;
-        this.customAlertOpen = true;
-    }
-
-    handleAlertConfirmation(): void {
-        const currentTitle = this.customAlertTitle; 
-        this.customAlertOpen = false;
-
-        if (currentTitle === 'Confirm Delete' && this.pendingDeleteId) {
-            this.foodService.deleteCategory(this.pendingDeleteId).subscribe({
-                next: () => {
-                    this.pendingDeleteId = null;
-                    this.refreshCategoriesGrid();
-                    this.triggerCustomAlert('Success Alert', 'The category record was successfully cleared.');
-                },
-                error: (serverError) => {
-                    this.pendingDeleteId = null;
-                    const errorMsg = serverError.error?.message || 'Database constraints aborted item removal.';
-                    this.triggerCustomAlert('Delete Aborted', errorMsg);
-                }
-            });
-            return;
-        }
-
-        if (currentTitle === 'Action Completed' || currentTitle === 'Success Alert') {
-            this.closeModal();
-            this.refreshCategoriesGrid();
-        }
-
-        this.customAlertTitle = '';
-        this.customAlertMessage = '';
     }
 
     closeModal(): void {
         this.isModalOpen = false;
-        this.selectedCategoryId = null;
+        this.selectedFoodId = null;
     }
 
-    saveCategoryData(): void {
-        if (this.categoryForm.invalid) {
-            this.categoryForm.markAllAsTouched();
-            this.triggerCustomAlert('Validation Alert', 'Please complete all required fields before saving.');
+    saveFoodData(): void {
+        if (this.foodForm.invalid) {
+            this.foodForm.markAllAsTouched();
+            this.alertService.error('Please complete all required fields correctly.');
             return;
         }
 
-        const payload = this.categoryForm.value;
+        const payload = this.foodForm.value;
 
         if (this.isEditMode) {
-            // FIX: Prioritize utilizing the state identity tracker variable
-            const targetUpdateId = this.selectedCategoryId || payload.id;
+            const targetUpdateId = this.selectedFoodId || payload.id;
 
-            this.foodService.updateCategory(targetUpdateId, payload).subscribe({
+            // Updated to reference your service's updateMenuItem
+            this.foodService.updateMenuItem(targetUpdateId, payload).subscribe({
                 next: () => {
-                    this.alertService.success('Category updated successfully!');
+                    this.alertService.success('Food item updated successfully!');
                     this.closeModal();
-                    this.refreshCategoriesGrid();
-                    //this.triggerCustomAlert('Action Completed', 'Category modifications updated successfully!');
+                    this.refreshFoodGrid();
                 },
                 error: (serverError) => {
-                    const localizedMessage = serverError.error?.message || 'Server connection failed.';
-                    this.alertService.error('Failed to update category.');
+                    const errorMsg = serverError.error?.message || 'Database rejected entity modification.';
+                    this.alertService.error(errorMsg);
                 }
             });
         } else {
-            this.foodService.createCategory(payload).subscribe({
+            // Updated to reference your service's createMenuItem
+            this.foodService.createMenuItem(payload).subscribe({
                 next: () => {
-                    this.alertService.success('Category added successfully!');
+                    this.alertService.success('Food item added successfully!');
                     this.closeModal();
-                    this.refreshCategoriesGrid();
-                    
+                    this.refreshFoodGrid();
                 },
                 error: (serverError) => {
-                    const localizedMessage = serverError.error?.message || 'Connection failure.';
-                    this.alertService.error('Failed to create category.');
+                    const errorMsg = serverError.error?.message || 'Failed to save new record.';
+                    this.alertService.error(errorMsg);
                 }
             });
         }
+    }
+
+    private executeFoodDeletion(): void {
+        if (!this.pendingDeleteId) return;
+        // Updated to reference your service's deleteMenuItem
+        this.foodService.deleteMenuItem(this.pendingDeleteId).subscribe({
+            next: () => {
+                this.pendingDeleteId = null;
+                this.refreshFoodGrid();
+                this.alertService.success('The record has been permanently removed.');
+            },
+            error: (serverError) => {
+                this.pendingDeleteId = null;
+                const errorMsg = serverError.error?.message || 'Deletion constraint failure.';
+                this.alertService.error(errorMsg);
+            }
+        });
     }
 
     onFileSelected(event: Event): void {
@@ -263,7 +253,7 @@ export class CategoryListComponent implements OnInit {
             const file: File = inputElement.files[0];
             const reader = new FileReader();
             reader.onload = () => {
-                this.categoryForm.patchValue({
+                this.foodForm.patchValue({
                     imageUrl: reader.result as string
                 });
             };

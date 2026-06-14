@@ -1,0 +1,53 @@
+/* Re-use your primary core grid wrappers templates alignments */
+.food-mgmt-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+  padding: 20px;
+  background-color: #f8fafc;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.action-bar-top-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.primary-trigger-action-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  transition: background-color 0.2s ease;
+}
+
+.primary-trigger-action-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.category-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.65); 
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
