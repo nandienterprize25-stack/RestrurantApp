@@ -104,7 +104,8 @@ export class DashboardLayoutComponent implements OnInit {
       subMenus: [
         { label: 'Food List', route: '/food/list' },
         { label: 'Add Group Item', route: '/food/add-group' },
-        { label: 'Food Variant', route: '/food/variants' },
+        // 👇 FIX THIS LINE: Ensure the route matches 'app.routes.ts' exactly!
+    { label: 'Food Variants', route: '/food/variants' },
         { label: 'Food Availability', route: '/food/availability' },
         { label: 'Menu Type', route: '/food/menu-types' }
       ]

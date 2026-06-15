@@ -32,11 +32,9 @@ export const routes: Routes = [
         loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent) 
       },
       // 🍔 MANAGE FOOD MODULE PATHS
-      { path: 'food/add', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
-      { path: 'food/list', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) }, // 👈 This is your main dishes grid!
       { path: 'food/list', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) }, // 👈 This is your main dishes grid!
       { path: 'food/add-group', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) },
-      { path: 'food/variants', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) },
+   { path: 'food/variants', loadComponent: () => import('./components/food-variant-list/food-variant-list.component').then(m => m.FoodVariantListComponent) },
       { path: 'food/availability', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) },
       { path: 'food/menu-types', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
 

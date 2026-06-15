@@ -69,4 +69,28 @@ createCategory(category: Partial<Category>): Observable<Category> {
   deleteMenuItem(id: string): Observable<void> {
     return this.http.delete<void>(`${this.menuItemUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
+
+  // ==========================================
+// ✨ FOOD ITEM VARIANTS ENDPOINTS
+// ==========================================
+
+/** Fetch all variant configurations from database */
+getFoodVariants(): Observable<any[]> {
+  return this.http.get<any[]>(`${environment.baseUrl}/foodvariants`, { headers: this.getAuthHeaders() });
+}
+
+/** Create a new unique food portion variant option */
+createVariant(variantPayload: any): Observable<any> {
+  return this.http.post<any>(`${environment.baseUrl}/foodvariants`, variantPayload, { headers: this.getAuthHeaders() });
+}
+
+/** Modify parameters on an active variant entry */
+updateVariant(id: string, variantPayload: any): Observable<void> {
+  return this.http.put<void>(`${environment.baseUrl}/foodvariants/${id}`, variantPayload, { headers: this.getAuthHeaders() });
+}
+
+/** Permanently purge a variant configuration node */
+deleteVariant(id: string): Observable<void> {
+  return this.http.delete<void>(`${environment.baseUrl}/foodvariants/${id}`, { headers: this.getAuthHeaders() });
+}
 }
