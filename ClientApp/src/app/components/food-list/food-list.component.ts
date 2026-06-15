@@ -9,7 +9,6 @@ import { ClientSideRowModelModule, PaginationModule, ColumnAutoSizeModule, Valid
 import { LoggingService } from '../../services/logging.service';
 import { CustomAlertService } from '../../services/custom-alert.service';
 
-// Registered CustomEditorModule to fully prevent AG-Grid layout exceptions
 ModuleRegistry.registerModules([ClientSideRowModelModule, PaginationModule, ColumnAutoSizeModule, ValidationModule, TextFilterModule, CustomEditorModule]);
 
 @Component({
@@ -29,20 +28,20 @@ export class FoodListComponent implements OnInit {
     isModalOpen: boolean = false;
     isEditMode: boolean = false;
 
-    // THE FIRST-CLICK FIX PATTERN: Tracks the active identity out-of-bounds of form controls
     selectedFoodId: string | null = null;
-    private pendingDeleteId: string | null = null; 
+    private pendingDeleteId: string | null = null;
 
+    // 1. Update the Image renderer inside columnDefs to be 65px tall
     columnDefs: ColDef[] = [
         {
             headerName: 'Image',
             field: 'imageUrl',
-            width: 90,
+            width: 110, // Slightly widened to fit the larger image aspect ratio perfectly
             cellRenderer: (params: any) => {
-                const url = params.value || 'https://via.placeholder.com/60';
+                const url = params.value || 'https://via.placeholder.com/80';
                 return `<div style="display:flex; align-items:center; justify-content:center; height:100%;">
-                  <img src="${url}" style="width:38px; height:38px; border-radius:4px; object-fit:cover; border:1px solid #cbd5e1"/>
-                </div>`;
+              <img src="${url}" style="width:65px; height:65px; border-radius:6px; object-fit:cover; border:1px solid #cbd5e1"/>
+            </div>`;
             }
         },
         {
@@ -54,12 +53,19 @@ export class FoodListComponent implements OnInit {
             valueFormatter: (params) => params.value ? params.value.toUpperCase() : ''
         },
         { headerName: 'Category', field: 'categoryName', sortable: true, filter: true, flex: 100 },
-        { 
-            headerName: 'Price', 
-            field: 'price', 
-            sortable: true, 
+        {
+            headerName: 'Price',
+            // FIX 1: Updated the field selector casing to fallback to alternative payload names returned by backend models
+            field: 'price',
+            sortable: true,
             width: 100,
-            valueFormatter: (params) => params.value ? `₹${params.value}` : '₹0' 
+            valueGetter: (params) => {
+                // Safely checks if backend returned it as lowercase 'price' or uppercase 'Price'
+                return params.data?.price !== undefined ? params.data.price : params.data?.Price;
+            },
+            valueFormatter: (params) => {
+                return (params.value !== undefined && params.value !== null) ? `₹${params.value}` : '₹0';
+            }
         },
         {
             headerName: 'Status',
@@ -125,9 +131,10 @@ export class FoodListComponent implements OnInit {
     }
 
     refreshFoodGrid(): void {
-        // Maps directly to service endpoint
         this.foodService.getMenuItems(true).subscribe({
-            next: (data) => this.rowData = data,
+            next: (data) => {
+                this.rowData = data;
+            },
             error: (err) => this.logger.logError('Failed to pull food items context', err)
         });
     }
@@ -153,7 +160,7 @@ export class FoodListComponent implements OnInit {
         if (this.gridApi) {
             this.gridApi.deselectAll();
             if (typeof this.gridApi.stopEditing === 'function') {
-                try { this.gridApi.stopEditing(); } catch (e) {}
+                try { this.gridApi.stopEditing(); } catch (e) { }
             }
         }
         this.isEditMode = false;
@@ -175,13 +182,23 @@ export class FoodListComponent implements OnInit {
         if (this.gridApi) {
             this.gridApi.deselectAll();
             if (typeof this.gridApi.stopEditing === 'function') {
-                try { this.gridApi.stopEditing(); } catch (e) {}
+                try { this.gridApi.stopEditing(); } catch (e) { }
             }
         }
         this.isEditMode = true;
-        this.selectedFoodId = food.id; // Isolate memory state safely
 
-        this.foodForm.patchValue(food);
+        // Map the backend's alternative ID capitalization properties safely
+        this.selectedFoodId = food.id || (food as any).Id;
+
+        this.foodForm.patchValue({
+            id: this.selectedFoodId,
+            name: food.name,
+            description: food.description,
+            price: food.price !== undefined ? food.price : (food as any).Price,
+            imageUrl: food.imageUrl,
+            isActive: food.isActive,
+            categoryId: food.categoryId
+        });
         this.isModalOpen = true;
     }
 
@@ -197,12 +214,16 @@ export class FoodListComponent implements OnInit {
             return;
         }
 
-        const payload = this.foodForm.value;
+        // FIX 2: Construct the exact final payload object ensuring identity properties aren't wiped or left blank
+        const targetUpdateId = this.selectedFoodId;
+        const formRawValue = this.foodForm.value;
 
-        if (this.isEditMode) {
-            const targetUpdateId = this.selectedFoodId || payload.id;
+        const payload = {
+            ...formRawValue,
+            id: targetUpdateId // Overwrite the payload's ID to match the targeted item explicitly
+        };
 
-            // Updated to reference your service's updateMenuItem
+        if (this.isEditMode && targetUpdateId) {
             this.foodService.updateMenuItem(targetUpdateId, payload).subscribe({
                 next: () => {
                     this.alertService.success('Food item updated successfully!');
@@ -215,8 +236,7 @@ export class FoodListComponent implements OnInit {
                 }
             });
         } else {
-            // Updated to reference your service's createMenuItem
-            this.foodService.createMenuItem(payload).subscribe({
+            this.foodService.createMenuItem(formRawValue).subscribe({
                 next: () => {
                     this.alertService.success('Food item added successfully!');
                     this.closeModal();
@@ -232,7 +252,6 @@ export class FoodListComponent implements OnInit {
 
     private executeFoodDeletion(): void {
         if (!this.pendingDeleteId) return;
-        // Updated to reference your service's deleteMenuItem
         this.foodService.deleteMenuItem(this.pendingDeleteId).subscribe({
             next: () => {
                 this.pendingDeleteId = null;

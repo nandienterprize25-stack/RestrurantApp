@@ -14,6 +14,7 @@ namespace RestaurantApp.Application.DTOs
         public bool IsGroupItem { get; set; }
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
 
         public List<FoodVariantDto> Variants { get; set; } = new();
         public List<FoodAvailabilityDto> Availabilities { get; set; } = new();
@@ -26,6 +27,7 @@ namespace RestaurantApp.Application.DTOs
         public string Description { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
+        public decimal Price { get; set; }
         public bool IsGroupItem { get; set; }
 
         // Child payload options allowed during initialization
@@ -38,6 +40,8 @@ namespace RestaurantApp.Application.DTOs
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+
         public string ImageUrl { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
         public bool IsActive { get; set; }

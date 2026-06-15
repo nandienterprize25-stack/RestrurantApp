@@ -52,6 +52,7 @@ namespace RestaurantApp.Application.Services
                 Id = m.Id,
                 Name = m.Name,
                 Description = m.Description,
+                Price = m.Price,
                 ImageUrl = m.ImageUrl,
                 IsActive = m.IsActive,
                 IsGroupItem = m.IsGroupItem,
@@ -100,6 +101,7 @@ namespace RestaurantApp.Application.Services
                 Id = m.Id,
                 Name = m.Name,
                 Description = m.Description,
+                Price = m.Price,
                 ImageUrl = m.ImageUrl,
                 IsActive = m.IsActive,
                 IsGroupItem = m.IsGroupItem,
@@ -134,6 +136,7 @@ namespace RestaurantApp.Application.Services
             {
                 Name = dto.Name,
                 Description = dto.Description,
+                Price = dto.Price,
                 ImageUrl = dto.ImageUrl,
                 CategoryId = dto.CategoryId,
                 IsGroupItem = dto.IsGroupItem,
@@ -196,6 +199,7 @@ namespace RestaurantApp.Application.Services
             item.CategoryId = dto.CategoryId;
             item.IsActive = dto.IsActive;
             item.IsGroupItem = dto.IsGroupItem;
+            item.Price = dto.Price;
 
             // Simple Collection Refresh: Clear and rebuild related items
             item.Variants.Clear();

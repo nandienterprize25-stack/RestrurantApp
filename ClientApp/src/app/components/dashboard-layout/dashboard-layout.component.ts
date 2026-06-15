@@ -102,8 +102,7 @@ export class DashboardLayoutComponent implements OnInit {
       icon: '🍕',
       isExpanded: false,
       subMenus: [
-        { label: 'Add Food', route: '/food/add' },
-        { label: 'Food List', route: '/food-list/food-list' },
+        { label: 'Food List', route: '/food/list' },
         { label: 'Add Group Item', route: '/food/add-group' },
         { label: 'Food Variant', route: '/food/variants' },
         { label: 'Food Availability', route: '/food/availability' },
