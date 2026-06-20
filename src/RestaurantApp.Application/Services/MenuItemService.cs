@@ -61,7 +61,7 @@ namespace RestaurantApp.Application.Services
                 Variants = m.Variants.Select(v => new FoodVariantDto
                 {
                     Id = v.Id,
-                    VariantName = v.VariantName,
+                    Name = v.VariantName,
                     Price = v.Price,
                     TaxPercentage = v.TaxPercentage
                 }).ToList(),
@@ -77,7 +77,7 @@ namespace RestaurantApp.Application.Services
                     Id = g.Id,
                     ChildMenuItemId = g.ChildMenuItemId,
                     // Safe inline lookup now that we're projecting over objects in memory
-                    ChildMenuItemName = allItemsMap.TryGetValue(g.ChildMenuItemId, out var name) ? name : "Unknown Item",
+                    ChildItemName = allItemsMap.TryGetValue(g.ChildMenuItemId, out var name) ? name : "Unknown Item",
                     Quantity = g.Quantity
                 }).ToList()
             }).ToList();
@@ -110,7 +110,7 @@ namespace RestaurantApp.Application.Services
                 Variants = m.Variants.Select(v => new FoodVariantDto
                 {
                     Id = v.Id,
-                    VariantName = v.VariantName,
+                    Name = v.VariantName,
                     Price = v.Price,
                     TaxPercentage = v.TaxPercentage
                 }).ToList(),
@@ -125,7 +125,7 @@ namespace RestaurantApp.Application.Services
                 {
                     Id = g.Id,
                     ChildMenuItemId = g.ChildMenuItemId,
-                    ChildMenuItemName = allItemsMap.TryGetValue(g.ChildMenuItemId, out var name) ? name : "Unknown Item",
+                    ChildItemName = allItemsMap.TryGetValue(g.ChildMenuItemId, out var name) ? name : "Unknown Item",
                     Quantity = g.Quantity
                 }).ToList()
             };
@@ -148,7 +148,7 @@ namespace RestaurantApp.Application.Services
             {
                 item.Variants.Add(new FoodVariant
                 {
-                    VariantName = v.VariantName,
+                    VariantName = v.Name,
                     Price = v.Price,
                     TaxPercentage = v.TaxPercentage
                 });
@@ -205,7 +205,7 @@ namespace RestaurantApp.Application.Services
             item.Variants.Clear();
             foreach (var v in dto.Variants)
             {
-                item.Variants.Add(new FoodVariant { VariantName = v.VariantName, Price = v.Price, TaxPercentage = v.TaxPercentage });
+                item.Variants.Add(new FoodVariant { VariantName = v.Name, Price = v.Price, TaxPercentage = v.TaxPercentage });
             }
 
             item.Availabilities.Clear();

@@ -52,21 +52,21 @@ namespace RestaurantApp.Application.DTOs
         public List<CreateGroupItemChildDto> GroupComponents { get; set; } = new();
     }
 
-    // --- NESTED SUB-ELEMENT DTOs ---
-    public class FoodVariantDto
-    {
-        public Guid Id { get; set; }
-        public string VariantName { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public decimal TaxPercentage { get; set; }
-    }
+    // // --- NESTED SUB-ELEMENT DTOs ---
+    // public class FoodVariantDto
+    // {
+    //     public Guid Id { get; set; }
+    //     public string VariantName { get; set; } = string.Empty;
+    //     public decimal Price { get; set; }
+    //     public decimal TaxPercentage { get; set; }
+    // }
 
-    public class CreateFoodVariantDto
-    {
-        public string VariantName { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public decimal TaxPercentage { get; set; }
-    }
+    // public class CreateFoodVariantDto
+    // {
+    //     public string VariantName { get; set; } = string.Empty;
+    //     public decimal Price { get; set; }
+    //     public decimal TaxPercentage { get; set; }
+    // }
 
     public class FoodAvailabilityDto
     {
@@ -83,17 +83,5 @@ namespace RestaurantApp.Application.DTOs
         public bool IsAvailableAllDay { get; set; }
     }
 
-    public class GroupItemChildDto
-    {
-        public Guid Id { get; set; }
-        public Guid ChildMenuItemId { get; set; }
-        public string ChildMenuItemName { get; set; } = string.Empty;
-        public int Quantity { get; set; }
-    }
 
-    public class CreateGroupItemChildDto
-    {
-        public Guid ChildMenuItemId { get; set; }
-        public int Quantity { get; set; }
-    }
 }

@@ -93,4 +93,26 @@ updateVariant(id: string, variantPayload: any): Observable<void> {
 deleteVariant(id: string): Observable<void> {
   return this.http.delete<void>(`${environment.baseUrl}/foodvariants/${id}`, { headers: this.getAuthHeaders() });
 }
+
+
+// ==========================================
+// 📦 COMBO GROUP ITEM BUNDLES ENDPOINTS
+// ==========================================
+
+getGroupComponents(parentId: string): Observable<any[]> {
+  return this.http.get<any[]>(`${environment.baseUrl}/groupitems/parent/${parentId}`, { headers: this.getAuthHeaders() });
+}
+
+addComponentToGroup(payload: any): Observable<any> {
+  return this.http.post<any>(`${environment.baseUrl}/groupitems`, payload, { headers: this.getAuthHeaders() });
+}
+
+updateGroupComponent(id: string, payload: any): Observable<void> {
+  return this.http.put<void>(`${environment.baseUrl}/groupitems/${id}`, payload, { headers: this.getAuthHeaders() });
+}
+
+removeComponentFromGroup(id: string): Observable<void> {
+  return this.http.delete<void>(`${environment.baseUrl}/groupitems/${id}`, { headers: this.getAuthHeaders() });
+}
+
 }

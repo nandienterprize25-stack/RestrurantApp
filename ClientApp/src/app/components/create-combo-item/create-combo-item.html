@@ -1,0 +1,123 @@
+<div class="combo-engine-dashboard-outer" style="width: 100%; height: calc(100vh - 130px); overflow-y: auto; overflow-x: hidden; padding: 20px; box-sizing: border-box; background: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif;">
+    
+    <div style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 20px; color: #0f172a; font-weight: 700; letter-spacing: -0.02em;">Group Item & Combo Product Engine</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Combine multiple individual standalone dishes together into custom value sets, combo packages, and family deals.</p>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); padding: 24px; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 20px 0; font-size: 15px; color: #1e293b; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">➕ Add New Combo Platter Product</h3>
+        
+        <form [formGroup]="groupComboForm" (ngSubmit)="onSubmitComboForm()">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Combo Package Name *</label>
+                    <input type="text" formControlName="name" placeholder="e.g., Premium Family Gathering Platter" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Menu Category Assignment *</label>
+                    <select formControlName="categoryId" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box; height: 40px;">
+                        <option value="">-- Choose Target Category --</option>
+                        <option *ngFor="let cat of categoriesList" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Selling Price *</label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 12px; top: 10px; color: #94a3b8; font-size: 13px;">$</span>
+                        <input type="number" formControlName="price" placeholder="0.00" style="width: 100%; padding: 10px 12px 10px 24px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">VAT / Tax Surcharges (%)</label>
+                    <input type="number" formControlName="vatPercentage" placeholder="0" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Target Kitchen Router *</label>
+                    <select formControlName="kitchenName" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box; height: 40px;">
+                        <option value="Main Kitchen">Main Kitchen</option>
+                        <option value="Bakery & Desserts">Bakery & Desserts</option>
+                        <option value="Fast Food Station">Fast Food Station</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 24px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Cooking Prep Speed (Mins)</label>
+                    <input type="number" formControlName="cookingTime" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 10px;">Availability Scheduling Tags</label>
+                    <div style="display: flex; gap: 16px; align-items: center; margin-top: 4px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569; cursor: pointer; user-select: none;">
+                            <input type="checkbox" formControlName="typeBreakfast" style="width: 14px; height: 14px; accent-color: #1e293b;" /> Breakfast Menu
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569; cursor: pointer; user-select: none;">
+                            <input type="checkbox" formControlName="typeLunch" style="width: 14px; height: 14px; accent-color: #1e293b;" /> Lunch Menu
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569; cursor: pointer; user-select: none;">
+                            <input type="checkbox" formControlName="typeDinner" style="width: 14px; height: 14px; accent-color: #1e293b;" /> Dinner Menu
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; margin-bottom: 24px;">
+                <h4 style="margin: 0 0 2px 0; font-size: 13px; color: #0f172a; font-weight: 700;">📦 Linked Sub-Items Composition Matrix</h4>
+                <p style="margin: 0 0 14px 0; font-size: 11px; color: #64748b;">Add and link the precise food dishes that make up this package bundle.</p>
+                
+                <div formArrayName="components" *ngFor="let item of componentsArray.controls; let i = index" style="display: flex; gap: 12px; align-items: center; margin-bottom: 10px;">
+                    <div [formGroupName]="i" style="display: flex; gap: 12px; width: 100%; align-items: center;">
+                        <div style="flex: 3;">
+                            <select formControlName="childMenuItemId" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: white; height: 36px;">
+                                <option value="">-- Choose Base Individual Dish --</option>
+                                <option *ngFor="let option of standaloneItemsList" [value]="option.id">{{ option.name }}</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 12px; color: #64748b; font-weight: 600;">Qty:</span>
+                            <input type="number" formControlName="quantity" min="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; text-align: center; height: 36px; box-sizing: border-box;" />
+                        </div>
+                        <button type="button" (click)="removeComponentRow(i)" style="background: #fff5f5; border: 1px solid #fee2e2; color: #dc2626; padding: 0 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; height: 36px;">✕ Remove</button>
+                    </div>
+                </div>
+                
+                <button type="button" (click)="addComponentRow()" style="margin-top: 4px; background: #ffffff; border: 1px solid #cbd5e1; color: #334155; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    ➕ Add Sub-Item Row Entry
+                </button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 18px; border-top: 1px solid #f1f5f9;">
+                <button type="button" (click)="onResetFormLayout()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">Clear All Fields</button>
+                <button type="submit" [disabled]="groupComboForm.invalid" style="background: #0f172a; border: none; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #ffffff; cursor: pointer;">
+                    Save Combo Product
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 20px;">
+        <div style="margin-bottom: 14px;">
+            <h3 style="margin: 0; font-size: 15px; color: #0f172a; font-weight: 700;">📋 Current System Group Combos Databank</h3>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">Live overview tracking all currently registered composite combo packages, active flags, and baseline rates.</p>
+        </div>
+
+        <div style="width: 100%;">
+            <ag-grid-angular 
+                style="width: 100%; height: 300px;" 
+                class="ag-theme-alpine"
+                [rowData]="gridRowData" 
+                [columnDefs]="gridColumnDefinitions"
+                [rowHeight]="48"
+                [pagination]="true" 
+                [paginationPageSize]="5"
+                (gridReady)="onComboGridReady($event)"
+                (cellClicked)="onGridCellClicked($event)">
+            </ag-grid-angular>
+        </div>
+    </div>
+</div>

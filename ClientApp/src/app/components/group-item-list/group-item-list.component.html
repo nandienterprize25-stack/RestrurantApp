@@ -1,0 +1,131 @@
+<div class="food-mgmt-container-wrapper" style="padding: 24px; font-family: 'Segoe UI', sans-serif; background: #f8fafc; min-height: 100%; display: block; clear: both; box-sizing: border-box;">
+    
+    <div style="margin-bottom: 24px; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <h2 style="margin:0; font-size: 22px; color:#0f172a; font-weight: 700;">Group Item & Combo Engine Control</h2>
+        <p style="margin:4px 0 0 0; font-size: 13px; color:#64748b;">Build custom composite platters, set individual taxes, specify cook speeds, and embed base items.</p>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 28px; margin-bottom: 32px; display: block; height: auto;">
+        <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #1e293b; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">➕ Add New Group Item / Combo Form</h3>
+        
+        <form [formGroup]="groupComboForm" (ngSubmit)="onSubmitComboForm()">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Food Combo Name *</label>
+                    <input type="text" formControlName="name" placeholder="e.g., Triple Burger Family Bundle" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Menu Category *</label>
+                    <select formControlName="categoryId" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; box-sizing: border-box;">
+                        <option value="">-- Choose Category --</option>
+                        <option *ngFor="let cat of categoriesList" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Selling Price *</label>
+                    <input type="number" formControlName="price" placeholder="0.00" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">VAT / Tax Percentage (%)</label>
+                    <input type="number" formControlName="vatPercentage" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Target Kitchen Name *</label>
+                    <select formControlName="kitchenName" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; box-sizing: border-box;">
+                        <option value="Main Kitchen">Main Kitchen</option>
+                        <option value="Bakery & Desserts">Bakery & Desserts</option>
+                        <option value="Fast Food Station">Fast Food Station</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Cooking Time (Mins)</label>
+                    <input type="number" formControlName="cookingTime" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 12px;">Menu Type Availability</label>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;"><input type="checkbox" formControlName="typeBreakfast" /> Breakfast</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;"><input type="checkbox" formControlName="typeLunch" /> Lunch</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;"><input type="checkbox" formControlName="typeDinner" /> Dinner</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;"><input type="checkbox" formControlName="typeCoffee" /> Coffee</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#475569;"><input type="checkbox" formControlName="typeParty" /> Party</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; gap: 28px; margin-bottom: 24px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                    <input type="checkbox" formControlName="offer" /> Active Offer Promo
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                    <input type="checkbox" formControlName="special" /> Chef Special
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">
+                    <input type="checkbox" formControlName="isActive" /> Status Active
+                </label>
+            </div>
+
+            <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 24px; background: #ffffff;">
+                <h4 style="margin: 0 0 14px 0; font-size: 14px; color: #1e293b; font-weight: 700;">📦 Embedded Composite Ingredients / Dishes</h4>
+                
+                <div formArrayName="components" *ngFor="let item of componentsArray.controls; let i = index" style="display: flex; gap: 16px; align-items: center; margin-bottom: 12px;">
+                    <div [formGroupName]="i" style="display: flex; gap: 16px; width: 100%; align-items: center;">
+                        <div style="flex: 3;">
+                            <select formControlName="childMenuItemId" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <option value="">-- Choose Base Food Dish --</option>
+                                <option *ngFor="let option of standaloneItemsList" [value]="option.id">{{ option.name }}</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 12px; color: #64748b; font-weight: 600;">Qty:</span>
+                            <input type="number" formControlName="quantity" min="1" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;" />
+                        </div>
+                        <button type="button" (click)="removeComponentRow(i)" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #dc2626; padding: 8px 12px; border-radius: 6px; font-weight:600; cursor: pointer;">✕ Remove</button>
+                    </div>
+                </div>
+                <button type="button" (click)="addComponentRow()" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">➕ Add Sub-Item Entry</button>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Notes / Special Cooking Instructions</label>
+                <textarea formControlName="notes" rows="2" placeholder="Write specific notes here..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; resize: vertical;"></textarea>
+            </div>
+            <div style="margin-bottom: 28px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Image Asset URL FilePath</label>
+                <input type="text" formControlName="image" placeholder="assets/images/menu/bbq-family-deal.jpg" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 16px; padding: 16px 0; border-top: 1px solid #e2e8f0; background: #ffffff;">
+                <button type="button" (click)="onResetFormLayout()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 24px; border-radius: 6px; font-weight:600; cursor: pointer;">Reset Data Fields</button>
+                <button type="submit" [disabled]="groupComboForm.invalid" style="background: #1e293b; border: none; padding: 10px 28px; border-radius: 6px; font-weight: 600; color: white; cursor: pointer;">Save Combo Product</button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 40px; display: block;">
+        <div style="margin-bottom: 16px;">
+            <h3 style="margin:0; font-size: 16px; color:#0f172a; font-weight: 700;">📋 Current Active Combos Registry Database</h3>
+            <p style="margin:4px 0 0 0; font-size: 13px; color:#64748b;">Review live calculated pricing metrics, kitchen assignments, and track active statuses directly from the grid dashboard line items.</p>
+        </div>
+
+        <div style="width: 100%;">
+            <ag-grid-angular 
+                style="width: 100%; height: 350px;" 
+                class="ag-theme-alpine"
+                [rowData]="gridRowData" 
+                [columnDefs]="gridColumnDefinitions"
+                [rowHeight]="54"
+                [pagination]="true" 
+                [paginationPageSize]="5"
+                (gridReady)="onComboGridReady($event)"
+                (cellClicked)="onGridCellClicked($event)">
+            </ag-grid-angular>
+        </div>
+    </div>
+</div>

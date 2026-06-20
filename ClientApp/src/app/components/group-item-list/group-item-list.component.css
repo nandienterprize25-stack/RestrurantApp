@@ -1,0 +1,36 @@
+
+
+
+/* Custom smooth scrollbar integration for the dynamic creation layout container */
+.form-scrollable-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-scrollable-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 0 12px 12px 0;
+}
+
+.form-scrollable-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.form-scrollable-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* Force the wrapper container to flow naturally in height */
+.food-mgmt-container-wrapper {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    display: block;
+}
+
+/* Ensure sub-item selectors handle spacing dynamically */
+form {
+    display: block;
+    height: auto;
+}

@@ -14,6 +14,11 @@ public class UnitOfWork : IUnitOfWork
     private Repository<RestaurantTable>? _tables;
     private Repository<Order>? _orders;
     private Repository<OrderItem>? _orderItems;
+    private Repository<FoodVariant>? _foodVariants;
+
+    private Repository<GroupItemChild>? _groupItemChildren;
+   
+    
 
     public UnitOfWork(RestaurantDbContext context)
     {
@@ -26,6 +31,8 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<RestaurantTable> Tables => _tables ??= new Repository<RestaurantTable>(_context);
     public IRepository<Order> Orders => _orders ??= new Repository<Order>(_context);
     public IRepository<OrderItem> OrderItems => _orderItems ??= new Repository<OrderItem>(_context);
+    public IRepository<FoodVariant> FoodVariants => _foodVariants ??= new Repository<FoodVariant>(_context);
+    public IRepository<GroupItemChild> GroupItemChildren => _groupItemChildren ??= new Repository<GroupItemChild>(_context);
 
     public async Task<int> CompleteAsync()
     {

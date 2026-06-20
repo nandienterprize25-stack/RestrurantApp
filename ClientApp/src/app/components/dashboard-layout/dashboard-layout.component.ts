@@ -103,7 +103,7 @@ export class DashboardLayoutComponent implements OnInit {
       isExpanded: false,
       subMenus: [
         { label: 'Food List', route: '/food/list' },
-        { label: 'Add Group Item', route: '/food/add-group' },
+        { label: 'Add Group Item', route: '/manage-combos' },
         // 👇 FIX THIS LINE: Ensure the route matches 'app.routes.ts' exactly!
     { label: 'Food Variants', route: '/food/variants' },
         { label: 'Food Availability', route: '/food/availability' },

@@ -20,21 +20,30 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardHomeComponent },
       { path: 'orders/pos-invoice', component: PosInvoiceComponent }, // Bind the path from sidebar links
       { path: 'orders/order-list', component: OrderListComponent }, // 👈 Map navigation link channel route here
-    { 
-        path: 'orders/kitchen-display', 
-        loadComponent: () => import('./components/kitchen-display/kitchen-display.component').then(m => m.KitchenDisplayComponent) 
+      {
+        path: 'orders/kitchen-display',
+        loadComponent: () => import('./components/kitchen-display/kitchen-display.component').then(m => m.KitchenDisplayComponent)
       },
 
       // 🗂️ MANAGE CATEGORY MODULE PATHS
-    // 📁 REGISTERED: Category List Directory Route Channel
-      { 
-        path: 'category/list', 
-        loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent) 
+      // 📁 REGISTERED: Category List Directory Route Channel
+      {
+        path: 'category/list',
+        loadComponent: () => import('./components/category-list/category-list.component').then(m => m.CategoryListComponent)
       },
       // 🍔 MANAGE FOOD MODULE PATHS
       { path: 'food/list', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) }, // 👈 This is your main dishes grid!
-      { path: 'food/add-group', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) },
-   { path: 'food/variants', loadComponent: () => import('./components/food-variant-list/food-variant-list.component').then(m => m.FoodVariantListComponent) },
+      { 
+    path: 'manage-combos',
+    loadComponent: () => import('./components/create-combo-item/create-combo-item').then(m => m.CreateComboItemComponent)
+  },
+     
+      // Look for the 'food/add-group' line path channel and update it to lazy load your layout exactly like this:
+      {
+        path: 'food/add-group',
+        loadComponent: () => import('./components/group-item-list/group-item-list.component').then(m => m.GroupItemListComponent)
+      },
+      { path: 'food/variants', loadComponent: () => import('./components/food-variant-list/food-variant-list.component').then(m => m.FoodVariantListComponent) },
       { path: 'food/availability', loadComponent: () => import('./components/food-list/food-list.component').then(m => m.FoodListComponent) },
       { path: 'food/menu-types', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
 
