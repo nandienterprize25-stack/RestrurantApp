@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrderLifecycleService, OrderLifecycleService>();
         services.AddScoped<IFoodVariantService, FoodVariantService>();
         services.AddScoped<IGroupItemService, GroupItemService>();
+        services.AddScoped<IMenuItemAddonService,MenuItemAddonService>();
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

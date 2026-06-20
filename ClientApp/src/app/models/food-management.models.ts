@@ -38,6 +38,7 @@ export interface MenuItem {
   imageUrl: string;
   isActive: boolean;
   isGroupItem: boolean;
+  isAddon: boolean; // 👈 Added matching model property
   categoryId: string;
   categoryName: string;
   variants: FoodVariant[];

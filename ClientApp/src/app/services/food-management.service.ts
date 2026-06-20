@@ -115,4 +115,18 @@ removeComponentFromGroup(id: string): Observable<void> {
   return this.http.delete<void>(`${environment.baseUrl}/groupitems/${id}`, { headers: this.getAuthHeaders() });
 }
 
+
+// Add these to your food-management.service.ts endpoints layer
+getAssignedAddons(): Observable<any[]> {
+  return this.http.get<any[]>(`${environment.baseUrl}/menuitemaddons`, { headers: this.getAuthHeaders() });
+}
+
+assignAddonsToItem(payload: { menuItemId: string; addonIds: string[] }): Observable<any> {
+  return this.http.post<any>(`${environment.baseUrl}/menuitemaddons/assign`, payload, { headers: this.getAuthHeaders() });
+}
+
+deleteAssignmentMapping(id: string): Observable<void> {
+  return this.http.delete<void>(`${environment.baseUrl}/menuitemaddons/${id}`, { headers: this.getAuthHeaders() });
+}
+
 }

@@ -16,6 +16,8 @@ public class RestaurantDbContext : DbContext
     public DbSet<FoodVariant> FoodVariants { get; set; }
     public DbSet<GroupItemChild> GroupItemChildren { get; set; }
     public DbSet<FoodAvailability> FoodAvailabilities { get; set; }
+
+    public DbSet<MenuItemAddon> MenuItemAddons => Set<MenuItemAddon>();
     public DbSet<RestaurantTable> Tables => Set<RestaurantTable>();
     public DbSet<TableArea> TableAreas => Set<TableArea>();
  

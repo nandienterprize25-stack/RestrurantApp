@@ -119,7 +119,10 @@ export class DashboardLayoutComponent implements OnInit {
       subMenus: [
         { label: 'Add Add-ons', route: '/addons/create' },
         //{ label: 'Add-ons List', route: '/addons/list' },
-        { label: 'Add-ons Assign List', route: '/addons/assign' }
+        { label: 'Add-ons Assign Create', route: '/addons/assign' },
+        // 🌟 FIX: Standardized sub-menu items utilizing clean path pointers matching your design
+        { label: 'Add-ons Assign List', route: '/addons/assign-list' }
+       
       ]
     },
     {

@@ -16,6 +16,9 @@ public class UnitOfWork : IUnitOfWork
     private Repository<OrderItem>? _orderItems;
     private Repository<FoodVariant>? _foodVariants;
 
+    private Repository<MenuItemAddon>? _menuItemAddon;
+
+
     private Repository<GroupItemChild>? _groupItemChildren;
    
     
@@ -33,6 +36,8 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<OrderItem> OrderItems => _orderItems ??= new Repository<OrderItem>(_context);
     public IRepository<FoodVariant> FoodVariants => _foodVariants ??= new Repository<FoodVariant>(_context);
     public IRepository<GroupItemChild> GroupItemChildren => _groupItemChildren ??= new Repository<GroupItemChild>(_context);
+
+    public IRepository<MenuItemAddon> MenuItemAddons=>_menuItemAddon??=new Repository<MenuItemAddon>(_context);
 
     public async Task<int> CompleteAsync()
     {

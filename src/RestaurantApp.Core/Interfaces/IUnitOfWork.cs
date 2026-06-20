@@ -8,6 +8,7 @@ public interface IUnitOfWork : IDisposable
     IRepository<Category> Categories { get; }
     IRepository<MenuItem> MenuItems { get; }
     IRepository<FoodVariant> FoodVariants { get; }
+    IRepository<MenuItemAddon> MenuItemAddons{get;}
 
     IRepository<GroupItemChild> GroupItemChildren { get; }
     IRepository<RestaurantTable> Tables { get; }

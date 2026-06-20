@@ -1,0 +1,85 @@
+<div style="padding: 24px; background: #f8fafc; min-height: 100vh; font-family: system-ui, sans-serif;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h2 style="margin: 0; color: #1e293b; font-size: 22px; display: inline-flex; align-items: center; gap: 10px;">
+                🏠 Menu Addons
+            </h2>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">Add-ons Assign List</p>
+        </div>
+        <button (click)="toggleModal(true)"
+            style="background: #9d174d; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 14px;">
+            ➕ Add-ons Assign
+        </button>
+    </div>
+
+    <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <ag-grid-angular
+            style="width: 100%; height: 450px;"
+            class="ag-theme-alpine"
+            [rowData]="gridRowData"
+            [columnDefs]="gridColumnDefinitions"
+            [pagination]="true"
+            [paginationPageSize]="25"
+            (gridReady)="onGridReady($event)"
+            (cellClicked)="onCellClicked($event)">
+        </ag-grid-angular>
+    </div>
+
+    <div *ngIf="showModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: white; border-radius: 8px; width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); overflow: hidden;">
+            
+            <div style="background: #9d174d; color: white; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Add-ons Assign Mapping</h3>
+                <span (click)="toggleModal(false)" style="cursor: pointer; font-size: 20px; line-height: 1; font-weight: bold;">&times;</span>
+            </div>
+
+            <form [formGroup]="assignmentForm" (ngSubmit)="onSubmitAssignment()" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Food Name *</label>
+                    <select formControlName="menuItemId" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b;">
+                        <option value="">-- Select target base dish --</option>
+                        <option *ngFor="let item of baseMenuItems" [value]="item.id">{{ item.name }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Add-ons Name *</label>
+                    <select formControlName="addonIds" multiple style="width: 100%; height: 120px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b;">
+                        <option *ngFor="let addon of globalAddons" [value]="addon.id">{{ addon.name }}</option>
+                    </select>
+                    <small style="color: #64748b; margin-top: 4px; display: block;">Hold Ctrl / Cmd to select multiple options.</small>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Min Selections Required *</label>
+                        <input type="number" formControlName="minSelectionsRequired" style="width: 100%; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Max Choices Allowed *</label>
+                        <input type="number" formControlName="maxChoicesAllowed" style="width: 100%; height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="mandatoryCheck" formControlName="isMandatory" style="width: 16px; height: 16px;">
+                    <label for="mandatoryCheck" style="font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;">Selection is Mandatory for customer</label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
+                    <button type="button" (click)="toggleModal(false)" style="background: white; color: #475569; border: 1px solid #cbd5e1; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        Reset
+                    </button>
+                    <button type="submit" 
+                            [disabled]="assignmentForm.invalid" 
+                            [style.opacity]="assignmentForm.invalid ? '0.6' : '1'"
+                            style="background: #9d174d; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        Add Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
