@@ -13,6 +13,11 @@ public class MenuItem
     // Combo / Package Check flag
     public bool IsGroupItem { get; set; } = false;
 
+    // 🌟 ADD THESE TWO PROPERTIES HERE:
+    public bool IsAddon { get; set; } = false;
+    
+    public string Notes { get; set; } = string.Empty;
+
     // Relationships
     public Guid CategoryId { get; set; }
     public virtual Category Category { get; set; } = null!;

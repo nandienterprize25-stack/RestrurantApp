@@ -1,0 +1,85 @@
+<div class="addon-engine-dashboard-outer" style="width: 100%; height: calc(100vh - 130px); overflow-y: auto; overflow-x: hidden; padding: 20px; box-sizing: border-box; background: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif;">
+    
+    <div style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 20px; color: #0f172a; font-weight: 700; letter-spacing: -0.02em;">➕ Global Add-Ons Catalog Setup</h2>
+        <p style="margin: 4px 0 0 0; font-size: 13px; color: #64748b;">Create and manage structural extra ingredients, topping upgrades, and side options available across your digital menus.</p>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); padding: 24px; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 20px 0; font-size: 15px; color: #1e293b; font-weight: 700; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+            {{ editingAddonId ? '✏️ Modify Registered Add-On Option' : '✨ Register New Global Add-On Item' }}
+        </h3>
+        
+        <form [formGroup]="addonCreationForm" (ngSubmit)="onSubmitAddonForm()">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Add-On Choice Name *</label>
+                    <input type="text" formControlName="name" placeholder="e.g., Melted Swiss Cheese Topping, Extra Chicken Patty" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box; height: 40px;" />
+                </div>
+                
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Surcharge Price Rate *</label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 12px; top: 10px; color: #94a3b8; font-size: 13px;">$</span>
+                        <input type="number" formControlName="price" placeholder="0.00" step="0.01" min="0" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box; padding-left: 24px; height: 40px;" />
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; align-items: center;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">Add-On Group Categorization *</label>
+                    <select formControlName="categoryId" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: white; box-sizing: border-box; height: 40px;">
+                        <option value="">-- Assign Option Group (e.g., Extra Toppings, Sauces) --</option>
+                        <option *ngFor="let cat of activeCategories" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding-top: 18px;">
+                    <label style="display: inline-flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
+                        <div style="position: relative;">
+                            <input type="checkbox" formControlName="isActive" style="opacity: 0; width: 0; height: 0; position: absolute;" />
+                            <div [style.background]="addonCreationForm.get('isActive')?.value ? '#10b981' : '#cbd5e1'" style="width: 44px; height: 22px; border-radius: 20px; transition: background-color 0.2s; position: relative;">
+                                <div [style.transform]="addonCreationForm.get('isActive')?.value ? 'translateX(22px)' : 'translateX(2px)'" style="width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 2px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span style="font-size: 13px; font-weight: 700; color: #334155; display: block;">Active Status Flag</span>
+                            <span style="font-size: 11px; color: #64748b; display: block;">Toggle visible instantly on service screens.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 18px; border-top: 1px solid #f1f5f9;">
+                <button type="button" (click)="onResetAddonForm()" style="background: #ffffff; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; height: 38px;">Clear Layout Fields</button>
+                <button type="submit" [disabled]="addonCreationForm.invalid" style="background: #0f172a; border: none; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #ffffff; cursor: pointer; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                    {{ editingAddonId ? '💾 Save Modified Add-On' : '➕ Confirm Register Add-On' }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 20px;">
+        <div style="margin-bottom: 14px;">
+            <h3 style="margin: 0; font-size: 15px; color: #0f172a; font-weight: 700;">📋 Current System Global Add-Ons Index Worksheet</h3>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">Overview tracking baseline rates, functional active groups mapping status configurations.</p>
+        </div>
+
+        <div style="width: 100%;">
+            <ag-grid-angular 
+                style="width: 100%; height: 320px;" 
+                class="ag-theme-alpine"
+                theme="legacy"
+                [rowData]="gridRowData" 
+                [columnDefs]="gridColumnDefinitions"
+                [rowHeight]="48"
+                [pagination]="true" 
+                [paginationPageSize]="5"
+                (gridReady)="onAddonGridReady($event)"
+                (cellClicked)="onGridCellClicked($event)">
+            </ag-grid-angular>
+        </div>
+    </div>
+</div>
+

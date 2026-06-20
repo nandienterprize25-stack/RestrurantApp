@@ -48,6 +48,9 @@ export const routes: Routes = [
       { path: 'food/menu-types', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
 
       // ➕ MENU ADD-ONS MODULE PATHS
+      {path: 'addons/create', loadComponent: () => import('./components/create-addon-item/create-addon-item').then(m => m.CreateAddonItemComponent) },
+      {path: 'addons/assign', loadComponent: () => import('./components/assign-addon-item/assign-addon-item').then(m => m.AssignAddonItemComponent) },
+      
       { path: 'addons/add', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
       { path: 'addons/list', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },
       { path: 'addons/assign-list', loadComponent: () => import('./components/menu-item-list/menu-item-list.component').then(m => m.MenuItemListComponent) },

@@ -56,6 +56,8 @@ namespace RestaurantApp.Application.Services
                 ImageUrl = m.ImageUrl,
                 IsActive = m.IsActive,
                 IsGroupItem = m.IsGroupItem,
+                IsAddon = m.IsAddon,
+                Notes = m.Notes,
                 CategoryId = m.CategoryId,
                 CategoryName = m.Category != null ? m.Category.Name : "Unknown Category",
                 Variants = m.Variants.Select(v => new FoodVariantDto
@@ -105,7 +107,10 @@ namespace RestaurantApp.Application.Services
                 ImageUrl = m.ImageUrl,
                 IsActive = m.IsActive,
                 IsGroupItem = m.IsGroupItem,
+                IsAddon = m.IsAddon,
+                Notes = m.Notes,
                 CategoryId = m.CategoryId,
+
                 CategoryName = m.Category != null ? m.Category.Name : "Unknown Category",
                 Variants = m.Variants.Select(v => new FoodVariantDto
                 {
@@ -140,6 +145,8 @@ namespace RestaurantApp.Application.Services
                 ImageUrl = dto.ImageUrl,
                 CategoryId = dto.CategoryId,
                 IsGroupItem = dto.IsGroupItem,
+                IsAddon = dto.IsAddon,
+                Notes = dto.Notes,
                 IsActive = true
             };
 
@@ -200,6 +207,9 @@ namespace RestaurantApp.Application.Services
             item.IsActive = dto.IsActive;
             item.IsGroupItem = dto.IsGroupItem;
             item.Price = dto.Price;
+            item.IsAddon = dto.IsAddon;
+            item.Notes = dto.Notes;
+
 
             // Simple Collection Refresh: Clear and rebuild related items
             item.Variants.Clear();

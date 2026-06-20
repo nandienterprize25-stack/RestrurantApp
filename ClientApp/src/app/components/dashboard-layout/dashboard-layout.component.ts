@@ -117,9 +117,9 @@ export class DashboardLayoutComponent implements OnInit {
       icon: '🧂',
       isExpanded: false,
       subMenus: [
-        { label: 'Add Add-ons', route: '/addons/add' },
-        { label: 'Add-ons List', route: '/addons/list' },
-        { label: 'Add-ons Assign List', route: '/addons/assign-list' }
+        { label: 'Add Add-ons', route: '/addons/create' },
+        //{ label: 'Add-ons List', route: '/addons/list' },
+        { label: 'Add-ons Assign List', route: '/addons/assign' }
       ]
     },
     {
