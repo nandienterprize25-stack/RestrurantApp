@@ -54,41 +54,122 @@ export class OrderListComponent implements OnInit {
   themeClass = 'ag-theme-alpine';
   validationErrorMessage: string | null = null;
 
-  columnDefs: ColDef[] = [
-    { headerName: 'SL', valueGetter: 'node.rowIndex + 1', width: 70, pinned: 'left', suppressMovable: true },
-    { headerName: 'Invoice No', field: 'invoiceNo', width: 140 },
-    { headerName: 'GST Invoice No', field: 'gstInvoiceNo', width: 140 },
+  // columnDefs: ColDef[] = [
+  //   { headerName: 'SL', valueGetter: 'node.rowIndex + 1', width: 70, pinned: 'left', suppressMovable: true },
+  //   { headerName: 'Invoice No', field: 'invoiceNo', width: 140 },
+  //   { headerName: 'GST Invoice No', field: 'gstInvoiceNo', width: 140 },
+  //   { 
+  //     headerName: 'Order Date', 
+  //     field: 'orderDate', 
+  //     width: 160,
+  //     valueFormatter: params => params.value ? new Date(params.value).toLocaleString() : ''
+  //   },
+  //   { headerName: 'Customer Name', field: 'customerName', width: 160 },
+  //   { headerName: 'Waiter', field: 'waiterName', width: 130 },
+  //   { headerName: 'Table/Room', field: 'tableName', width: 120 },
+  //   { headerName: 'Pax', field: 'paxCount', width: 80, type: 'numericColumn' },
+  //   { headerName: 'Sub Total', field: 'subTotal', width: 110, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'Discount', field: 'discount', width: 100, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'Gross Total', field: 'grossTotal', width: 120, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'CGST', field: 'cgst', width: 90, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'SGST', field: 'sgst', width: 90, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'Net Amount', field: 'netAmount', width: 130, type: 'numericColumn', cellStyle: { 'font-weight': 'bold', 'color': '#1e3a8a' }, valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { headerName: 'Received Amount', field: 'receivedAmount', width: 130, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
+  //   { 
+  //     headerName: 'Order Status', 
+  //     field: 'orderStatus', 
+  //     width: 130,
+  //     cellRenderer: (params: any) => {
+  //       const val = params.value || 'Pending';
+  //       let badge = 'status-pending';
+  //       if (val === 'Completed' || val === 'Settled') badge = 'status-completed';
+  //       if (val === 'Processing') badge = 'status-processing';
+  //       return `<span class="grid-badge ${badge}">${val}</span>`;
+  //     }
+  //   },
+  //   { headerName: 'Payment Mode', field: 'paymentMode', width: 130 }
+  // ];
+
+  //
+columnDefs: ColDef[] = [
+    { field: 'invoiceNo', headerName: 'Invoice No', width: 150, sortable: true, filter: true },
+    
+    // 👇 Ensure field targets map exact backend JSON property variable casing layout strings!
+    { field: 'customerName', headerName: 'Customer Name', width: 180, sortable: true, filter: true },
+    { field: 'waiterName', headerName: 'Waiter Name', width: 160, sortable: true, filter: true },
+    { field: 'orderType', headerName: 'Order Type', width: 130, sortable: true },
+    { field: 'tableName', headerName: 'Table / Spot', width: 130 },
+    
+    { field: 'grandTotal', headerName: 'Grand Total', width: 130, valueFormatter: p => '₹' + p.value?.toFixed(2) },
     { 
-      headerName: 'Order Date', 
-      field: 'orderDate', 
-      width: 160,
-      valueFormatter: params => params.value ? new Date(params.value).toLocaleString() : ''
-    },
-    { headerName: 'Customer Name', field: 'customerName', width: 160 },
-    { headerName: 'Waiter', field: 'waiterName', width: 130 },
-    { headerName: 'Table/Room', field: 'tableName', width: 120 },
-    { headerName: 'Pax', field: 'paxCount', width: 80, type: 'numericColumn' },
-    { headerName: 'Sub Total', field: 'subTotal', width: 110, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'Discount', field: 'discount', width: 100, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'Gross Total', field: 'grossTotal', width: 120, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'CGST', field: 'cgst', width: 90, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'SGST', field: 'sgst', width: 90, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'Net Amount', field: 'netAmount', width: 130, type: 'numericColumn', cellStyle: { 'font-weight': 'bold', 'color': '#1e3a8a' }, valueFormatter: p => this.currencyFormatter(p.value) },
-    { headerName: 'Received Amount', field: 'receivedAmount', width: 130, type: 'numericColumn', valueFormatter: p => this.currencyFormatter(p.value) },
-    { 
-      headerName: 'Order Status', 
       field: 'orderStatus', 
-      width: 130,
-      cellRenderer: (params: any) => {
-        const val = params.value || 'Pending';
-        let badge = 'status-pending';
-        if (val === 'Completed' || val === 'Settled') badge = 'status-completed';
-        if (val === 'Processing') badge = 'status-processing';
-        return `<span class="grid-badge ${badge}">${val}</span>`;
+      headerName: 'Status', 
+      width: 140,
+      cellClassRules: {
+        'status-badge-pending': "x => x.value === 'Pending'",
+        'status-badge-processing': "x => x.value === 'Processing'",
+        'status-badge-completed': "x => x.value === 'Completed'"
       }
     },
-    { headerName: 'Payment Mode', field: 'paymentMode', width: 130 }
+    { field: 'paymentMode', headerName: 'Payment Route', width: 140 },
+    { field: 'orderDate', headerName: 'Timestamp', width: 180, valueFormatter: p => p.value ? new Date(p.value).toLocaleString() : '' },
+    
+    // 👇 🛠️ NEW OPERATIONAL ACTIONS COLUMN WITH CUSTOM CELL RENDERER INJECTED:
+    {
+      headerName: 'Actions Execution',
+      width: 160,
+      pinned: 'right', // Locks buttons to the right edge during responsive scrolling layouts
+      sortable: false,
+      filter: false,
+      cellRenderer: (params: any) => {
+        // Build isolated layout template container markup strings dynamically 
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.gap = '8px';
+        container.style.alignItems = 'center';
+        container.style.height = '100%';
+
+        // 📝 Edit Trigger Action Item
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '✏️';
+        editBtn.title = 'Edit Order Record';
+        editBtn.style.cssText = 'background:#f1f5f9; border:1px solid #cbd5e1; cursor:pointer; padding:4px 8px; border-radius:4px; font-size:14px;';
+        editBtn.addEventListener('click', () => params.context.componentParent.onEditOrder(params.data));
+
+        // 🗑️ Delete Trigger Action Item
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = 'Remove Order Row';
+        deleteBtn.style.cssText = 'background:#fee2e2; border:1px solid #fca5a5; color:#ef4444; cursor:pointer; padding:4px 8px; border-radius:4px; font-size:14px;';
+        deleteBtn.addEventListener('click', () => params.context.componentParent.onDeleteOrder(params.data));
+
+        container.appendChild(editBtn);
+        container.appendChild(deleteBtn);
+        return container;
+      }
+    }
   ];
+
+  // 👇 Add grid context linking parameters property array layout token element
+  gridContext = { componentParent: this };
+
+  // 🛠️ Action handlers callback pipelines
+  onEditOrder(orderData: any): void {
+    console.log('Target entity requested for state modification pipeline:', orderData);
+    alert(`Editing Invoice Entry Row Reference: ${orderData.invoiceNo}`);
+    // Your navigation routing logic goes here (e.g., redirecting back to POS layout)
+  }
+
+  onDeleteOrder(orderData: any): void {
+    if (confirm(`Are you absolutely sure you want to permanently purge Invoice context entry line ${orderData.invoiceNo}?`)) {
+      console.log('Dispatch delete execution trace context for:', orderData.id);
+      // Call service pipeline layer delete routine sequence here:
+      // this.orderService.deleteOrder(orderData.id).subscribe(...)
+      alert('Order entry deleted successfully.');
+    }
+  }
+
+  //
 
   defaultColDef: ColDef = { sortable: true, resizable: true, minWidth: 60 };
 

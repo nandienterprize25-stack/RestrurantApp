@@ -10,10 +10,18 @@ namespace RestaurantApp.Core.Entities
         public string InvoiceNo { get; set; } = string.Empty; // Auto-generated string key: e.g., "INV-2026-0001"
         public Guid? TableId { get; set; }
         public string WaiterName { get; set; } = string.Empty;
-        
+
+        public string CustomerName { get; set; } = string.Empty;
+        public string OrderType { get; set; } = string.Empty;
+
+
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
         public PaymentMode PaymentMode { get; set; } = PaymentMode.Cash;
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+
+        public decimal CashPaid { get; set; }
+        public decimal CardPaid { get; set; }
+        public decimal UpiPaid { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Guid CreatedById { get; set; }
         public User? CreatedBy { get; set; }

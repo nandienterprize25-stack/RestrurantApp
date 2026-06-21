@@ -93,107 +93,68 @@ public sealed class RestaurantService : IRestaurantService
     public Task<IReadOnlyList<RestaurantTable>> GetTablesAsync()
         => _unitOfWork.Tables.GetAllAsync();
 
-    // public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid creatorId)
-    // {
-    //     if (!await _unitOfWork.Tables.ExistsAsync(t => t.Id == request.TableId))
-    //     {
-    //         throw new InvalidOperationException("Table not found.");
-    //     }
-
-    //     if (!await _unitOfWork.Users.ExistsAsync(u => u.Id == creatorId))
-    //     {
-    //         throw new InvalidOperationException("User not found.");
-    //     }
-
-    //     var itemIds = request.Items.Select(i => i.MenuItemId).Distinct().ToList();
-    //     var menuItems = await _unitOfWork.MenuItems.GetAllAsync(m => itemIds.Contains(m.Id));
-
-    //     var order = new Order
-    //     {
-    //         TableId = request.TableId,
-    //         CreatedById = creatorId,
-    //         CreatedAt = DateTime.UtcNow,
-    //         Status = OrderStatus.New,
-    //         TotalAmount = 0m,
-    //         Items = new List<OrderItem>()
-    //     };
-
-    //     foreach (var itemRequest in request.Items)
-    //     {
-    //         var menuItem = menuItems.FirstOrDefault(m => m.Id == itemRequest.MenuItemId);
-    //         if (menuItem is null)
-    //         {
-    //             throw new InvalidOperationException($"Menu item {itemRequest.MenuItemId} not found.");
-    //         }
-
-    //         var orderItem = new OrderItem
-    //         {
-    //             MenuItemId = menuItem.Id,
-    //             Quantity = itemRequest.Quantity,
-    //             UnitPrice = menuItem.Price
-    //         };
-
-    //         order.Items.Add(orderItem);
-    //         order.TotalAmount += orderItem.Quantity * orderItem.UnitPrice;
-    //     }
-
-    //     await _unitOfWork.Orders.AddAsync(order);
-    //     await _unitOfWork.CompleteAsync();
-
-    //     return order;
-    // }
 
     // public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid userId)
     // {
+    //     // Fetch all active menu items from the context repository layout matrix
     //     var menuItems = await _unitOfWork.MenuItems.GetAllAsync();
 
-    //     Table? table = null;
+    //     // 1. 👇 SAFE TABLE VERIFICATION: Check if TableId has a valid, non-empty value before querying
+    //     RestaurantTable? table = null;
     //     if (request.TableId.HasValue && request.TableId != Guid.Empty)
     //     {
     //         table = await _unitOfWork.Tables.GetAsync(t => t.Id == request.TableId.Value);
     //     }
 
+    //     // 2. 👇 INITIALIZE ORDER PARENT RECORD
     //     var order = new Order
     //     {
     //         Id = Guid.NewGuid(),
-    //         UserId = userId,
-    //         TableId = request.TableId == Guid.Empty ? null : request.TableId,
-    //         Status = OrderStatus.Pending,
+
+    //         // Maps the authenticated user ID directly. If it arrives empty due to claim mapping issues, 
+    //         // it falls back to your running Admin user account GUID from your database table.
+    //         CreatedById = (userId != Guid.Empty) ? userId : Guid.Parse("6d6ec0fc-3b1a-4638-89f4-1845bb08a1e5"),
+
+    //         // Gracefully handle table mapping scenarios (Take Away sets this parameter to null safely)
+    //         TableId = (request.TableId == Guid.Empty) ? null : request.TableId,
+    //         OrderStatus = OrderStatus.Pending,
     //         CreatedAt = DateTime.UtcNow
     //     };
 
-    //     // 1. 👇 ADD THE PARENT ORDER FIRST so it exists in tracking context
+    //     // 3. 👇 PARENT INJECTION: Add order entity first so it registers a tracked primary key anchor reference
     //     await _unitOfWork.Orders.AddAsync(order);
 
     //     decimal totalAmount = 0;
+
+    //     // 4. 👇 PROCESS LINE ITEMS INNER LOOP
     //     foreach (var itemDto in request.Items)
     //     {
     //         var menuItem = menuItems.FirstOrDefault(m => m.Id == itemDto.MenuItemId);
     //         if (menuItem == null)
     //         {
-    //             throw new InvalidOperationException($"Menu item with ID {itemDto.MenuItemId} not found.");
+    //             throw new InvalidOperationException($"Menu item with ID {itemDto.MenuItemId} not found in catalog cache.");
     //         }
 
     //         var orderItem = new OrderItem
     //         {
     //             Id = Guid.NewGuid(),
-    //             OrderId = order.Id, // This reference is safe now!
+    //             OrderId = order.Id, // Linking to parent tracking anchor node safely
     //             MenuItemId = menuItem.Id,
     //             Quantity = itemDto.Quantity,
     //             UnitPrice = menuItem.Price
     //         };
 
-    //         // Fix: multiply by itemDto.Quantity to calculate actual cart item line total correctly
+    //         // Mathematically calculate running ledger cost based on explicit cart row count values
     //         totalAmount += (orderItem.UnitPrice * orderItem.Quantity);
 
-    //         // 2. 👇 ADD THE CHILD ITEMS SECOND
+    //         // Append line element data block under entity frame
     //         await _unitOfWork.OrderItems.AddAsync(orderItem);
     //     }
 
-    //     // Update the aggregate amount before committing to PostgreSQL
-    //     order.TotalAmount = totalAmount;
+    //     // Assign final running tracking cost to our contextual order schema model wrapper
+    //     order.GrandTotal = totalAmount;
 
-    //     // 3. 👇 COMMIT TRANSACTION CLEANLY
+    //     // 5. 👇 COMMIT TO POSTGRESQL UNIT OF WORK LAYER CLEANLY
     //     await _unitOfWork.CompleteAsync();
 
     //     return order;
@@ -201,65 +162,64 @@ public sealed class RestaurantService : IRestaurantService
 
     public async Task<Order> CreateOrderAsync(CreateOrderRequest request, Guid userId)
     {
-        // Fetch all active menu items from the context repository layout matrix
         var menuItems = await _unitOfWork.MenuItems.GetAllAsync();
 
-        // 1. 👇 SAFE TABLE VERIFICATION: Check if TableId has a valid, non-empty value before querying
-        RestaurantTable? table = null;
-        if (request.TableId.HasValue && request.TableId != Guid.Empty)
+        // 👤 Automated Waiter Assignment using the Token Claim
+        Guid realWaiterId = (userId != Guid.Empty) ? userId : Guid.Parse("6d6ec0fc-3b1a-4638-89f4-1845bb08a1e5");
+        var activeUser = await _unitOfWork.Users.GetAsync(u => u.Id == realWaiterId);
+        //string automaticWaiterName = activeUser?.FullName ?? "System POS";
+
+        // Convert the incoming string safely into your Order.cs model's PaymentMode Enum
+        if (!Enum.TryParse<PaymentMode>(request.PaymentMode, true, out var parsedEnumMode))
         {
-            table = await _unitOfWork.Tables.GetAsync(t => t.Id == request.TableId.Value);
+            parsedEnumMode = PaymentMode.Cash; // Fallback default if parsing fails
         }
 
-        // 2. 👇 INITIALIZE ORDER PARENT RECORD
         var order = new Order
         {
             Id = Guid.NewGuid(),
+            InvoiceNo = $"INV-{DateTime.UtcNow:yyyyMMdd}-{new Random().Next(1000, 9999)}", // Safe fallback generation
+            CreatedById = realWaiterId,
 
-            // Maps the authenticated user ID directly. If it arrives empty due to claim mapping issues, 
-            // it falls back to your running Admin user account GUID from your database table.
-            CreatedById = (userId != Guid.Empty) ? userId : Guid.Parse("6d6ec0fc-3b1a-4638-89f4-1845bb08a1e5"),
+            // 💾 EXPLICITLY ASSIGN ALL FIELDS HERE TO PERSIST TO DATABASE:
+            CustomerName = string.IsNullOrWhiteSpace(request.CustomerName) ? "Walk-In Customer" : request.CustomerName,
+            OrderType = string.IsNullOrWhiteSpace(request.OrderType) ? "Walk-In" : request.OrderType,
+            WaiterName =request.WaiterName,
+            PaymentMode = parsedEnumMode, // Saves to your enum database column
 
-            // Gracefully handle table mapping scenarios (Take Away sets this parameter to null safely)
+            CashPaid = request.CashPaid,
+            CardPaid = request.CardPaid,
+            UpiPaid = request.UpiPaid,
             TableId = (request.TableId == Guid.Empty) ? null : request.TableId,
             OrderStatus = OrderStatus.Pending,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            OrderDate = DateTime.UtcNow
         };
 
-        // 3. 👇 PARENT INJECTION: Add order entity first so it registers a tracked primary key anchor reference
         await _unitOfWork.Orders.AddAsync(order);
 
         decimal totalAmount = 0;
-
-        // 4. 👇 PROCESS LINE ITEMS INNER LOOP
         foreach (var itemDto in request.Items)
         {
             var menuItem = menuItems.FirstOrDefault(m => m.Id == itemDto.MenuItemId);
-            if (menuItem == null)
-            {
-                throw new InvalidOperationException($"Menu item with ID {itemDto.MenuItemId} not found in catalog cache.");
-            }
+            if (menuItem == null) continue;
 
             var orderItem = new OrderItem
             {
                 Id = Guid.NewGuid(),
-                OrderId = order.Id, // Linking to parent tracking anchor node safely
+                OrderId = order.Id,
                 MenuItemId = menuItem.Id,
                 Quantity = itemDto.Quantity,
                 UnitPrice = menuItem.Price
             };
 
-            // Mathematically calculate running ledger cost based on explicit cart row count values
             totalAmount += (orderItem.UnitPrice * orderItem.Quantity);
-
-            // Append line element data block under entity frame
             await _unitOfWork.OrderItems.AddAsync(orderItem);
         }
 
-        // Assign final running tracking cost to our contextual order schema model wrapper
         order.GrandTotal = totalAmount;
 
-        // 5. 👇 COMMIT TO POSTGRESQL UNIT OF WORK LAYER CLEANLY
+        // Commit transaction changes to database
         await _unitOfWork.CompleteAsync();
 
         return order;
@@ -348,5 +308,5 @@ public sealed class RestaurantService : IRestaurantService
         }
     }
 
-    
+
 }

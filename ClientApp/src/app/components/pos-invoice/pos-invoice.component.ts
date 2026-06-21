@@ -1,27 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { CommonModule, KeyValuePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuService } from '../../services/menu.service';
-import { OrderService } from '../../services/order.service'; // 👈 Injecting OrderService cleanly
+import { OrderService } from '../../services/order.service';
+import { FoodManagementService } from '../../services/food-management.service';
+import { Router } from '@angular/router';
 
 interface PosProduct {
-  id: string; 
+  id: string;
   name: string;
   price: number;
-  category: string;
-  stock: number;
+  categoryId: string;
+  categoryName: string;
   imageCode: string;
+  hasVariants: boolean;
 }
 
 interface CartItem {
   id: string;
   name: string;
   price: number;
-  category: string;
-  stock: number;
-  imageCode: string;
   quantity: number;
-  vatAmount: number;
   total: number;
 }
 
@@ -33,274 +32,320 @@ interface RestaurantTable {
   floor: string;
 }
 
+interface SplitPayment {
+  method: 'Cash' | 'Card' | 'UPI';
+  amount: number;
+}
+
 @Component({
   selector: 'app-pos-invoice',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, KeyValuePipe],
   templateUrl: './pos-invoice.component.html',
   styleUrls: ['./pos-invoice.component.css']
 })
 export class PosInvoiceComponent implements OnInit {
   activeTab: 'New Order' | 'On Going Order' | 'Today Order' = 'New Order';
-  
-  categories: string[] = ['All Categories'];
-  selectedCategory: string = 'All Categories';
-  products: PosProduct[] = [];
-  tablesList: RestaurantTable[] = [];
-  
-  activeOrders: any[] = [];
-  historicalOrders: any[] = [];
+  activeLocationTab: 'Restaurant' | 'Room' | 'Cafeteria' = 'Restaurant';
 
-  customerName: string = 'Walk-In Customer';
-  customerType: string = 'Dine In';
-  waiterName: string = 'Staff Alpha';
-  selectedTable: string = 'Tap to Choose';
+  categories: any[] = [];
+  allProducts: PosProduct[] = [];
+  filteredProducts: PosProduct[] = [];
+  restaurantTables: RestaurantTable[] = [];
+  groupedTables: { [floorName: string]: RestaurantTable[] } = {};
+
+  cartItems: CartItem[] = [];
+  customerName: string = '';
+  waiterName: string = ''; // 👈 Add this line here
+  customerType: 'Walk-In' | 'Dine-In' | 'Takeaway' | 'Delivery' = 'Walk-In';
+  selectedTable: string = 'Select Table';
   selectedTableId: string | null = null;
+
+  selectedCategory: string = 'ALL';
   searchQuery: string = '';
 
-  cart: CartItem[] = [];
-  discountPercentage: number = 0;
-  vatRatePercentage: number = 5;
-
-  isTableModalOpen: boolean = false;
-  selectedFloorFilter: string = 'All Floors';
-
+  isTableDropdownOpen: boolean = false;
   isSuccessModalOpen: boolean = false;
-  lastUsedPaymentMethod: string = 'Cash';
-  lastCreatedOrderId: string = 'ORDER-ID-REF';
-  lastSettledAmount: number = 0.00;
+  isSplitPaymentModalOpen: boolean = false;
 
-  // Http client injection dependency dropped here cleanly!
-  constructor(private orderService: OrderService, private menuService: MenuService) {}
+  taxRate: number = 0.05;
+  totalTax: number = 0;
+  grandTotal: number = 0;
+  lastUsedPaymentMethod: string = '';
+  lastCreatedOrderId: string = '';
+  lastSettledAmount: number = 0;
+
+  splitPayments: SplitPayment[] = [{ method: 'Cash', amount: 0 }];
+
+  constructor(
+    private menuService: MenuService,
+    private orderService: OrderService,
+    private foodManagementService: FoodManagementService,
+    private elementRef: ElementRef,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.loadCatalogData();
-    this.loadRealRestaurantTables();
-    this.loadAllSystemOrders();
-  }
-
-  switchTab(targetTab: 'New Order' | 'On Going Order' | 'Today Order'): void {
-    this.activeTab = targetTab;
-    this.loadAllSystemOrders();
+    this.loadDatabaseCategories();
+    this.loadRealProductsFromDb();
     this.loadRealRestaurantTables();
   }
 
-  loadCatalogData(): void {
+  @HostListener('document:click', ['$event'])
+  closeDropdownOnClickOutside(event: Event): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isTableDropdownOpen = false;
+    }
+  }
+
+  dismissSuccessConfirmationWindow(): void {
+    this.isSuccessModalOpen = false;
+    this.router.navigate(['/orders/order-list']);
+  }
+
+  toggleTableDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isTableDropdownOpen = !this.isTableDropdownOpen;
+  }
+
+  loadDatabaseCategories(): void {
+    this.foodManagementService.getCategories(false).subscribe({
+      next: (res: any) => {
+        const rawCategories = Array.isArray(res) ? res : (res?.data || []);
+        this.categories = [
+          { id: 'ALL', name: 'All Menu' },
+          ...rawCategories.map((c: any) => ({
+            id: c.id || c.Id,
+            name: c.name || c.Name || 'Category'
+          }))
+        ];
+      },
+      error: (err) => console.error('Error loading categories:', err)
+    });
+  }
+
+  loadRealProductsFromDb(): void {
     this.menuService.getMenuItems().subscribe({
       next: (res: any) => {
-        if (res && res.items) {
-          this.products = res.items.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            category: item.categoryName || 'Main Course',
-            stock: 99,
-            imageCode: this.getRandomEmoji(item.name)
-          }));
-          
-          const uniqueCats = Array.from(new Set(this.products.map(p => p.category)));
-          this.categories = ['All Categories', ...uniqueCats];
-        }
+        const rawItems = Array.isArray(res) ? res : (res?.data || []);
+        this.allProducts = rawItems.map((item: any) => {
+          const title = item.name || item.Name || '';
+          return {
+            id: item.id || item.Id,
+            name: title,
+            price: item.price || item.Price || 0,
+            categoryId: item.categoryId || item.CategoryId,
+            categoryName: item.category?.name || item.Category?.Name || 'General',
+            imageCode: this.getRandomEmoji(title),
+            hasVariants: !!(item.variants?.length || item.Variants?.length)
+          };
+        });
+        this.filteredProducts = [...this.allProducts];
       },
-      error: (err) => console.error('Error fetching catalog data:', err)
+      error: (err) => console.error('Error fetching catalog menu items:', err)
     });
   }
 
   loadRealRestaurantTables(): void {
-    // 📂 FIXED: Calls the service layout abstraction channel directly
     this.orderService.getTablesLayout().subscribe({
-      next: (data) => {
-        if (Array.isArray(data)) {
-          this.tablesList = data.map((t: any) => {
-            const fallbackName = `Table ${t.number?.toString().padStart(2, '0') || '01'}`;
-            return {
-              id: t.id,
-              name: t.displayName || t.name || fallbackName,
-              capacity: t.capacity || 4,
-              status: (t.status || 'Available') as 'Available' | 'Occupied' | 'Reserved',
-              floor: t.number <= 4 ? 'Floor 1' : t.number <= 8 ? 'Floor 2' : 'VIP Room'
-            };
-          });
-        }
+      next: (res: any) => {
+        const rawTables = Array.isArray(res) ? res : (res?.data || []);
+        this.restaurantTables = rawTables.map((t: any) => {
+          const tName = t.name || t.Name || 'Table';
+          let floorVal = t.floor || t.Floor;
+          if (!floorVal) {
+            if (tName.toLowerCase().includes('f2') || tName.startsWith('2')) floorVal = '2nd Floor';
+            else if (tName.toLowerCase().includes('f1') || tName.startsWith('1')) floorVal = '1st Floor';
+            else floorVal = 'Ground Floor';
+          }
+          return {
+            id: t.id || t.Id,
+            name: tName,
+            capacity: t.capacity || t.Capacity || 4,
+            status: t.status || t.Status || 'Available',
+            floor: floorVal
+          };
+        });
+        this.groupTablesByFloor();
       },
-      error: (err) => console.error('Error requesting room layout:', err)
+      error: (err) => console.error('Error fetching tables layout:', err)
     });
   }
 
-  loadAllSystemOrders(): void {
-    // 📂 FIXED: Call the order service method instead of native http client context
-    this.orderService.getOrders().subscribe({
-      next: (data) => {
-        const ordersArray = Array.isArray(data) ? data : (data && (data as any).items ? (data as any).items : []);
-        
-        if (ordersArray.length >= 0) {
-          const normalizedOrders = ordersArray.map((o: any) => ({
-            ...o,
-            id: o.id || o.orderId || 'GEN-ID',
-            status: o.status || 'Pending',
-            totalAmount: o.totalAmount || o.price || 0,
-            tableName: o.tableNumber ? `Table ${o.tableNumber.toString().padStart(2, '0')}` : (o.tableName || null),
-            items: o.items || []
-          }));
-
-          this.activeOrders = normalizedOrders.filter((o: any) => o.status === 'Pending' || o.status === 'Processing');
-          this.historicalOrders = normalizedOrders.filter((o: any) => o.status === 'Completed' || o.status === 'Settled' || o.status === 'Closed');
-        }
-      },
-      error: (err) => {
-        console.error('Error downloading orders:', err);
-        this.activeOrders = [];
-        this.historicalOrders = [];
-      }
+  groupTablesByFloor(): void {
+    this.groupedTables = {};
+    this.restaurantTables.forEach(table => {
+      const fName = table.floor || 'Ground Floor';
+      if (!this.groupedTables[fName]) this.groupedTables[fName] = [];
+      this.groupedTables[fName].push(table);
     });
   }
 
-  get filteredProducts(): PosProduct[] {
-    return this.products.filter(p => {
-      const matchCat = this.selectedCategory === 'All Categories' || p.category === this.selectedCategory;
+  selectTableNode(table: RestaurantTable): void {
+    if (table.status === 'Occupied' || table.status === 'Reserved') return;
+    this.selectedTableId = table.id;
+    this.selectedTable = table.name;
+    this.isTableDropdownOpen = false;
+  }
+
+  addToCart(product: PosProduct): void {
+    const existing = this.cartItems.find(item => item.id === product.id);
+    if (existing) {
+      existing.quantity += 1;
+      existing.total = existing.quantity * existing.price;
+    } else {
+      this.cartItems.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        total: product.price
+      });
+    }
+    this.recalculateSummaryValues();
+  }
+
+  updateQuantity(item: CartItem, delta: number): void {
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+      this.cartItems = this.cartItems.filter(i => i.id !== item.id);
+    } else {
+      item.total = item.quantity * item.price;
+    }
+    this.recalculateSummaryValues();
+  }
+
+  getCartSubtotal(): number {
+    return this.cartItems.reduce((sum, item) => sum + item.total, 0);
+  }
+
+  recalculateSummaryValues(): void {
+    const subtotal = this.getCartSubtotal();
+    this.totalTax = subtotal * this.taxRate;
+    this.grandTotal = subtotal + this.totalTax;
+  }
+
+  clearCart(): void {
+    this.cartItems = [];
+    this.customerName = '';
+    this.selectedTable = 'Select Table';
+    this.selectedTableId = null;
+    this.recalculateSummaryValues();
+  }
+
+  openSplitPaymentDrawer(): void {
+    if (this.cartItems.length === 0) return;
+
+    // Safety check: Alert user to select a valid dining node before popping payment overlay matrix
+    if (this.customerType === 'Dine-In' && !this.selectedTableId) {
+      alert('Please select a dining table before settling the invoice.');
+      return;
+    }
+
+    this.recalculateSummaryValues();
+    this.splitPayments = [{ method: 'Cash', amount: Number(this.grandTotal.toFixed(2)) }];
+    this.isSplitPaymentModalOpen = true;
+  }
+
+  filterByCategory(catId: string): void {
+    this.selectedCategory = catId;
+    this.filterProducts();
+  }
+
+  filterProducts(): void {
+    this.filteredProducts = this.allProducts.filter(p => {
+      const matchCat = this.selectedCategory === 'ALL' || p.categoryId === this.selectedCategory;
       const matchQuery = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
       return matchCat && matchQuery;
     });
   }
 
-  get filteredTables(): RestaurantTable[] {
-    if (this.selectedFloorFilter === 'All Floors') return this.tablesList;
-    return this.tablesList.filter(t => t.floor === this.selectedFloorFilter);
-  }
 
-  addToCart(prod: PosProduct): void {
-    const matchedRow = this.cart.find(x => x.id === prod.id);
-    if (matchedRow) {
-      this.incrementQuantity(matchedRow);
+//
+processCheckoutReceipt(paymentMethod: string): void {
+    if (this.cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    let cashValue = 0;
+    let cardValue = 0;
+    let upiValue = 0;
+    const VIRTUAL_POS_TABLE_ID = '00000000-0000-0000-0000-000000000000';
+
+    if (paymentMethod === 'Split') {
+      this.splitPayments.forEach(p => {
+        if (p.method === 'Cash') cashValue += p.amount;
+        if (p.method === 'Card') cardValue += p.amount;
+        if (p.method === 'UPI') upiValue += p.amount;
+      });
+
+      if (cashValue === 0 && cardValue === 0 && upiValue === 0) {
+        cashValue = this.grandTotal;
+        paymentMethod = 'Cash';
+      }
     } else {
-      const newItem: CartItem = {
-        id: prod.id,
-        name: prod.name,
-        price: prod.price,
-        category: prod.category,
-        stock: prod.stock,
-        imageCode: prod.imageCode,
-        quantity: 1,
-        vatAmount: prod.price * (this.vatRatePercentage / 100),
-        total: prod.price
-      };
-      this.cart.push(newItem);
+      if (paymentMethod === 'Cash') cashValue = this.grandTotal;
+      if (paymentMethod === 'Card') cardValue = this.grandTotal;
+      if (paymentMethod === 'UPI') upiValue = this.grandTotal;
     }
-  }
 
-  incrementQuantity(item: CartItem): void {
-    if (item.quantity < item.stock) {
-      item.quantity++;
-      this.recalculateItemRow(item);
-    }
-  }
-
-  decrementQuantity(item: CartItem): void {
-    if (item.quantity > 1) {
-      item.quantity--;
-      this.recalculateItemRow(item);
-    } else {
-      this.removeFromCart(item);
-    }
-  }
-
-  private recalculateItemRow(item: CartItem): void {
-    item.vatAmount = (item.price * item.quantity) * (this.vatRatePercentage / 100);
-    item.total = item.price * item.quantity;
-  }
-
-  removeFromCart(item: CartItem): void {
-    this.cart = this.cart.filter(c => c.id !== item.id);
-  }
-
-  clearCart(): void {
-    this.cart = [];
-    this.selectedTableId = null;
-    this.selectedTable = 'Tap to Choose';
-  }
-
-  get cartSubTotal(): number {
-    return this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  }
-
-  get cartVatTotal(): number {
-    return this.cartSubTotal * (this.vatRatePercentage / 100);
-  }
-
-  get cartGrandTotal(): number {
-    const discountValue = this.cartSubTotal * (this.discountPercentage / 100);
-    return (this.cartSubTotal + this.cartVatTotal) - discountValue;
-  }
-
-  processPayment(method: string): void {
-    if (this.cart.length === 0) return;
-    if (this.customerType === 'Dine In' && !this.selectedTableId) return;
+    const cleanCustomerName = this.customerName && this.customerName.trim() ? this.customerName.trim() : 'Walk-In Customer';
+    // 👇 1. Extract the text value from the HTML bound input field safely
+    const cleanWaiterName = this.waiterName && this.waiterName.trim() ? this.waiterName.trim() : 'System Terminal';
+    const cleanOrderType = this.customerType || 'Walk-In';
 
     const orderPayload = {
-      tableId: this.customerType === 'Dine In' ? this.selectedTableId : null,
-      items: this.cart.map(x => ({
-        menuItemId: x.id,
-        quantity: x.quantity && x.quantity > 0 ? x.quantity : 1
+      customerName: cleanCustomerName,
+      waiterName: cleanWaiterName, // 👈 2. ADD THIS FIELD SO IT COMES IN THE PAYLOAD!
+      orderType: cleanOrderType,
+      paymentMode: paymentMethod,
+      cashPaid: cashValue,
+      cardPaid: cardValue,
+      upiPaid: upiValue,
+      tableId: cleanOrderType === 'Dine-In' ? this.selectedTableId : VIRTUAL_POS_TABLE_ID,
+      tableName: this.customerType === 'Dine-In' ? this.selectedTable : 'Counter/POS',
+      items: this.cartItems.map((item: any) => ({
+        menuItemId: item.id,
+        quantity: item.quantity,
+        selectedVariant: '',
+        price: item.price
       }))
     };
 
-    const exactSettledValue = this.cartGrandTotal;
+    console.log('Sending unified receipt checkout payload:', orderPayload);
 
-    // 📂 FIXED: Dispatched through order Service creation endpoints
+    // Send transaction to Backend API Pipeline
     this.orderService.createOrder(orderPayload).subscribe({
-      next: (response: any) => {
-        this.lastUsedPaymentMethod = method;
-        this.lastCreatedOrderId = response?.id || response?.orderId || 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-        this.lastSettledAmount = exactSettledValue;
-        this.isSuccessModalOpen = true;
+      next: (response) => {
+        console.log('Backend Verified Save Success:', response);
+        this.lastUsedPaymentMethod = paymentMethod;
+        this.lastCreatedOrderId = response?.invoiceNo || response?.id || 'ORD-SUCCESS';
+        this.lastSettledAmount = this.grandTotal;
 
+        this.isSplitPaymentModalOpen = false;
+        this.isSuccessModalOpen = true;
         this.clearCart();
-        this.loadRealRestaurantTables(); 
-        this.loadAllSystemOrders();
+        this.loadRealRestaurantTables();
       },
       error: (err) => {
-        console.error('Error processing payment:', err);
-        this.lastUsedPaymentMethod = method;
-        this.lastCreatedOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-        this.lastSettledAmount = exactSettledValue;
-        this.isSuccessModalOpen = true;
-        this.clearCart();
+        console.error('API Pipeline Processing Exception:', err);
+        alert('Order placement failed. Please verify API console logs.');
       }
     });
   }
-
-  finalizeActiveOrderState(orderId: string): void {
-    // 📂 FIXED: Calls the service update pipeline method
-    this.orderService.updateOrderStatus(orderId, 'Completed').subscribe({
-      next: () => {
-        this.loadAllSystemOrders();
-        this.loadRealRestaurantTables();
-      },
-      error: (err) => console.error('Error shifting status:', err)
-    });
-  }
-
-  dismissSuccessConfirmationWindow(): void {
-    this.isSuccessModalOpen = false;
-  }
-
-  openTableSelectionModal(): void { this.isTableModalOpen = true; }
-  closeTableSelectionModal(): void { this.isTableModalOpen = false; }
-
-  selectTableNode(table: RestaurantTable): void {
-    if (table.status === 'Occupied') return;
-    this.selectedTableId = table.id;
-    this.selectedTable = table.name;
-    this.closeTableSelectionModal();
+//
+  switchTab(tab: 'New Order' | 'On Going Order' | 'Today Order'): void {
+    this.activeTab = tab;
   }
 
   private getRandomEmoji(itemName: string): string {
     const name = itemName.toLowerCase();
     if (name.includes('burger')) return '🍔';
     if (name.includes('pizza')) return '🍕';
+    if (name.includes('fry') || name.includes('chips')) return '🍟';
+    if (name.includes('coke') || name.includes('drink') || name.includes('soda')) return '🥤';
     if (name.includes('coffee') || name.includes('tea')) return '☕';
-    if (name.includes('juice') || name.includes('drink')) return '🍹';
-    if (name.includes('cake') || name.includes('dessert')) return '🍰';
     return '🍽️';
   }
 }

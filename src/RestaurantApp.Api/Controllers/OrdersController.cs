@@ -20,26 +20,59 @@ public class OrdersController : ControllerBase
         _restaurantService = restaurantService;
     }
 
+    // [HttpGet]
+    // public async Task<ActionResult<IReadOnlyList<OrderResponse>>> GetOrders()
+    // {
+    //     var userId = GetCurrentUserId();
+    //     var orders = await _restaurantService.GetOrdersAsync(userId);
+
+    //     var users = await _restaurantService.GetUsersAsync();
+    //     var menuItems = await _restaurantService.GetMenuItemsAsync();
+    //     var tables = await _restaurantService.GetTablesAsync();
+
+    //     var response = new List<OrderResponse>();
+    //     foreach (var order in orders)
+    //     {
+    //         var orderItems = (await _restaurantService.GetOrderItemsAsync(order.Id))
+    //             .Select(item => item.ToResponse(menuItems.FirstOrDefault(m => m.Id == item.MenuItemId)?.Name ?? string.Empty))
+    //             .ToList();
+
+    //         var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.TableNumber ?? string.Empty;
+    //         var creator = users.FirstOrDefault(u => u.Id == order.CreatedById)?.Username ?? string.Empty;
+    //         response.Add(order.ToResponse(tableNumber, creator, orderItems));
+    //     }
+
+    //     return Ok(response);
+    // }
+
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<OrderResponse>>> GetOrders()
     {
         var userId = GetCurrentUserId();
         var orders = await _restaurantService.GetOrdersAsync(userId);
-
-        var users = await _restaurantService.GetUsersAsync();
-        var menuItems = await _restaurantService.GetMenuItemsAsync();
         var tables = await _restaurantService.GetTablesAsync();
 
         var response = new List<OrderResponse>();
         foreach (var order in orders)
         {
-            var orderItems = (await _restaurantService.GetOrderItemsAsync(order.Id))
-                .Select(item => item.ToResponse(menuItems.FirstOrDefault(m => m.Id == item.MenuItemId)?.Name ?? string.Empty))
-                .ToList();
+            var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.TableNumber.ToString() ?? "Counter";
 
-            var tableNumber = tables.FirstOrDefault(t => t.Id == order.TableId)?.TableNumber ?? string.Empty;
-            var creator = users.FirstOrDefault(u => u.Id == order.CreatedById)?.Username ?? string.Empty;
-            response.Add(order.ToResponse(tableNumber, creator, orderItems));
+            response.Add(new OrderResponse
+            {
+                Id = order.Id,
+                InvoiceNo = order.InvoiceNo,
+
+                // 👇 CHANGE THESE: Assign database columns directly to your JSON response metrics!
+                CustomerName = string.IsNullOrWhiteSpace(order.CustomerName) ? "Walk-In Customer" : order.CustomerName,
+                WaiterName = string.IsNullOrWhiteSpace(order.WaiterName) ? "System Terminal" : order.WaiterName,
+                OrderType = string.IsNullOrWhiteSpace(order.OrderType) ? "Walk-In" : order.OrderType,
+
+                PaymentMode = order.PaymentMode.ToString(),
+                GrandTotal = order.GrandTotal,
+                OrderStatus = order.OrderStatus.ToString(),
+                OrderDate = order.OrderDate,
+                TableName = order.OrderType == "Dine-In" ? $"Table {tableNumber}" : "Counter/POS"
+            });
         }
 
         return Ok(response);
@@ -174,22 +207,22 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
-public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateStatusRequest request)
-{
-    var order = await _restaurantService.GetOrderAsync(id);
-    if (order is null)
+    public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] UpdateStatusRequest request)
     {
-        return NotFound(new { message = "Target transaction element trace absent." });
+        var order = await _restaurantService.GetOrderAsync(id);
+        if (order is null)
+        {
+            return NotFound(new { message = "Target transaction element trace absent." });
+        }
+
+        // Update status string/enum based on your domain rule logic execution
+        await _restaurantService.UpdateOrderStatusAsync(id, request.Status);
+        return NoContent();
     }
 
-    // Update status string/enum based on your domain rule logic execution
-    await _restaurantService.UpdateOrderStatusAsync(id, request.Status);
-    return NoContent();
-}
-
-// Simple request wrapper payload matching the Angular body signature
-public class UpdateStatusRequest
-{
-    public string Status { get; set; } = string.Empty;
-}
+    // Simple request wrapper payload matching the Angular body signature
+    public class UpdateStatusRequest
+    {
+        public string Status { get; set; } = string.Empty;
+    }
 }

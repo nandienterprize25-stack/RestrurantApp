@@ -12,6 +12,7 @@ System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeM
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRestaurantServices(builder.Configuration);
 
+
 //
 
 builder.Services.AddSwaggerGen(options =>

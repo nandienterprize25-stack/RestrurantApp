@@ -10,10 +10,11 @@ import {
     GridReadyEvent, 
     ModuleRegistry, 
     ClientSideRowModelModule, 
-    TextFilterModule 
+    TextFilterModule,
+    CellStyleModule // 👈 1. ADD THIS IMPORT 
 } from 'ag-grid-community';
 
-ModuleRegistry.registerModules([ClientSideRowModelModule, TextFilterModule]);
+ModuleRegistry.registerModules([ClientSideRowModelModule, TextFilterModule,CellStyleModule]);
 
 @Component({
     selector: 'app-addons-assign-list',

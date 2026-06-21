@@ -1,238 +1,275 @@
-<div class="pos-master-wrapper">
-  
-  <header class="pos-top-navbar">
-    <div class="nav-shortcuts-left">
-      <button class="nav-shortcut-btn home-btn">🏠 Home</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'New Order'" (click)="switchTab('New Order')">➕ New Order</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'On Going Order'" (click)="switchTab('On Going Order')">🔄 On Going Order ({{ activeOrders.length }})</button>
-      <button class="nav-shortcut-btn" [class.nav-btn-active]="activeTab === 'Today Order'" (click)="switchTab('Today Order')">📅 Today Order</button>
-    </div>
-    <div class="nav-status-right">
-      <span class="status-indicator">● POS Terminal Live</span>
-    </div>
-  </header>
+<div class="pos-billing-desktop-system">
 
-  <div class="pos-workspace" *ngIf="activeTab === 'New Order'">
-    
-    <div class="invoice-container">
-      <div class="invoice-meta-header">
-        <div class="meta-field">
-          <label>Customer Name</label>
-          <input type="text" [(ngModel)]="customerName" placeholder="Walk-In Customer" />
-        </div>
-        <div class="meta-field">
-          <label>Customer Type</label>
-          <select [(ngModel)]="customerType">
-            <option value="Dine In">Dine In</option>
-            <option value="Take Away">Take Away</option>
-            <option value="Delivery">Delivery</option>
-          </select>
-        </div>
-        <div class="meta-field">
-          <label>Waiter/Staff</label>
-          <input type="text" [(ngModel)]="waiterName" readonly />
-        </div>
-        <div class="meta-field" *ngIf="customerType === 'Dine In'">
-          <label>Table Allocation</label>
-          <button class="table-trigger-btn" (click)="openTableSelectionModal()">🪑 {{ selectedTable }}</button>
-        </div>
-      </div>
+  <div class="pos-invoice-checkout-panel">
+    <div class="invoice-meta-header-group">
 
-      <div class="cart-items-ledger">
-        <div class="empty-cart-state" *ngIf="cart.length === 0">
-          <div class="empty-cart-art">🛒</div>
-          <p>Operational checkout ledger is currently empty</p>
-        </div>
-
-        <div class="cart-row-item" *ngFor="let item of cart">
-          <div class="item-identity">
-            <span class="item-emoji">{{ item.imageCode }}</span>
-            <div class="item-details">
-              <h4>{{ item.name }}</h4>
-              <span class="item-unit-cost">${{ item.price | number:'1.2-2' }}</span>
-            </div>
-          </div>
-          
-          <div class="item-quantity-controls">
-            <button class="qty-btn" (click)="decrementQuantity(item)">-</button>
-            <span class="qty-display">{{ item.quantity }}</span>
-            <button class="qty-btn" (click)="incrementQuantity(item)">+</button>
-          </div>
-
-          <div class="item-total-price">
-            ${{ item.total | number:'1.2-2' }}
+      <div class="meta-row-input">
+        <div class="input-block-node">
+          <label class="pos-field-label">Customer Name</label>
+          <div class="input-with-icon">
+            <span class="prefix-input-icon">👤</span>
+            <input type="text" [(ngModel)]="customerName" placeholder="Walk-In Customer" class="pos-clean-input" />
           </div>
         </div>
       </div>
 
-      <div class="invoice-financial-footer">
-        <div class="summary-line">
-          <span>Subtotal</span>
-          <span>${{ cartSubTotal | number:'1.2-2' }}</span>
-        </div>
-        <div class="summary-line">
-          <span>VAT Rate ({{ vatRatePercentage }}%)</span>
-          <span>${{ cartVatTotal | number:'1.2-2' }}</span>
-        </div>
-        <div class="summary-line grand-total-highlight">
-          <span>Grand Total</span>
-          <span>${{ cartGrandTotal | number:'1.2-2' }}</span>
-        </div>
-
-        <div class="payment-action-matrix">
-          <button class="pay-btn clear-btn" (click)="clearCart()">❌ Clear Order</button>
-          <button class="pay-btn cash-btn" (click)="processPayment('Cash')">💵 Cash Payment</button>
-          <button class="pay-btn card-btn" (click)="processPayment('Card')">💳 Card Settlement</button>
+      <div class="meta-row-input" style="margin-top: 12px;">
+        <div class="input-block-node">
+          <label class="pos-field-label">Waiter Name / Server</label>
+          <div class="input-with-icon">
+            <span class="prefix-input-icon">🤵</span>
+            <input type="text" [(ngModel)]="waiterName" placeholder="Enter Waiter Name" class="pos-clean-input" />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="catalog-container">
-      <div class="catalog-filter-ribbon">
-        <div class="search-box-wrapper">
-          <input type="text" [(ngModel)]="searchQuery" placeholder="Search dish names or menu codes..." />
+      <div class="meta-row-two-columns">
+        <div class="input-block-node">
+          <label class="pos-field-label">Order Type</label>
+          <div class="input-with-icon">
+            <span class="prefix-input-icon">📋</span>
+            <select [(ngModel)]="customerType" class="pos-clean-input">
+              <option value="Walk-In">Walk-In</option>
+              <option value="Dine-In">Dine-In</option>
+              <option value="Takeaway">Takeaway</option>
+              <option value="Delivery">Delivery</option>
+            </select>
+          </div>
         </div>
-        <div class="category-pills-container">
-          <button 
-            *ngFor="let cat of categories" 
-            class="cat-tab-pill" 
-            [class.cat-tab-active]="selectedCategory === cat"
-            (click)="selectedCategory = cat">
-            {{ cat }}
+
+        <div class="input-block-node" style="position: relative;" *ngIf="customerType === 'Dine-In'">
+          <label class="pos-field-label">Table Number</label>
+          <button type="button" class="pos-dropdown-trigger-btn" (click)="toggleTableDropdown($event)">
+            <span>🪑 {{ selectedTable }}</span>
+            <span class="dropdown-caret-arrow">▼</span>
           </button>
-        </div>
-      </div>
 
-      <div class="products-grid-matrix">
-        <div class="product-menu-card" *ngFor="let prod of filteredProducts" (click)="addToCart(prod)">
-          <div class="prod-badge-category">{{ prod.category }}</div>
-          <div class="prod-art-frame">{{ prod.imageCode }}</div>
-          <div class="prod-text-content">
-            <h3>{{ prod.name }}</h3>
-            <div class="prod-footer-row">
-              <span class="prod-price">${{ prod.price | number:'1.2-2' }}</span>
-              <span class="prod-action-plus">＋ Add</span>
+          <div class="pos-tables-dropdown-overlay" *ngIf="isTableDropdownOpen" (click)="$event.stopPropagation()">
+
+            <div class="dropdown-sub-category-tabs">
+              <button type="button" class="sub-tab-btn" [class.sub-tab-active]="activeLocationTab === 'Restaurant'"
+                (click)="activeLocationTab = 'Restaurant'">
+                🍴 Restaurant
+              </button>
+              <button type="button" class="sub-tab-btn" [class.sub-tab-active]="activeLocationTab === 'Room'"
+                (click)="activeLocationTab = 'Room'">
+                🛏️ Room
+              </button>
+              <button type="button" class="sub-tab-btn" [class.sub-tab-active]="activeLocationTab === 'Cafeteria'"
+                (click)="activeLocationTab = 'Cafeteria'">
+                ☕ Cafeteria
+              </button>
+            </div>
+
+            <div class="dropdown-scroller-viewport">
+
+              <div *ngIf="activeLocationTab === 'Restaurant'">
+                <div *ngFor="let floor of groupedTables | keyvalue" class="floor-section-group">
+                  <div class="floor-badge-header">{{ floor.key }}</div>
+                  <div class="dropdown-tables-grid">
+                    <div *ngFor="let table of floor.value" class="dropdown-table-tile-node"
+                      [class.table-tile-available]="table.status === 'Available'"
+                      [class.table-tile-occupied]="table.status === 'Occupied' || table.status === 'Reserved'"
+                      [class.table-tile-selected]="selectedTableId === table.id" (click)="selectTableNode(table)">
+                      <span class="tile-table-name">{{ table.name }}</span>
+                      <span class="tile-table-capacity">Pax {{ table.capacity }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="restaurantTables.length === 0" class="no-tables-alert">
+                  ⚠️ No restaurant tables found.
+                </div>
+              </div>
+
+              <div *ngIf="activeLocationTab === 'Room'" class="location-empty-fallback">
+                <span class="fallback-icon">🏨</span>
+                <h4>Room Service Layout Workspace</h4>
+                <p>No rooms checked into the active list right now.</p>
+              </div>
+
+              <div *ngIf="activeLocationTab === 'Cafeteria'" class="location-empty-fallback">
+                <span class="fallback-icon">🧁</span>
+                <h4>Cafeteria Table Layout Workspace</h4>
+                <p>No cafeteria tables are mapped in this zone yet.</p>
+              </div>
+
+            </div>
+
+            <div class="dropdown-color-legends-footer">
+              <div class="legend-indicator"><span class="legend-color-dot color-avail"></span> Available</div>
+              <div class="legend-indicator"><span class="legend-color-dot color-occu"></span> Occupied</div>
+              <div class="legend-indicator"><span class="legend-color-dot color-selected"></span> Chosen</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
+    <div class="billing-cart-items-scroll-matrix">
+      <table class="pos-billing-table-core">
+        <thead>
+          <tr>
+            <th align="left">Item Description</th>
+            <th align="right" width="70">Price</th>
+            <th align="center" width="100">Qty</th>
+            <th align="right" width="80">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of cartItems">
+            <td>
+              <div class="cart-product-title">{{ item.name }}</div>
+            </td>
+            <td align="right">${{ item.price | number:'1.2-2' }}</td>
+            <td align="center">
+              <div class="cart-math-stepper">
+                <button class="stepper-btn" (click)="updateQuantity(item, -1)">-</button>
+                <span class="stepper-count">{{ item.quantity }}</span>
+                <button class="stepper-btn" (click)="updateQuantity(item, 1)">+</button>
+              </div>
+            </td>
+            <td align="right" class="cart-item-net-total">${{ item.total | number:'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="cartItems.length === 0">
+            <td colspan="4" class="empty-basket-placeholder-cell">
+              <div class="empty-basket-graphics">🛒</div>
+              <p>No items added to invoice registry bucket yet.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pos-billing-pricing-aggregates-footer">
+      <div class="aggregate-pricing-row">
+        <span>Sub Total</span>
+        <strong>${{ getCartSubtotal() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="aggregate-pricing-row">
+        <span>Tax (5%)</span>
+        <strong>${{ totalTax | number:'1.2-2' }}</strong>
+      </div>
+      <div class="aggregate-pricing-row row-grand-payable">
+        <span>Total Payable</span>
+        <span>${{ grandTotal | number:'1.2-2' }}</span>
+      </div>
+      <!--Buttons-->
+      <div class="checkout-actions-row-matrix">
+        <button type="button" class="pos-action-btn btn-clear-all" (click)="clearCart()">Reset</button>
+
+        <button type="button" class="pos-action-btn"
+          style="background: #10b981; color: white; flex-grow: 1; font-weight: 700;" [disabled]="cartItems.length === 0"
+          (click)="openSplitPaymentDrawer()">
+          💳 Process Invoice Settlement
+        </button>
+      </div>
+      <!--End Buttons-->
+    </div>
   </div>
 
-  <div class="orders-monitor-view" *ngIf="activeTab === 'On Going Order'">
-    <div class="monitor-header-row">
-      <h2>🔄 Live Kitchen & Service Tracking Matrices</h2>
-      <button class="refresh-data-btn" (click)="loadAllSystemOrders()">🔄 Force Reload Grid</button>
+  <div class="pos-inventory-showcase-viewport">
+
+    <div class="pos-categories-horizontal-scroller">
+      <button *ngFor="let cat of categories" type="button" class="pos-category-filter-pill"
+        [class.pill-active]="selectedCategory === cat.id" (click)="filterByCategory(cat.id)">
+        <span class="category-pill-title">{{ cat.name }}</span>
+      </button>
     </div>
 
-    <div class="empty-monitor-state" *ngIf="activeOrders.length === 0">
-      <div class="monitor-empty-icon">🍳</div>
-      <h3>No Active Orders Processing</h3>
-      <p>All items have been served or cleared safely into the archival registers.</p>
+    <div class="pos-search-control-wrapper">
+      <input type="text" [(ngModel)]="searchQuery" (input)="filterProducts()"
+        placeholder="🔍 Search items by typing code or menu descriptions..." class="pos-search-input" />
     </div>
 
-    <div class="orders-grid-cards-layout" *ngIf="activeOrders.length > 0">
-      <div class="order-tracking-card" *ngFor="let ord of activeOrders">
-        <div class="card-header-badge-row">
-          <span class="order-id-tag">🧾 Order #{{ ord.id.substring(0,6).toUpperCase() }}</span>
-          <span class="status-pill-badge processing-badge">{{ ord.status }}</span>
+    <div class="pos-products-grid-platform">
+      <div class="pos-product-tile-card" *ngFor="let prod of filteredProducts" (click)="addToCart(prod)">
+        <div class="tile-graphic-art-placeholder">
+          <span class="tile-emoji-icon">{{ prod.imageCode }}</span>
         </div>
-        
-        <div class="order-card-meta-body">
-          <p class="meta-row-info"><strong>🪑 Assignment:</strong> {{ ord.tableName || 'Take-Away / Delivery Mode' }}</p>
-          <p class="meta-row-info"><strong>🕒 Placed At:</strong> {{ ord.createdAt | date:'shortTime' }}</p>
-          <hr class="card-divider-line" />
-          
-          <div class="mini-items-scroll-box">
-            <div class="mini-item-row" *ngFor="let sub of ord.items">
-              <span>{{ sub.quantity }}x {{ sub.menuItemName || 'Catalog Product' }}</span>
-              <span>${{ sub.totalPrice | number:'1.2-2' }}</span>
-            </div>
+        <div class="tile-product-details-content">
+          <h3 class="tile-product-title-text">{{ prod.name }}</h3>
+          <div class="tile-pricing-footer-line">
+            <span class="tile-price-label">${{ prod.price | number:'1.2-2' }}</span>
+            <span class="tile-category-tag-badge">{{ prod.categoryName }}</span>
           </div>
         </div>
+      </div>
 
-        <div class="order-card-action-footer">
-          <div class="footer-financial-total">
-            <span>Total Ledger value:</span>
-            <strong>${{ ord.totalAmount | number:'1.2-2' }}</strong>
-          </div>
-          <button class="complete-order-action-btn" (click)="finalizeActiveOrderState(ord.id)">✓ Complete Settlement</button>
-        </div>
+      <div class="no-products-empty-state-card" *ngIf="filteredProducts.length === 0">
+        🍽️ No menu matches found under selected context criteria parameters.
       </div>
     </div>
   </div>
+</div>
 
-  <div class="orders-monitor-view" *ngIf="activeTab === 'Today Order'">
-    <div class="monitor-header-row">
-      <h2>📅 Historical Process Logs Ledger (Today)</h2>
+
+<div class="modal-overlay-backdrop custom-alert-zIndex" *ngIf="isSuccessModalOpen">
+  <div class="custom-success-alert-card animated-pop">
+    <div class="alert-success-icon-shield">✓</div>
+    <h2>Transaction Settled Successfully!</h2>
+    <p>Operational receipt cleared via <strong>{{ lastUsedPaymentMethod }} Settlement Mode</strong>.</p>
+
+    <div class="alert-invoice-breakdown-box">
+      <div class="breakdown-row"><span>Order Track ID:</span><strong>#{{ lastCreatedOrderId }}</strong></div>
+      <div class="breakdown-row"><span>Total Audited Amount:</span><strong>${{ lastSettledAmount | number:'1.2-2'
+          }}</strong></div>
     </div>
 
-    <div class="empty-monitor-state" *ngIf="historicalOrders.length === 0">
-      <div class="monitor-empty-icon">📂</div>
-      <h3>No historical records for today yet</h3>
+    <button class="alert-action-ok-btn" (click)="dismissSuccessConfirmationWindow()">
+      OK, Go to Order List
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay-backdrop custom-alert-zIndex" *ngIf="isSplitPaymentModalOpen">
+  <div class="custom-success-alert-card animated-pop" style="max-width: 460px; text-align: left; padding: 25px;">
+    <h2 style="margin-top: 0; color: #1e293b; font-size: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+      💵 Order Payment Desk
+    </h2>
+
+    <div
+      style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between;">
+      <span style="color: #64748b; font-weight: 500;">Total Balance Outstanding:</span>
+      <strong style="color: #ef4444; font-size: 18px;">${{ grandTotal | number:'1.2-2' }}</strong>
     </div>
 
-    <div class="orders-grid-cards-layout" *ngIf="historicalOrders.length > 0">
-      <div class="order-tracking-card archived-card" *ngFor="let ord of historicalOrders">
-        <div class="card-header-badge-row">
-          <span class="order-id-tag">🧾 Ref: #{{ ord.id.substring(0,6).toUpperCase() }}</span>
-          <span class="status-pill-badge settled-badge">Settled</span>
-        </div>
-        <div class="order-card-meta-body">
-          <p><strong>Total Amount Cleared:</strong> ${{ ord.totalAmount | number:'1.2-2' }}</p>
-          <p><strong>Timestamp Closed:</strong> {{ ord.createdAt | date:'medium' }}</p>
-        </div>
+    <div
+      style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 4px;">
+      <div *ngFor="let p of splitPayments; let i = index"
+        style="display: flex; gap: 8px; align-items: center; background: #fafafa; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+
+        <select [(ngModel)]="p.method" class="pos-clean-input"
+          style="width: 100px; padding: 6px; border: 1px solid #cbd5e1; height: auto;">
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="UPI">UPI</option>
+        </select>
+
+        <input type="number" [(ngModel)]="p.amount" placeholder="Amount" class="pos-clean-input"
+          style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; height: auto;" />
+
+        <button type="button" (click)="splitPayments.splice(i, 1)"
+          style="background: #fee2e2; color: #ef4444; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: 600;">
+          ✕
+        </button>
       </div>
+    </div>
+
+    <button type="button" (click)="splitPayments.push({method: 'Cash', amount: 0})"
+      style="background: #f1f5f9; color: #475569; border: 1px dashed #cbd5e1; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 20px;">
+      ➕ Add Payment Split Channel
+    </button>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" class="pos-action-btn" style="background: #94a3b8; color: white;"
+        (click)="isSplitPaymentModalOpen = false">
+        Go Back
+      </button>
+
+      <button type="button" class="pos-action-btn" style="background: #10b981; color: white; flex: 1;"
+        (mousedown)="$event.preventDefault(); processCheckoutReceipt()">
+        Finalize Settlement (1-Click)
+      </button>
     </div>
   </div>
-
-  <div class="modal-overlay-backdrop" *ngIf="isTableModalOpen">
-    <div class="table-modal-window-card">
-      <div class="modal-window-header">
-        <h3>Select Operational Dining Layout Placement</h3>
-        <button class="close-modal-x-btn" (click)="closeTableSelectionModal()">✕</button>
-      </div>
-      <div class="floor-tabs-navigation-ribbon">
-        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'All Floors'" (click)="selectedFloorFilter = 'All Floors'">All Layout Maps</button>
-        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 1'" (click)="selectedFloorFilter = 'Floor 1'">Floor 1 Main</button>
-        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'Floor 2'" (click)="selectedFloorFilter = 'Floor 2'">Floor 2 Deck</button>
-        <button class="floor-tab-btn" [class.floor-tab-active]="selectedFloorFilter === 'VIP Room'" (click)="selectedFloorFilter = 'VIP Room'">VIP Rooms Suite</button>
-      </div>
-
-      <div class="table-floor-grid-matrix">
-        <div *ngFor="let table of filteredTables" 
-             class="table-grid-node-card" 
-             [ngClass]="{'status-avail': table.status === 'Available', 'status-occu': table.status === 'Occupied', 'status-resv': table.status === 'Reserved'}" 
-             (click)="selectTableNode(table)">
-          <span class="table-icon-art">🪑</span>
-          <h4 class="table-node-title">{{ table.name }}</h4>
-          <span class="table-node-capacity">Pax: {{ table.capacity }}</span>
-          <div class="table-status-pill-badge">{{ table.status }}</div>
-        </div>
-      </div>
-
-      <div class="modal-window-footer-legend">
-        <div class="legend-item"><span class="legend-dot dot-avail"></span> Available</div>
-        <div class="legend-item"><span class="legend-dot dot-occu"></span> Occupied</div>
-        <div class="legend-item"><span class="legend-dot dot-resv"></span> Reserved</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay-backdrop custom-alert-zIndex" *ngIf="isSuccessModalOpen">
-    <div class="custom-success-alert-card animated-pop">
-      <div class="alert-success-icon-shield">✓</div>
-      <h2>Transaction Cleared Successfully!</h2>
-      <p>Operational POS sequence completed via <strong>{{ lastUsedPaymentMethod }} Settlement Mode</strong>.</p>
-      
-      <div class="alert-invoice-breakdown-box">
-        <div class="breakdown-row"><span>Receipt ID reference:</span><strong>#{{ lastCreatedOrderId.substring(0,8).toUpperCase() }}</strong></div>
-        <div class="breakdown-row"><span>Total Ledger Audited:</span><strong>${{ lastSettledAmount | number:'1.2-2' }}</strong></div>
-      </div>
-
-      <button class="alert-dismiss-action-btn" (click)="dismissSuccessConfirmationWindow()">Dismiss Notification</button>
-    </div>
-  </div>
-
 </div>
