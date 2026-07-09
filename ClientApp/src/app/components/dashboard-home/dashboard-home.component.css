@@ -1,50 +1,90 @@
-.dashboard-viewport {
+/* Core Structural Layout Layout Frame */
+.restaurant-dashboard-wrapper {
+  background-color: #f8fafc;
+  padding: 24px;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.welcome-banner h2 {
+/* Custom Header Navigation Topbar Elements */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+.dashboard-main-title {
   margin: 0;
   font-size: 24px;
   color: #111827;
   font-weight: 700;
 }
 
-.welcome-banner p {
+.dashboard-subtitle-text {
   margin: 4px 0 0 0;
   color: #6b7280;
   font-size: 14px;
 }
 
-/* Row 1 KPI Grid styling */
-.metrics-grid {
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.station-badge {
+  font-size: 13px;
+  background-color: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #4b5563;
+}
+
+.logout-btn {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #f9fafb;
+}
+
+/* Row 1 KPI Grid Metrics Cards CSS Matrix */
+.metrics-counters-grid-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
 }
 
-.metric-card {
+.metric-block-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.metric-card:hover {
+.metric-block-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.card-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.card-icon {
+.metric-icon-housing {
   font-size: 28px;
   background-color: #f3f4f6;
   padding: 10px;
@@ -52,7 +92,7 @@
   line-height: 1;
 }
 
-.card-info h3 {
+.metric-label {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
@@ -61,7 +101,7 @@
   letter-spacing: 0.5px;
 }
 
-.card-info .stat-value {
+.metric-main-number {
   margin: 6px 0 4px 0;
   font-size: 26px;
   font-weight: 700;
@@ -69,50 +109,49 @@
   line-height: 1;
 }
 
-.trend {
+.trend-badge {
   font-size: 12px;
   font-weight: 500;
 }
 
-.trend.positive { color: #10b981; }
-.trend.negative { color: #ef4444; }
-.trend.neutral { color: #6b7280; }
+.trend-badge.trend-up { color: #10b981; }
+.trend-badge.trend-neutral { color: #6b7280; }
 
-/* Layout Structure Split Panels */
-.details-section {
+/* Row 2 Workspaces Splits Design Grid Panels */
+.dashboard-split-workspace-columns {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 24px;
 }
 
 @media (max-width: 1024px) {
-  .details-section {
+  .dashboard-split-workspace-columns {
     grid-template-columns: 1fr;
   }
 }
 
-.panel {
+.dashboard-split-panel-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 24px;
 }
 
-.panel-header {
+.panel-header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.panel-header h3 {
+.panel-heading-title {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: #111827;
 }
 
-.btn-panel-action {
+.btn-panel-action-link {
   background: none;
   border: none;
   color: #4f46e5;
@@ -121,20 +160,24 @@
   cursor: pointer;
 }
 
-/* Elegant Table Layout Styling */
-.table-responsive {
+.btn-panel-action-link:hover {
+  text-decoration: underline;
+}
+
+/* Data Table Grid System */
+.table-responsive-overflow-frame {
   width: 100%;
   overflow-x: auto;
 }
 
-.dashboard-table {
+.restaurant-core-dashboard-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 14px;
 }
 
-.dashboard-table th {
+.restaurant-core-dashboard-table th {
   background-color: #f9fafb;
   padding: 12px 16px;
   font-weight: 600;
@@ -142,16 +185,24 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.dashboard-table td {
+.restaurant-core-dashboard-table td {
   padding: 14px 16px;
   border-bottom: 1px solid #f3f4f6;
   color: #1f2937;
 }
 
-.text-muted { color: #9ca3af; }
+.text-bold-token { font-weight: 600; color: #111827; }
+.text-muted-timestamp { color: #9ca3af; }
 
-/* Status Badges */
-.badge {
+.items-count-badge {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Status Badges Mapping Matrix */
+.status-pill-badge {
   display: inline-block;
   padding: 4px 8px;
   font-size: 11px;
@@ -160,34 +211,39 @@
   text-transform: uppercase;
 }
 
-.badge-success { background-color: #d1fae5; color: #065f46; }
-.badge-warning { background-color: #fef3c7; color: #92400e; }
-.badge-danger { background-color: #fee2e2; color: #991b1b; }
+.badge-completed { background-color: #d1fae5; color: #065f46; }
+.badge-pending { background-color: #fef3c7; color: #92400e; }
+.badge-cancelled { background-color: #fee2e2; color: #991b1b; }
 
-/* Right Performance Analytics Styling */
-.performance-list {
+/* Right Section Graph Analytics Items Track UI Elements */
+.top-selling-items-stack-container {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.perf-meta {
+.progress-item-bar-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-row-label-line {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
   margin-bottom: 4px;
 }
 
-.item-name {
+.food-name-title-text {
   font-weight: 600;
   color: #111827;
 }
 
-.item-count {
+.units-sold-count {
   color: #4b5563;
 }
 
-.progress-bar-track {
+.progress-bar-track-background {
   width: 100%;
   height: 6px;
   background-color: #f3f4f6;
@@ -196,13 +252,13 @@
   margin-bottom: 2px;
 }
 
-.progress-bar-fill {
+.progress-fill-runner {
   height: 100%;
   border-radius: 10px;
   transition: width 0.6s ease-in-out;
 }
 
-.item-category {
+.food-sub-category-label {
   font-size: 11px;
   color: #9ca3af;
 }

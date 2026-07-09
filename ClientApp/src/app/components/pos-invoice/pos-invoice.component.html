@@ -266,10 +266,11 @@
         Go Back
       </button>
 
-      <button type="button" class="pos-action-btn" style="background: #10b981; color: white; flex: 1;"
-        (mousedown)="$event.preventDefault(); processCheckoutReceipt()">
-        Finalize Settlement (1-Click)
-      </button>
+<!-- 👇 AFTER (FIXED) -->
+<button type="button" class="pos-action-btn" style="background: #10b981; color: white; flex: 1;"
+  (mousedown)="$event.preventDefault(); processCheckoutReceipt('Split')">
+  Finalize Settlement (1-Click)
+</button>
     </div>
   </div>
 </div>

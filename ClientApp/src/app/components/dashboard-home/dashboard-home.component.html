@@ -1,111 +1,126 @@
-<div class="dashboard-viewport">
-  <div class="welcome-banner">
-    <h2>Operational Dashboard</h2>
-    <p>Real-time dining room data overview and financial performance tracking metrics.</p>
-  </div>
+<div class="main-content restaurant-dashboard-wrapper">
+  <!-- Top Responsive Header Action Row -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 class="dashboard-main-title">Operational Dashboard</h1>
+      <p class="dashboard-subtitle-text">Real-time dining room data overview and financial performance tracking metrics.</p>
+    </div>
+    <div class="topbar-right">
+      <span class="station-badge">Station Assigned: <strong>Restaurant Administrator</strong></span>
+      <button type="button" (click)="logout()" class="logout-btn">🚪 Sign Out</button>
+    </div>
+  </header>
 
-  <div class="metrics-grid">
-    <div class="metric-card card-revenue">
-      <div class="card-body">
-        <span class="card-icon">💰</span>
-        <div class="card-info">
-          <h3>Total Revenue</h3>
-          <p class="stat-value">${{ statsSummary.totalRevenue | number:'1.2-2' }}</p>
-          <span class="trend positive">▲ +12.4% today</span>
+  <!-- Scrollable Dashboard Core Body viewport -->
+  <div class="content-wrapper">
+    
+    <!-- Row 1: Metrics Aggregation Blocks -->
+    <section class="metrics-counters-grid-row">
+      <div class="metric-block-card card-revenue">
+        <div class="metric-icon-housing">💰</div>
+        <div class="metric-value-context">
+          <p class="metric-label">TOTAL REVENUE</p>
+          <h2 class="metric-main-number">${{ totalRevenue | number:'1.2-2' }}</h2>
+          <span class="trend-badge trend-up">▲ +12.4% today</span>
         </div>
       </div>
-    </div>
 
-    <div class="metric-card card-orders">
-      <div class="card-body">
-        <span class="card-icon">📋</span>
-        <div class="card-info">
-          <h3>Total Orders</h3>
-          <p class="stat-value">{{ statsSummary.totalOrders }}</p>
-          <span class="trend positive">▲ +8.1% today</span>
+      <div class="metric-block-card card-orders">
+        <div class="metric-icon-housing">📋</div>
+        <div class="metric-value-context">
+          <p class="metric-label">TOTAL ORDERS</p>
+          <h2 class="metric-main-number">{{ totalOrdersCount }}</h2>
+          <span class="trend-badge trend-up">▲ +8.1% today</span>
         </div>
       </div>
-    </div>
 
-    <div class="metric-card card-tables">
-      <div class="card-body">
-        <span class="card-icon">🍽️</span>
-        <div class="card-info">
-          <h3>Active Tables</h3>
-          <p class="stat-value">{{ statsSummary.activeTables }} / 25</p>
-          <span class="trend neutral">● Peak capacity</span>
+      <div class="metric-block-card card-tables">
+        <div class="metric-icon-housing">🪑</div>
+        <div class="metric-value-context">
+          <p class="metric-label">ACTIVE TABLES</p>
+          <h2 class="metric-main-number">{{ occupiedTablesCount }} / {{ totalTablesAvailable }}</h2>
+          <span class="trend-badge trend-neutral">■ Peak capacity capacity</span>
         </div>
       </div>
-    </div>
 
-    <div class="metric-card card-average">
-      <div class="card-body">
-        <span class="card-icon">📊</span>
-        <div class="card-info">
-          <h3>Avg Ticket Value</h3>
-          <p class="stat-value">${{ statsSummary.averageBill | number:'1.2-2' }}</p>
-          <span class="trend positive">▲ +3.2% vs last week</span>
+      <div class="metric-block-card card-ticket">
+        <div class="metric-icon-housing">📈</div>
+        <div class="metric-value-context">
+          <p class="metric-label">AVG TICKET VALUE</p>
+          <h2 class="metric-main-number">${{ avgTicketValue | number:'1.2-2' }}</h2>
+          <span class="trend-badge trend-up">▲ +3.2% vs last week</span>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="details-section">
-    <div class="panel data-panel">
-      <div class="panel-header">
-        <h3>Recent Transactions</h3>
-        <button class="btn-panel-action">View All</button>
-      </div>
-      <div class="table-responsive">
-        <table class="dashboard-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Location</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Total Amount</th>
-              <th>Timestamp</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let tx of recentTransactions">
-              <td><strong>{{ tx.id }}</strong></td>
-              <td>{{ tx.table }}</td>
-              <td>{{ tx.customer }}</td>
-              <td>{{ tx.items }} items</td>
-              <td>${{ tx.total | number:'1.2-2' }}</td>
-              <td class="text-muted">{{ tx.time }}</td>
-              <td>
-                <span class="badge" [ngClass]="{
-                  'badge-success': tx.status === 'Completed',
-                  'badge-warning': tx.status === 'Pending',
-                  'badge-danger': tx.status === 'Cancelled'
-                }">{{ tx.status }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <!-- Row 2: Recent Transactions Table & Top Items Breakdown -->
+    <div class="dashboard-split-workspace-columns">
+      
+      <!-- Left Column: Recent Transactions Table Grid Frame -->
+      <section class="dashboard-split-panel-card left-panel-table">
+        <div class="panel-header-container">
+          <h3 class="panel-heading-title">Recent Transactions</h3>
+          <button type="button" class="btn-panel-action-link" routerLink="/orders/order-list">View All</button>
+        </div>
+        
+        <div class="table-responsive-overflow-frame">
+          <table class="restaurant-core-dashboard-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Location</th>
+                <th>Customer</th>
+                <th>Items Count</th>
+                <th>Total Amount</th>
+                <th>Timestamp</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of recentTransactions">
+                <td class="text-bold-token">{{ order.invoiceNo }}</td>
+                <td>{{ order.tableName }}</td>
+                <td>{{ order.customerName }}</td>
+                <td><span class="items-count-badge">{{ order.itemsCount }} items</span></td>
+                <td class="text-bold-token">${{ order.grandTotal | number:'1.2-2' }}</td>
+                <td class="text-muted-timestamp">{{ order.orderDate }}</td>
+                <td>
+                  <span class="status-pill-badge" [ngClass]="'badge-' + order.orderStatus.toLowerCase()">
+                    {{ order.orderStatus }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    <div class="panel performance-panel">
-      <div class="panel-header">
-        <h3>Top Selling Items</h3>
-      </div>
-      <div class="performance-list">
-        <div class="perf-item" *ngFor="let item of topSellingItems">
-          <div class="perf-meta">
-            <span class="item-name">{{ item.name }}</span>
-            <span class="item-count"><strong>{{ item.count }}</strong> units</span>
+      <!-- Right Column: Top Selling Items Horizontal Progress Bars -->
+      <section class="dashboard-split-panel-card right-panel-metrics">
+        <div class="panel-header-container">
+          <h3 class="panel-heading-title">Top Selling Items</h3>
+        </div>
+
+        <div class="top-selling-items-stack-container">
+          <div class="progress-item-bar-row" *ngFor="let item of topSellingMenuItems">
+            <div class="progress-row-label-line">
+              <span class="food-name-title-text">{{ item.foodName }}</span>
+              <span class="units-sold-count">{{ item.quantitySold }} units</span>
+            </div>
+            
+            <!-- Dynamic styling binding to scale width natively according to performance velocity percentage -->
+            <div class="progress-bar-track-background">
+              <div class="progress-fill-runner" 
+                   [style.width.%]="item.performancePercentage"
+                   [style.background-color]="item.barColorHex">
+              </div>
+            </div>
+            <span class="food-sub-category-label">{{ item.categoryName }}</span>
           </div>
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
-          </div>
-          <span class="item-category">{{ item.category }}</span>
         </div>
-      </div>
+      </section>
+      
     </div>
+
   </div>
 </div>
