@@ -1,0 +1,126 @@
+/* Core Styling Matrix & Scaffolding Variables */
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.page-title-box h2 { font-size: 24px; color: #111827; font-weight: 700; margin: 0; }
+.page-title-box .subtitle { font-size: 14px; color: #6b7280; margin: 4px 0 0 0; }
+
+/* Filter Blocks Structure Forms Layouts */
+.filter-card, .table-card, .card-form {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+}
+.shadow-frame { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+.form-row-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+.span-two { flex: 2; min-width: 400px; }
+
+.form-group label, .form-group-block label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-control, .form-control-inline {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  background-color: #ffffff;
+}
+.form-control:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+.form-control-inline { width: 220px; display: inline-block; }
+
+/* Custom Functional Action Buttons Framework */
+.btn {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
+.btn-search { background-color: #801c44; color: white; }
+.btn-reset { background-color: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+.btn-add { background-color: #801c44; color: white; font-weight: 600; margin-left: auto;}
+.btn-save-booking { background-color: #10b981; color: white; font-weight: 600; }
+.btn-add-item { background-color: #1f2937; color: white; padding: 10px; border-radius: 6px; border:none; height: 38px; align-self: flex-end;}
+
+.filter-actions { display: flex; gap: 10px; width: 100%; justify-content: flex-end; margin-top: 10px; }
+
+/* Table View Elements UI Scaffolding */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.custom-table th { background-color: #f9fafb; padding: 14px 16px; font-weight: 600; color: #4b5563; border-bottom: 2px solid #e5e7eb; }
+.custom-table td { padding: 14px 16px; border-bottom: 1px solid #f3f4f6; color: #1f2937; }
+
+/* Status Labels Color Mapping Matrix */
+.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.status-badge[data-status="Completed"], .status-badge[data-status="Confirmed"] { background-color: #d1fae5; color: #065f46; }
+.status-badge[data-status="Pending"] { background-color: #fef3c7; color: #92400e; }
+.status-badge[data-status="Cancelled"] { background-color: #fee2e2; color: #991b1b; }
+
+/* Shared Modal Container Blueprint Layers */
+.modal-container-frame { display: flex; flex-direction: column; background: #ffffff; border-radius: 12px; overflow: hidden; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; background: #801c44; padding: 16px 24px; color: white; }
+.modal-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.close-modal-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+.modal-body { padding: 24px; }
+.scrollable-body { max-height: 70vh; overflow-y: auto; }
+
+.form-section-frame { border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px; margin-bottom: 20px; }
+.form-section-frame legend { font-size: 14px; font-weight: 700; color: #801c44; padding: 0 8px; }
+
+.grid-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 12px; }
+.grid-two-col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+.menu-intake-inline-row { display: flex; gap: 12px; align-items: flex-end; background-color: #f9fafb; padding: 12px; border-radius: 6px; }
+.inline-item { flex: 2; display: flex; flex-direction: column; gap: 4px; }
+.inline-item-short { flex: 0.5; display: flex; flex-direction: column; gap: 4px; }
+
+.modal-footer-sticky { position: sticky; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
+.footer-control-buttons { display: flex; gap: 12px; }
+
+/* Tab Pill Header Strips Design Matrix */
+.tabs-navigation-strip { display: flex; gap: 8px; border-bottom: 2px solid #e5e7eb; padding-bottom: 2px; }
+.tab-pill { padding: 10px 20px; border: none; background: none; font-size: 14px; font-weight: 600; color: #4b5563; cursor: pointer; transition: all 0.2s; }
+.tab-pill.active { color: #801c44; border-bottom: 3px solid #801c44; margin-bottom: -5px; }
+
+.action-topbar { display: flex; align-items: center; margin-bottom: 16px; gap: 16px; }
+.flex-row-spread { justify-content: space-between; width: 100%; }
+.export-tool-buttons button { background: #ffffff; border: 1px solid #d1d5db; padding: 6px 12px; font-size: 13px; font-weight: 500; cursor: pointer; color: #374151; }
+.export-tool-buttons button:first-child { border-radius: 6px 0 0 6px; }
+.export-tool-buttons button:last-child { border-radius: 0 6px 6px 0; }
+.export-tool-buttons button:hover { background: #f3f4f6; }
+
+.vertical-stack { display: flex; flex-direction: column; gap: 16px; }
+.form-group-block { display: flex; flex-direction: column; gap: 6px; }
+.max-width-md { max-width: 550px; margin-top: 12px; }

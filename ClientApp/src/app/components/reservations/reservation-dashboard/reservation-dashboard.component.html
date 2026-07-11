@@ -1,0 +1,579 @@
+<div class="reservation-workspace-container">
+  <header class="workspace-header-strip">
+    <div class="meta-headline">
+      <h2>🛎️ Reservation Management Module</h2>
+      <p>Configure structural table listings, guest meal provisions, dynamic orders, and booking calendar logic rules.</p>
+    </div>
+    <nav class="subsection-navigation-bar">
+      <button class="nav-tab-link" (click)="activeSubView = 'food-booking'" [class.active-tab]="activeSubView === 'food-booking'">Food Booking List</button>
+      <button class="nav-tab-link" (click)="activeSubView = 'take-order'" [class.active-tab]="activeSubView === 'take-order'">Take Dining Order</button>
+      <button class="nav-tab-link" (click)="activeSubView = 'reservations'" [class.active-tab]="activeSubView === 'reservations'">Table Reservations</button>
+      <button class="nav-tab-link" (click)="activeSubView = 'unavailability'" [class.active-tab]="activeSubView === 'unavailability'">Unavailability (On/Off)</button>
+      <button class="nav-tab-link" (click)="activeSubView = 'settings'" [class.active-tab]="activeSubView === 'settings'">Module Configuration</button>
+    </nav>
+  </header>
+
+  <main class="workspace-viewport-content">
+    <!-- Sub-View Wrapper Containers -->
+    <ng-container [ngSwitch]="activeSubView">
+      <div *ngSwitchCase="'food-booking'" class="view-panel-fade">
+        <ng-container *ngTemplateOutlet="foodBookingTemplate"></ng-container>
+      </div>
+      <div *ngSwitchCase="'take-order'" class="view-panel-fade">
+        <ng-container *ngTemplateOutlet="takeOrderTemplate"></ng-container>
+      </div>
+      <div *ngSwitchCase="'reservations'" class="view-panel-fade">
+        <ng-container *ngTemplateOutlet="tableReservationsTemplate"></ng-container>
+      </div>
+      <div *ngSwitchCase="'unavailability'" class="view-panel-fade">
+        <ng-container *ngTemplateOutlet="unavailabilityTemplate"></ng-container>
+      </div>
+      <div *ngSwitchCase="'settings'" class="view-panel-fade">
+        <ng-container *ngTemplateOutlet="settingsTemplate"></ng-container>
+      </div>
+    </ng-container>
+  </main>
+</div>
+
+<!-- ==================================================== -->
+<!-- SUB-TEMPLATE 1: FOOD BOOKING DIRECTORY FRAMEWORK    -->
+<!-- ==================================================== -->
+<ng-template #foodBookingTemplate>
+  <div class="view-card-wrapper">
+    <div class="filter-action-row-panel">
+      <div class="input-form-control-group">
+        <label>Booking No.</label>
+        <input type="text" [(ngModel)]="filters.foodBookingNo" placeholder="e.g. BK-9942" class="form-text-input">
+      </div>
+      <div class="input-form-control-group">
+        <label>Phone Number</label>
+        <input type="text" [(ngModel)]="filters.foodPhone" placeholder="Enter contact digest" class="form-text-input">
+      </div>
+      <div class="input-form-control-group">
+        <label>Booking Status</label>
+        <select [(ngModel)]="filters.foodStatus" class="form-text-input select-dropdown">
+          <option value="">All Statuses</option>
+          <option value="Completed">Completed</option>
+          <option value="Pending">Pending</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="action-button-cluster">
+        <button type="button" class="btn-action-primary search-btn" (click)="executeFilterSearch()">🔍 Search</button>
+        <button type="button" class="btn-action-secondary reset-btn" (click)="resetFilters()">🔄 Reset</button>
+        <button type="button" class="btn-action-accent add-new-btn" (click)="openFoodBookingModal()">➕ Take Food Booking</button>
+      </div>
+    </div>
+
+    <div class="data-table-viewport-container">
+      <table class="application-data-matrix">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Booking Date</th>
+            <th>Booking No.</th>
+            <th>Booked By</th>
+            <th>Room No.</th>
+            <th>Guest Name</th>
+            <th>Phone No.</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of foodBookings; let idx = index">
+            <td>{{ idx + 1 }}</td>
+            <td>{{ item.bookingDate }}</td>
+            <td class="highlight-token">{{ item.bookingNo }}</td>
+            <td>{{ item.bookedBy }}</td>
+            <td><span class="room-pill-token">{{ item.roomNo }}</span></td>
+            <td><strong>{{ item.guestName }}</strong></td>
+            <td>{{ item.phoneNo }}</td>
+            <td class="financial-cell">${{ item.orderedAmount | number:'1.2-2' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'badge-' + (item.orderStatus?.toLowerCase() || 'pending')">{{ item.orderStatus || 'Pending' }}</span>
+            </td>
+            <td>
+              <div class="table-action-row-buttons">
+                <button class="btn-table-edit" (click)="editFoodBooking(item)">✏️ Edit</button>
+                <button class="btn-table-delete" (click)="deleteFoodBooking(item.sl)">🗑️ Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="foodBookings.length === 0">
+            <td colspan="10" class="empty-state-placeholder-cell">No food records found matching system query rules.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ==================================================== -->
+<!-- SUB-TEMPLATE 2: TAKE ORDER ENGINE FORM LAYOUT       -->
+<!-- ==================================================== -->
+<ng-template #takeOrderTemplate>
+  <div class="take-order-split-canvas">
+    
+    <!-- Left Column: Master Form Inputs Context -->
+    <div class="order-forms-stack">
+      <div class="form-section-card">
+        <div class="card-section-heading"><h4>📋 Booking Details Context</h4></div>
+        <div class="form-inputs-matrix-grid columns-3">
+          <div class="input-form-control-group obligatory">
+            <label>Booking Date *</label>
+            <input type="date" [(ngModel)]="orderForm.bookingDate" class="form-text-input">
+          </div>
+          <div class="input-form-control-group obligatory">
+            <label>Customer Name *</label>
+            <input type="text" [(ngModel)]="orderForm.customerName" class="form-text-input">
+          </div>
+          <div class="input-form-control-group obligatory">
+            <label>Customer Phone *</label>
+            <input type="text" [(ngModel)]="orderForm.customerPhone" class="form-text-input">
+          </div>
+          <div class="input-form-control-group">
+            <label>Customer Email</label>
+            <input type="email" [(ngModel)]="orderForm.customerEmail" class="form-text-input">
+          </div>
+          <div class="input-form-control-group span-2">
+            <label>Customer Address</label>
+            <input type="text" [(ngModel)]="orderForm.customerAddress" class="form-text-input">
+          </div>
+        </div>
+
+        <div class="checkbox-toggle-wrapper-row">
+          <label class="custom-checkbox-container">
+            <input type="checkbox" [(ngModel)]="orderForm.sameAsCustomer" (change)="mirrorCustomerDetails()">
+            <span class="checkmark-box"></span>
+            Synchronize parameters ("Same as Customer Details")
+          </label>
+        </div>
+
+        <div class="form-inputs-matrix-grid columns-3 src-guest-details-row">
+          <div class="input-form-control-group obligatory">
+            <label>Guest Name *</label>
+            <input type="text" [(ngModel)]="orderForm.guestName" class="form-text-input">
+          </div>
+          <div class="input-form-control-group obligatory">
+            <label>Guest Phone *</label>
+            <input type="text" [(ngModel)]="orderForm.guestPhone" class="form-text-input">
+          </div>
+          <div class="input-form-control-group">
+            <label>Guest Email</label>
+            <input type="email" [(ngModel)]="orderForm.guestEmail" class="form-text-input">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section-card">
+        <div class="card-section-heading"><h4>💳 Financial Settlement</h4></div>
+        <div class="form-inputs-matrix-grid columns-3">
+          <div class="input-form-control-group">
+            <label>Payment Date</label>
+            <input type="date" [(ngModel)]="orderForm.paymentDate" class="form-text-input">
+          </div>
+          <div class="input-form-control-group">
+            <label>Payment Mode</label>
+            <select [(ngModel)]="orderForm.paymentMode" class="form-text-input select-dropdown">
+              <option value="Cash">💵 Cash Tokens</option>
+              <option value="Card">💳 Credit / Debit POS</option>
+              <option value="UPI">📱 Electronic UPI Digital</option>
+            </select>
+          </div>
+          <div class="input-form-control-group">
+            <label>Advanced Downpayment</label>
+            <input type="number" [(ngModel)]="orderForm.advancedAmount" class="form-text-input alignment-right">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section-card book-items-sub-panel">
+        <div class="card-section-heading"><h4>🍕 Item Provision Allocation Line</h4></div>
+        <div class="form-inputs-matrix-grid columns-6-flexible-row">
+          <div class="input-form-control-group">
+            <label>Date</label>
+            <input type="date" [(ngModel)]="itemSelector.date" class="form-text-input">
+          </div>
+          <div class="input-form-control-group">
+            <label>Target Room</label>
+            <select [(ngModel)]="itemSelector.room" class="form-text-input select-dropdown">
+              <option value="Room 101">Room 101</option>
+              <option value="Room 201">Room 201</option>
+              <option value="Room 305">Room 305</option>
+            </select>
+          </div>
+          <div class="input-form-control-group">
+            <label>Food Category</label>
+            <select [(ngModel)]="itemSelector.category" class="form-text-input select-dropdown" (change)="onCategoryChange()">
+              <option value="Starters">Starters</option>
+              <option value="LUNCH">LUNCH</option>
+              <option value="Desserts">Desserts</option>
+            </select>
+          </div>
+          <div class="input-form-control-group">
+            <label>Menu Item Selection</label>
+            <select [(ngModel)]="itemSelector.menu" class="form-text-input select-dropdown" (change)="calculateItemLineTotal()">
+              <option value="Peeli Dal">Peeli Dal ($165.00)</option>
+              <option value="Truffle Burger">Truffle Burger ($220.00)</option>
+            </select>
+          </div>
+          <div class="input-form-control-group">
+            <label>Quantity</label>
+            <input type="number" [(ngModel)]="itemSelector.qty" (input)="calculateItemLineTotal()" class="form-text-input inline-qty-spinner">
+          </div>
+          <div class="input-form-control-group">
+            <label>Total Value</label>
+            <input type="text" [value]="itemSelector.total | number:'1.2-2'" readonly class="form-text-input read-only-monetary">
+          </div>
+          <div class="button-vertical-align-outlet">
+            <button type="button" class="btn-action-primary append-item-btn" (click)="addMenuItemToOrderGrid()">⚡ Add Item</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Provisioning Transactional Ledger -->
+    <div class="order-items-ledger-panel">
+      <div class="panel-headline-title-bar">
+        <h5>Guest Allocation Manifest: <span class="highlight-guest-title">{{ orderForm.guestName || 'Unnamed Entity' }}</span></h5>
+      </div>
+      <div class="table-responsive-overflow-frame">
+        <table class="application-data-matrix micro-dense-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Room</th>
+              <th>Category</th>
+              <th>Menu Item</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let line of orderBookedItemsList; let idx = index">
+              <td>{{ idx + 1 }}</td>
+              <td>{{ line.date }}</td>
+              <td><span class="room-pill-token">{{ line.room }}</span></td>
+              <td><span class="category-indicator-tag">{{ line.category }}</span></td>
+              <td><strong>{{ line.menu }}</strong></td>
+              <td class="text-center-aligned">{{ line.qty }}</td>
+              <td class="financial-cell">${{ line.total | number:'1.2-2' }}</td>
+              <td>
+                <div class="table-action-row-buttons micro-cluster">
+                  <button class="icon-btn-edit" (click)="editReceiptLineItem(line)">✏️</button>
+                  <button class="icon-btn-delete" (click)="deleteReceiptLineItem(line.id)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="orderBookedItemsList.length === 0">
+              <td colspan="8" class="empty-state-placeholder-cell">No items stacked in current ticket manifest list.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ledger-summary-footer-block">
+        <div class="summary-line">
+          <span>Gross Aggregate amount:</span>
+          <strong class="aggregate-total-value">${{ orderGrossCalculatedTotal | number:'1.2-2' }}</strong>
+        </div>
+        <button type="button" class="btn-action-accent master-commit-save-btn" (click)="commitOrderToStorageBackend()">💾 Save Order Booking</button>
+      </div>
+    </div>
+
+  </div>
+</ng-template>
+
+<!-- ==================================================== -->
+<!-- SUB-TEMPLATE 3: TABLE RESERVATION MATRIX SEARCH LIST -->
+<!-- ==================================================== -->
+<ng-template #tableReservationsTemplate>
+  <div class="view-card-wrapper">
+    <div class="reporting-export-toolbar-header">
+      <div class="export-button-group">
+        <button class="btn-export csv" (click)="triggerDataExport('csv')">CSV</button>
+        <button class="btn-export excel" (click)="triggerDataExport('excel')">Excel</button>
+        <button class="btn-export pdf" (click)="triggerDataExport('pdf')">PDF</button>
+        <button class="btn-export print" (click)="triggerDataExport('print')">Print Document</button>
+      </div>
+      <div class="search-box-alignment-anchor">
+        <input type="text" [(ngModel)]="globalSearchQueryText" placeholder="Universal structural text search..." class="form-text-input structural-search-bar" (input)="filterReservationsGlobalTable()">
+      </div>
+      <button type="button" class="btn-action-accent overlay-btn-right" (click)="toggleReservationFormDialog(true)">📅 Take A Reservation</button>
+    </div>
+
+    <div class="data-table-viewport-container">
+      <table class="application-data-matrix">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Customer Name</th>
+            <th>Table No.</th>
+            <th>Number Of People</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let res of filteredReservations; let idx = index">
+            <td>{{ idx + 1 }}</td>
+            <td><strong>{{ res.customerName }}</strong></td>
+            <td><span class="table-identifier-token">{{ res.tableNo }}</span></td>
+            <td class="text-center-aligned">{{ res.numberOfPeople }} Pax</td>
+            <td>{{ res.startTime }}</td>
+            <td>{{ res.endTime }}</td>
+            <td>{{ res.date }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'badge-' + res.status.toLowerCase()">{{ res.status }}</span>
+            </td>
+            <td>
+              <div class="table-action-row-buttons">
+                <button class="btn-table-edit" (click)="initializeReservationEditPayload(res)">✏️ Edit</button>
+                <button class="btn-table-delete" (click)="deleteReservationRecordItem(res.sl)">🗑️ Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ==================================================== -->
+<!-- SUB-TEMPLATE 4: RESERVATION UNAVAILABILITY MANAGEMENT-->
+<!-- ==================================================== -->
+<ng-template #unavailabilityTemplate>
+  <div class="view-card-wrapper">
+    <div class="reporting-export-toolbar-header">
+      <div class="export-button-group">
+        <button class="btn-export csv" (click)="triggerDataExport('csv')">CSV</button>
+        <button class="btn-export excel" (click)="triggerDataExport('excel')">Excel</button>
+        <button class="btn-export pdf" (click)="triggerDataExport('pdf')">PDF</button>
+        <button class="btn-export print" (click)="triggerDataExport('print')">Print</button>
+      </div>
+      <div class="search-box-alignment-anchor">
+        <input type="text" placeholder="Search unavailabilities..." class="form-text-input structural-search-bar">
+      </div>
+      <button type="button" class="btn-action-accent overlay-btn-right" (click)="toggleUnavailabilityModalState(true)">🚫 Add New Unavailability</button>
+    </div>
+
+    <div class="data-table-viewport-container">
+      <table class="application-data-matrix">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Unavailable Date</th>
+            <th>Available Time Window</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let un of unavailabilityList; let idx = index">
+            <td>{{ idx + 1 }}</td>
+            <td class="text-alert-danger-date">{{ un.unavailableDate }}</td>
+            <td>{{ un.startTime }} - {{ un.endTime }}</td>
+            <td>
+              <button class="btn-table-delete" (click)="removeUnavailabilityRecord(un.sl)">🗑️ Revoke Block</button>
+            </td>
+          </tr>
+          <tr *ngIf="unavailabilityList.length === 0">
+            <td colspan="4" class="empty-state-placeholder-cell">No scheduling blackouts set for this channel matrix.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ==================================================== -->
+<!-- SUB-TEMPLATE 5: RESERVATION SETTINGS CONTROL HUB     -->
+<!-- ==================================================== -->
+<ng-template #settingsTemplate>
+  <div class="view-card-wrapper configuration-settings-form-panel">
+    <div class="card-section-heading border-underlined">
+      <h3>⚙️ Global Reservation Parameters Setting Configuration</h3>
+    </div>
+    
+    <div class="form-vertical-stack-layout-block">
+      <div class="setting-input-field-row-alignment">
+        <label class="setting-form-label">Available Operations Active From:</label>
+        <div class="input-control-housing-wrapper">
+          <input type="time" [(ngModel)]="reservationSettings.availableOn" class="form-text-input configuration-time-picker">
+        </div>
+      </div>
+
+      <div class="setting-input-field-row-alignment">
+        <label class="setting-form-label">Nightly Terminal Closing Time:</label>
+        <div class="input-control-housing-wrapper">
+          <input type="time" [(ngModel)]="reservationSettings.closingTime" class="form-text-input configuration-time-picker">
+        </div>
+      </div>
+
+      <div class="setting-input-field-row-alignment">
+        <label class="setting-form-label">Maximum Reserve Person Allocation Threshold per Table:</label>
+        <div class="input-control-housing-wrapper">
+          <input type="number" [(ngModel)]="reservationSettings.maxReservePerson" class="form-text-input configuration-numeric-box">
+          <span class="input-descriptor-annotation">Controls seat calculation thresholds.</span>
+        </div>
+      </div>
+
+      <div class="settings-form-footer-action-bar">
+        <button type="button" class="btn-action-secondary panel-clear-btn" (click)="resetSettingsToSystemDefaults()">Reset Defaults</button>
+        <button type="button" class="btn-action-primary panel-commit-btn" (click)="saveSettingsToSystemStorage()">💾 Save Settings Configuration</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ==================================================== -->
+<!-- POPUP OVERLAY WINDOW 1: ENTRY AND EDIT FORM MODAL    -->
+<!-- ==================================================== -->
+<div class="system-modal-backdrop-overlay-layer" *ngIf="isFoodBookingModalOpen">
+  <div class="modal-card-window-viewport size-large">
+    <header class="modal-header-strip">
+      <h3>{{ editingFoodBookingRowItem ? 'Edit Entry Matrix' : 'Take a New Food Booking Record' }}</h3>
+      <button class="close-glyph-btn" (click)="toggleFoodBookingModalState(false)">✕</button>
+    </header>
+    <main class="modal-body-scroll-context">
+      <div class="form-inputs-matrix-grid columns-2">
+        <div class="input-form-control-group">
+          <label>Booking Date</label>
+          <input type="date" [(ngModel)]="modalFoodBookingPayload.bookingDate" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Booking Number ID</label>
+          <input type="text" [(ngModel)]="modalFoodBookingPayload.bookingNo" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Booked Operator Person</label>
+          <input type="text" [(ngModel)]="modalFoodBookingPayload.bookedBy" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Target Room Identifier</label>
+          <input type="text" [(ngModel)]="modalFoodBookingPayload.roomNo" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Guest Full Name</label>
+          <input type="text" [(ngModel)]="modalFoodBookingPayload.guestName" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Phone Endpoint Address</label>
+          <input type="text" [(ngModel)]="modalFoodBookingPayload.phoneNo" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Total Aggregate Cost Amount ($)</label>
+          <input type="number" [(ngModel)]="modalFoodBookingPayload.orderedAmount" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Status Lifecycle Pipeline Phase</label>
+          <select [(ngModel)]="modalFoodBookingPayload.orderStatus" class="form-text-input select-dropdown">
+            <option value="Pending">Pending State</option>
+            <option value="Completed">Completed Phase</option>
+            <option value="Cancelled">Cancelled Voided</option>
+          </select>
+        </div>
+      </div>
+    </main>
+    <footer class="modal-footer-action-strip">
+      <button class="btn-action-secondary" (click)="toggleFoodBookingModalState(false)">Cancel</button>
+      <button class="btn-action-accent" (click)="commitFoodBookingModalPayload()">Save Changes</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ==================================================== -->
+<!-- POPUP OVERLAY WINDOW 2: TAKE A TABLE RESERVATION     -->
+<!-- ==================================================== -->
+<div class="system-modal-backdrop-overlay-layer" *ngIf="isReservationFormDialogOpen">
+  <div class="modal-card-window-viewport size-medium">
+    <header class="modal-header-strip">
+      <h3>Reservation System Engine: Take A Reservation</h3>
+      <button class="close-glyph-btn" (click)="toggleReservationFormDialog(false)">✕</button>
+    </header>
+    <main class="modal-body-scroll-context">
+      <div class="form-inputs-matrix-grid columns-2">
+        <div class="input-form-control-group">
+          <label>From Date</label>
+          <input type="date" [(ngModel)]="newReservationFormState.fromDate" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>To Date</label>
+          <input type="date" [(ngModel)]="newReservationFormState.toDate" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Guest Full Name</label>
+          <input type="text" [(ngModel)]="newReservationFormState.guestName" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Phone Connection Line</label>
+          <input type="text" [(ngModel)]="newReservationFormState.phone" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Menu Type Selection Plan</label>
+          <select [(ngModel)]="newReservationFormState.menu" class="form-text-input select-dropdown">
+            <option value="Demo 1">Demo 1 Course Plan</option>
+            <option value="Premium Buffet">Premium Buffet Plan</option>
+          </select>
+        </div>
+        <div class="input-form-control-group">
+          <label>Advanced Collateral Amount</label>
+          <input type="number" [(ngModel)]="newReservationFormState.advancedAmount" class="form-text-input">
+        </div>
+        <div class="input-form-control-group span-2">
+          <label>Total Projected Amount Billing</label>
+          <input type="number" [(ngModel)]="newReservationFormState.totalAmount" class="form-text-input">
+        </div>
+      </div>
+    </main>
+    <footer class="modal-footer-action-strip">
+      <button class="btn-action-secondary" (click)="toggleReservationFormDialog(false)">Close Dialog</button>
+      <button class="btn-action-primary" (click)="commitTableReservationFormEntry()">💾 Save Reservation</button>
+    </footer>
+  </div>
+</div>
+
+<!-- ==================================================== -->
+<!-- POPUP OVERLAY WINDOW 3: SET SCHEDULING BLACKOUTS     -->
+<!-- ==================================================== -->
+<div class="system-modal-backdrop-overlay-layer" *ngIf="isUnavailabilityModalOpen">
+  <div class="modal-card-window-viewport size-small">
+    <header class="modal-header-strip">
+      <h3>Add Popup New Unavailability</h3>
+      <button class="close-glyph-btn" (click)="toggleUnavailabilityModalState(false)">✕</button>
+    </header>
+    <main class="modal-body-scroll-context">
+      <div class="form-vertical-stack-layout-block">
+        <div class="input-form-control-group obligatory">
+          <label>Unavailability Date *</label>
+          <input type="date" [(ngModel)]="newUnavailabilityFormState.date" class="form-text-input">
+        </div>
+        <div class="input-form-control-group obligatory">
+          <label>Start Time Window *</label>
+          <input type="time" [(ngModel)]="newUnavailabilityFormState.startTime" class="form-text-input">
+        </div>
+        <div class="input-form-control-group obligatory">
+          <label>End Time Window *</label>
+          <input type="time" [(ngModel)]="newUnavailabilityFormState.endTime" class="form-text-input">
+        </div>
+        <div class="input-form-control-group">
+          <label>Operational Block Status</label>
+          <select [(ngModel)]="newUnavailabilityFormState.status" class="form-text-input select-dropdown">
+            <option value="Active">Active Blackout</option>
+            <option value="Inactive">Suspended Override</option>
+          </select>
+        </div>
+      </div>
+    </main>
+    <footer class="modal-footer-action-strip">
+      <button class="btn-action-secondary" (click)="toggleUnavailabilityModalState(false)">Reset Form</button>
+      <button class="btn-action-primary" (click)="commitUnavailabilityOverrideState()">➕ Add and Set</button>
+    </footer>
+  </div>
+</div>

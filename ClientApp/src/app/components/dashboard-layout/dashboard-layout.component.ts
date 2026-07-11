@@ -25,11 +25,11 @@ interface MenuItem {
 })
 export class DashboardLayoutComponent implements OnInit {
   currentUser: any = null;
-  
+
   // Production-ready complete ERP navigation menu data schema
   navigationMenu: MenuItem[] = [
     { label: 'Dashboard', icon: '📊', route: '/dashboard' },
-    
+
     {
       label: 'Manage Order',
       icon: '🛒',
@@ -51,15 +51,29 @@ export class DashboardLayoutComponent implements OnInit {
         { label: 'RMS to PMS sync', route: '/orders/pms-sync' }
       ]
     },
+    // {
+    //   label: 'Reservation',
+    //   icon: '📅',
+    //   isExpanded: false,
+    //   subMenus: [
+    //     { label: 'Book Table', route: '/reservation/book' },
+    //     { label: 'Reservation Log', route: '/reservation/log' },
+    //     { label: 'Availability Matrix', route: '/reservation/availability' },
+    //     { label: 'Floor Plan Layout', route: '/reservation/floor-plan' }
+    //   ]
+    // },
+    // Look for the 'Reservation' block inside your navigationMenu array and replace it with this:
     {
       label: 'Reservation',
       icon: '📅',
       isExpanded: false,
       subMenus: [
-        { label: 'Book Table', route: '/reservation/book' },
-        { label: 'Reservation Log', route: '/reservation/log' },
-        { label: 'Availability Matrix', route: '/reservation/availability' },
-        { label: 'Floor Plan Layout', route: '/reservation/floor-plan' }
+        { label: 'Food Booking', route: '/reservation/food-booking' },
+        { label: 'Take Order', route: '/reservation/take-order' },
+        { label: 'Reservation', route: '/reservation/list' },
+        { label: 'Add Booking', route: '/reservation/add-booking' },
+        { label: 'Unavailable Day', route: '/reservation/unavailable-day' },
+        { label: 'Reservation Setting', route: '/reservation/setting' }
       ]
     },
     {
@@ -105,7 +119,7 @@ export class DashboardLayoutComponent implements OnInit {
         { label: 'Food List', route: '/food/list' },
         { label: 'Add Group Item', route: '/manage-combos' },
         // 👇 FIX THIS LINE: Ensure the route matches 'app.routes.ts' exactly!
-    { label: 'Food Variants', route: '/food/variants' },
+        { label: 'Food Variants', route: '/food/variants' },
         { label: 'Food Availability', route: '/food/availability' },
         { label: 'Menu Type', route: '/food/menu-types' }
       ]
@@ -122,7 +136,7 @@ export class DashboardLayoutComponent implements OnInit {
         { label: 'Add-ons Assign Create', route: '/addons/assign' },
         // 🌟 FIX: Standardized sub-menu items utilizing clean path pointers matching your design
         { label: 'Add-ons Assign List', route: '/addons/assign-list' }
-       
+
       ]
     },
     {
@@ -180,7 +194,7 @@ export class DashboardLayoutComponent implements OnInit {
     }
   ];
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();

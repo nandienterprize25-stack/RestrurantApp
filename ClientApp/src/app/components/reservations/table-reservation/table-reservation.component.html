@@ -1,0 +1,159 @@
+<div class="main-content flex-container">
+  <!-- Interactive View Tab Switches Header Controls Row -->
+  <div class="tabs-navigation-strip">
+    <button class="tab-pill" [class.active]="activeTab === 'list'" (click)="activeTab = 'list'">📋 Reservation List View</button>
+    <button class="tab-pill" [class.active]="activeTab === 'unavailability'" (click)="activeTab = 'unavailability'">🚫 Unavailability Management Panel</button>
+    <button class="tab-pill" [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">⚙️ Parameter Rule Settings</button>
+  </div>
+
+  <!-- TAB SUBSECTION 1: MAIN REGISTRATION DATA RECORDS GRID -->
+  <div *ngIf="activeTab === 'list'" class="tab-body-wrapper animate-fade">
+    <div class="action-topbar flex-row-spread">
+      <div class="export-tool-buttons">
+        <button (click)="exportData('copy')">Copy</button>
+        <button (click)="exportData('csv')">CSV</button>
+        <button (click)="exportData('excel')">Excel</button>
+        <button (click)="exportData('pdf')">PDF</button>
+        <button (click)="exportData('print')">Print</button>
+      </div>
+      <div class="search-and-trigger">
+        <input type="text" [(ngModel)]="searchText" placeholder="Search general elements..." class="form-control-inline">
+        <button class="btn btn-add" (click)="openNewReservation()">Take A Reservation</button>
+      </div>
+    </div>
+
+    <div class="table-card table-responsive-overflow-frame">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Customer Name</th>
+            <th>Table No.</th>
+            <th>Number Of People</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of reservations">
+            <td>{{ row.sl }}</td>
+            <td><strong>{{ row.customerName }}</strong></td>
+            <td><span class="table-identifier-token">{{ row.tableNo }}</span></td>
+            <td>{{ row.numberOfPeople }} Persons</td>
+            <td>{{ row.startTime }}</td>
+            <td>{{ row.endTime }}</td>
+            <td>{{ row.date }}</td>
+            <td><span class="status-badge text-uppercase" [attr.data-status]="row.status">{{ row.status }}</span></td>
+            <td>
+              <button class="btn-icon">✏️</button>
+              <button class="btn-icon">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB SUBSECTION 2: UNAVAILABILITY MANAGEMENT PANEL -->
+  <div *ngIf="activeTab === 'unavailability'" class="tab-body-wrapper animate-fade">
+    <div class="action-topbar flex-row-spread">
+      <div class="export-tool-buttons">
+        <button (click)="exportData('copy')">Copy</button>
+        <button (click)="exportData('csv')">CSV</button>
+        <button (click)="exportData('excel')">Excel</button>
+        <button (click)="exportData('pdf')">PDF</button>
+        <button (click)="exportData('print')">Print</button>
+      </div>
+      <button class="btn btn-add" (click)="openUnavailabilityPopup()">Add New Unavailability</button>
+    </div>
+
+    <div class="table-card table-responsive-overflow-frame">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>SL</th>
+            <th>Unavailable Date</th>
+            <th>Available Time Window Mapping</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let un of unavailabilities">
+            <td>{{ un.sl }}</td>
+            <td>{{ un.unavailableDate }}</td>
+            <td class="text-danger">⚠️ {{ un.availableTime }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB SUBSECTION 3: SYSTEM PARAMETERS AND BOOKING WINDOW SETTINGS -->
+  <div *ngIf="activeTab === 'settings'" class="tab-body-wrapper animate-fade">
+    <div class="card-form shadow-frame max-width-md">
+      <div class="card-form-header"><h3>Reservation Engine Threshold Settings</h3></div>
+      <div class="card-form-body vertical-stack">
+        <div class="form-group-block">
+          <label>Available On Hours (Opening Window)</label>
+          <input type="text" [(ngModel)]="settings.availableOn" class="form-control">
+        </div>
+        <div class="form-group-block">
+          <label>Closing Hours Time Limit Threshold</label>
+          <input type="text" [(ngModel)]="settings.closingTime" class="form-control">
+        </div>
+        <div class="form-group-block">
+          <label>Max Reserve Capacity Ceiling (Count Per Party)</label>
+          <input type="number" [(ngModel)]="settings.maxReservePerson" class="form-control">
+        </div>
+        <div class="form-row-actions border-top">
+          <button class="btn btn-reset" (click)="ngOnInit()">Reset Variables</button>
+          <button class="btn btn-save-booking" (click)="saveSettings()">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRY POPUP 1: TAKE RESERVATION FORMS FRAME MODAL -->
+<template #reservationModal>
+  <div class="modal-container-frame">
+    <div class="modal-header"><h3>Take A New Table Reservation Block</h3><button class="close-modal-btn" mat-dialog-close>✕</button></div>
+    <div class="modal-body layout-padding-form">
+      <div class="grid-two-col">
+        <div class="form-group"><label>From Date</label><input type="date" [(ngModel)]="newReservation.fromDate" class="form-control"></div>
+        <div class="form-group"><label>To Date</label><input type="date" [(ngModel)]="newReservation.toDate" class="form-control"></div>
+        <div class="form-group span-two"><label>Guest Name</label><input type="text" [(ngModel)]="newReservation.guestName" class="form-control"></div>
+        <div class="form-group"><label>Phone Number Reference</label><input type="text" [(ngModel)]="newReservation.phone" class="form-control"></div>
+        <div class="form-group"><label>Assigned Intake Menu Profile</label><input type="text" [(ngModel)]="newReservation.menu" class="form-control"></div>
+        <div class="form-group"><label>Advanced Down Payment</label><input type="number" [(ngModel)]="newReservation.advancedAmount" class="form-control"></div>
+        <div class="form-group"><label>Total Base Ledger Amount</label><input type="number" [(ngModel)]="newReservation.totalAmount" class="form-control"></div>
+      </div>
+      <div class="modal-footer-action-row margin-top-md">
+        <button class="btn btn-save-booking width-full" (click)="saveReservation()">Save Reservation Placement</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ENTRY POPUP 2: ADD BLOCKING WINDOW / UNAVAILABILITY ENTRY FORM MODAL -->
+<template #unavailabilityModal>
+  <div class="modal-container-frame">
+    <div class="modal-header"><h3>Add New Out-Of-Service Unavailability Window</h3><button class="close-modal-btn" mat-dialog-close>✕</button></div>
+    <div class="modal-body layout-padding-form vertical-stack">
+      <div class="form-group"><label>Unavailability Date *</label><input type="date" [(ngModel)]="newUnavailability.date" class="form-control"></div>
+      <div class="grid-two-col">
+        <div class="form-group"><label>Start Time Lock *</label><input type="time" [(ngModel)]="newUnavailability.start" class="form-control"></div>
+        <div class="form-group"><label>End Time Release *</label><input type="time" [(ngModel)]="newUnavailability.end" class="form-control"></div>
+      </div>
+      <div class="form-group">
+        <label>Status Mode</label>
+        <select [(ngModel)]="newUnavailability.status" class="form-control"><option value="Active">Active Lock</option><option value="Inactive">Suspended</option></select>
+      </div>
+      <div class="modal-footer-action-row margin-top-md">
+        <button class="btn btn-save-booking width-full" (click)="saveUnavailability()">Add & Set Locking window</button>
+      </div>
+    </div>
+  </div>
+</template>

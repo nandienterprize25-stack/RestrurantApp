@@ -1,0 +1,62 @@
+<div class="main-content flex-container">
+  <div class="page-title-box">
+    <h2>Take Order Entry Worksheet</h2>
+    <p class="subtitle">Direct Counter Intake Operations Ledger</p>
+  </div>
+
+  <div class="card-form shadow-frame">
+    <fieldset class="form-section-frame">
+      <legend>Booking Information Parameters</legend>
+      <div class="grid-three-col">
+        <div class="form-group"><label>Booking Date *</label><input type="date" [(ngModel)]="currentBooking.bookingDate" class="form-control"></div>
+        <div class="form-group"><label>Customer Name *</label><input type="text" [(ngModel)]="currentBooking.customerName" (input)="syncGuestDetails()" class="form-control"></div>
+        <div class="form-group"><label>Customer Phone *</label><input type="text" [(ngModel)]="currentBooking.customerPhone" (input)="syncGuestDetails()" class="form-control"></div>
+        <div class="form-group"><label>Customer Email</label><input type="email" [(ngModel)]="currentBooking.customerEmail" (input)="syncGuestDetails()" class="form-control"></div>
+        <div class="form-group span-two"><label>Customer Address</label><input type="text" [(ngModel)]="currentBooking.customerAddress" class="form-control"></div>
+      </div>
+
+      <div class="checkbox-wrapper margin-top-sm">
+        <input type="checkbox" id="sameDetails" [(ngModel)]="currentBooking.sameAsCustomer" (change)="syncGuestDetails()">
+        <label for="sameDetails"><strong>Same as Customer Details information profile</strong></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="form-section-frame">
+      <legend>Book Items Parameters Matrix</legend>
+      <div class="menu-intake-inline-row">
+        <div class="inline-item"><label>Date</label><input type="date" [(ngModel)]="tempItem.date" class="form-control"></div>
+        <div class="inline-item"><label>Room</label><input type="text" [(ngModel)]="tempItem.room" class="form-control"></div>
+        <div class="inline-item">
+          <label>Category</label>
+          <select [(ngModel)]="tempItem.category" class="form-control">
+            <option value="BREAKFAST">BREAKFAST</option>
+            <option value="LUNCH">LUNCH</option>
+            <option value="DINNER">DINNER</option>
+          </select>
+        </div>
+        <div class="inline-item"><label>Menu Item</label><input type="text" [(ngModel)]="tempItem.menu" class="form-control"></div>
+        <div class="inline-item-short"><label>Qty</label><input type="number" [(ngModel)]="tempItem.qty" class="form-control"></div>
+        <button type="button" class="btn btn-add-item" (click)="addItem()">Add</button>
+      </div>
+
+      <div class="sub-table-wrapper margin-top-sm">
+        <table class="sub-table-layout">
+          <thead>
+            <tr><th>#</th><th>Date</th><th>Room</th><th>Category</th><th>Menu</th><th>Qty</th><th>Total</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let it of bookedItems; let idx = index">
+              <td>{{ idx + 1 }}</td><td>{{ it.date }}</td><td>{{ it.room }}</td><td>{{ it.category }}</td><td>{{ it.menu }}</td><td>{{ it.qty }}</td><td>${{ it.total }}</td>
+              <td><button class="btn-link-danger" (click)="removeItem(idx)">Remove</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </fieldset>
+
+    <div class="modal-footer-sticky">
+      <div class="total-aggregate-box">Grand Total Aggregate: <strong>${{ currentBooking.orderedAmount | number:'1.2-2' }}</strong></div>
+      <button class="btn btn-save-booking" (click)="saveBooking()">Commit & Save Booking</button>
+    </div>
+  </div>
+</div>

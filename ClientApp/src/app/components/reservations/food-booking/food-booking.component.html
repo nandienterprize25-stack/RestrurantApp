@@ -1,0 +1,201 @@
+<div class="main-content flex-container">
+  <div class="page-title-box">
+    <h2>Food Booking</h2>
+    <p class="subtitle">Take Order & Manage Passenger Dining Allocations</p>
+  </div>
+
+  <!-- Top Filters Context Area -->
+  <div class="filter-card">
+    <div class="form-row-grid">
+      <div class="form-group">
+        <label>Booking No</label>
+        <input type="text" [(ngModel)]="searchBookingNo" class="form-control" placeholder="Enter Booking No.">
+      </div>
+      <div class="form-group">
+        <label>Phone No</label>
+        <input type="text" [(ngModel)]="searchPhoneNo" class="form-control" placeholder="Enter Phone No.">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select [(ngModel)]="searchStatus" class="form-control">
+          <option value="">Select Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-search" (click)="onSearch()">🔍 Search</button>
+        <button class="btn btn-reset" (click)="onReset()">🔄 Reset</button>
+        <button class="btn btn-add" (click)="openBookingPopup()">➕ Take a Food Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Display List Frame -->
+  <div class="table-card shadow-sm">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>SL</th>
+          <th>Booking Date</th>
+          <th>Booking No.</th>
+          <th>Booked By</th>
+          <th>Room No.</th>
+          <th>Guest Name</th>
+          <th>Phone No.</th>
+          <th>Ordered Amount</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let element of filteredBookings">
+          <td>{{ element.sl }}</td>
+          <td>{{ element.bookingDate }}</td>
+          <td><strong>{{ element.bookingNo }}</strong></td>
+          <td>{{ element.bookedBy }}</td>
+          <td>{{ element.roomNo }}</td>
+          <td>{{ element.guestName }}</td>
+          <td>{{ element.phoneNo }}</td>
+          <td>${{ element.orderedAmount | number:'1.2-2' }}</td>
+          <td><span class="status-badge" [attr.data-status]="element.status">{{ element.status }}</span></td>
+          <td>
+            <button class="btn-icon btn-edit" (click)="openBookingPopup(element)">✏️</button>
+            <button class="btn-icon btn-delete" (click)="deleteBooking(element.sl)">🗑️</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredBookings.length === 0">
+          <td colspan="10" class="text-center text-muted text-italic">No records matched active search criteria context.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Reactive Take Order Dynamic Form Modal Context Popup Entry Panel -->
+<template #bookingModal>
+  <div class="modal-container-frame">
+    <div class="modal-header">
+      <h3>Take Order Entry Worksheet</h3>
+      <button class="close-modal-btn" mat-dialog-close>✕</button>
+    </div>
+    <div class="modal-body scrollable-body">
+      
+      <!-- Box Block Section: Customer Profiles -->
+      <fieldset class="form-section-frame">
+        <legend>Booking Information Parameters</legend>
+        <div class="grid-three-col">
+          <div class="form-group">
+            <label>Booking Date *</label>
+            <input type="date" [(ngModel)]="currentBooking.bookingDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Customer Name *</label>
+            <input type="text" [(ngModel)]="currentBooking.customerName" (input)="syncGuestDetails()" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Customer Phone *</label>
+            <input type="text" [(ngModel)]="currentBooking.customerPhone" (input)="syncGuestDetails()" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Customer Email</label>
+            <input type="email" [(ngModel)]="currentBooking.customerEmail" (input)="syncGuestDetails()" class="form-control">
+          </div>
+          <div class="form-group span-two">
+            <label>Customer Address</label>
+            <input type="text" [(ngModel)]="currentBooking.customerAddress" class="form-control">
+          </div>
+        </div>
+
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="sameDetails" [(ngModel)]="currentBooking.sameAsCustomer" (change)="syncGuestDetails()">
+          <label for="sameDetails"><strong>Same as Customer Details information profile</strong></label>
+        </div>
+
+        <div class="grid-three-col" *ngIf="!currentBooking.sameAsCustomer">
+          <div class="form-group"><label>Guest Name *</label><input type="text" [(ngModel)]="currentBooking.guestName" class="form-control"></div>
+          <div class="form-group"><label>Guest Phone *</label><input type="text" [(ngModel)]="currentBooking.guestPhone" class="form-control"></div>
+          <div class="form-group"><label>Guest Email</label><input type="email" [(ngModel)]="currentBooking.guestEmail" class="form-control"></div>
+        </div>
+      </fieldset>
+
+      <!-- Box Block Section: Payments Grid Matrix -->
+      <fieldset class="form-section-frame">
+        <legend>Payment Configuration Status</legend>
+        <div class="grid-three-col">
+          <div class="form-group"><label>Payment Date</label><input type="date" [(ngModel)]="currentBooking.paymentDate" class="form-control"></div>
+          <div class="form-group">
+            <label>Payment Mode</label>
+            <select [(ngModel)]="currentBooking.paymentMode" class="form-control">
+              <option value="">Select Option</option>
+              <option value="Cash">Cash</option>
+              <option value="Card">Credit/Debit Card</option>
+              <option value="UPI">UPI/Digital Wallet</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Advanced Amount</label><input type="number" [(ngModel)]="currentBooking.advancedAmount" class="form-control"></div>
+        </div>
+      </fieldset>
+
+      <!-- Box Block Section: Dynamic Meal Allocation Array Engine -->
+      <fieldset class="form-section-frame">
+        <legend>Book Items Parameters Matrix</legend>
+        <div class="menu-intake-inline-row">
+          <div class="inline-item"><label>Date</label><input type="date" [(ngModel)]="tempItem.date" class="form-control"></div>
+          <div class="inline-item"><label>Room</label><input type="text" [(ngModel)]="tempItem.room" class="form-control" placeholder="e.g. 201"></div>
+          <div class="inline-item">
+            <label>Category</label>
+            <select [(ngModel)]="tempItem.category" class="form-control">
+              <option value="">Select Option</option>
+              <option value="BREAKFAST">BREAKFAST</option>
+              <option value="LUNCH">LUNCH</option>
+              <option value="DINNER">DINNER</option>
+            </select>
+          </div>
+          <div class="inline-item"><label>Menu</label><input type="text" [(ngModel)]="tempItem.menu" class="form-control" placeholder="Item Name"></div>
+          <div class="inline-item-short"><label>Qty</label><input type="number" [(ngModel)]="tempItem.qty" class="form-control"></div>
+          <button type="button" class="btn btn-add-item" (click)="addItem()">Add Menu Item</button>
+        </div>
+
+        <!-- Inline Sub Allocation Sheet List Grid -->
+        <div class="sub-table-wrapper margin-top-sm">
+          <table class="sub-table-layout">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Room</th>
+                <th>Category</th>
+                <th>Menu</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let it of bookedItems; let idx = index">
+                <td>{{ idx + 1 }}</td>
+                <td>{{ it.date }}</td>
+                <td>{{ it.room }}</td>
+                <td>{{ it.category }}</td>
+                <td>{{ it.menu }}</td>
+                <td>{{ it.qty }}</td>
+                <td>${{ it.total | number:'1.2-2' }}</td>
+                <td><button type="button" class="btn-link-danger" (click)="removeItem(idx)">Remove</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="modal-footer-sticky">
+      <div class="total-aggregate-box">Grand Total Aggregate: <strong>${{ currentBooking.orderedAmount | number:'1.2-2' }}</strong></div>
+      <div class="footer-control-buttons">
+        <button class="btn btn-reset" mat-dialog-close>Dismiss View</button>
+        <button class="btn btn-save-booking" (click)="saveBooking()">Commit & Save Booking</button>
+      </div>
+    </div>
+  </div>
+</template>
