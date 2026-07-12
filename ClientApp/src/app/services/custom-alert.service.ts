@@ -15,6 +15,17 @@ onCancel?: () => void;
 showCancel?: boolean;
 }
 
+// 🌟 NEW: Options wrapper matching the schema you want to use
+export interface ShowAlertOptions {
+  type: AlertType;
+  title: string;
+  message: string;
+  showCancel?: boolean;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}
+
+
 /**
  * CustomAlertService — Singleton service (provided in root).
  * Replaces window.alert() with an in-app modal dialog.
@@ -35,6 +46,19 @@ export class CustomAlertService {
   // Emits after the user clicks OK (used for post-confirm navigation)
   private _closed$ = new Subject<void>();
   closed$ = this._closed$.asObservable();
+
+ // ── 🌟 NEW UNIFIED SHOW METHOD ───────────────────────────────────────────
+  show(options: ShowAlertOptions): void {
+    this.state.set({
+      visible: true,
+      type: options.type,
+      title: options.title,
+      message: options.message,
+      showCancel: options.showCancel || false,
+      onConfirm: options.onConfirm,
+      onCancel: options.onCancel
+    });
+  }
 
   // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -100,4 +124,6 @@ export class CustomAlertService {
   private _show(type: AlertType, title: string, message: string, onClose?: () => void): void {
     this.state.set({ visible: true, type, title, message, onClose });
   }
+
+  
 }

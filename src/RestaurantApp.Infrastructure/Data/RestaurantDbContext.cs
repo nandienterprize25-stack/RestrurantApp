@@ -5,10 +5,9 @@ namespace RestaurantApp.Infrastructure.Data;
 
 public class RestaurantDbContext : DbContext
 {
-    public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)
+   public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)
     {
     }
-
     public DbSet<User> Users => Set<User>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<MenuItem> MenuItems => Set<MenuItem>();
@@ -23,6 +22,11 @@ public class RestaurantDbContext : DbContext
  
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
+// 🌟 NEW ENTITY SETS
+    public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<ReservationItem> ReservationItems => Set<ReservationItem>();
+    public DbSet<UnavailabilityDay> UnavailabilityDays => Set<UnavailabilityDay>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -166,6 +170,38 @@ public class RestaurantDbContext : DbContext
                   .WithMany(o => o.OrderItems)
                   .HasForeignKey(oi => oi.OrderId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 🌟 6. Reservation Entity Mapping
+        modelBuilder.Entity<Reservation>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.CustomerName).IsRequired().HasMaxLength(150);
+            entity.Property(r => r.PhoneNo).HasMaxLength(25);
+            entity.Property(r => r.TableNo).HasMaxLength(50);
+            entity.Property(r => r.Status).HasMaxLength(30);
+            entity.Property(r => r.AdvancedAmount).HasPrecision(18, 2);
+            entity.Property(r => r.TotalAmount).HasPrecision(18, 2);
+            entity.Property(r => r.Type).HasConversion<string>().HasMaxLength(40);
+        });
+
+        // 🌟 7. Reservation Child Item Mapping
+        modelBuilder.Entity<ReservationItem>(entity =>
+        {
+            entity.HasKey(ri => ri.Id);
+            entity.Property(ri => ri.MenuName).IsRequired().HasMaxLength(150);
+            entity.Property(ri => ri.Total).HasPrecision(18, 2);
+            entity.HasOne<Reservation>()
+                  .WithMany(r => r.Items)
+                  .HasForeignKey(ri => ri.ReservationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // 🌟 8. Unavailability Schedule Mapping
+        modelBuilder.Entity<UnavailabilityDay>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Status).HasMaxLength(30);
         });
 
         base.OnModelCreating(modelBuilder);

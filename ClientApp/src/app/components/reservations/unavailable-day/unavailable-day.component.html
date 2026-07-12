@@ -22,7 +22,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let un of unavailabilities">
-            <td>{{ un.sl }}</td><td>{{ un.unavailableDate }}</td><td class="text-danger">⚠️ {{ un.availableTime }}</td>
+            <td>{{ un.sl }}</td><td>{{ un.unavailableDate }}</td>
+           <td class="text-danger">⚠️ {{ un.startTime }} - {{ un.endTime }}</td>
           </tr>
         </tbody>
       </table>

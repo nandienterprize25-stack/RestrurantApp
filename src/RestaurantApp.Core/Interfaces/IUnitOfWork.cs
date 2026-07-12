@@ -14,5 +14,10 @@ public interface IUnitOfWork : IDisposable
     IRepository<RestaurantTable> Tables { get; }
     IRepository<Order> Orders { get; }
     IRepository<OrderItem> OrderItems { get; }
+
+    // 🌟 NEWLY ADDED REPOSITORIES
+    IRepository<Reservation> Reservations { get; }
+    IRepository<ReservationItem> ReservationItems { get; }
+    IRepository<UnavailabilityDay> UnavailabilityDays { get; }
     Task<int> CompleteAsync();
 }

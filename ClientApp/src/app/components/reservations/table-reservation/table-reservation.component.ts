@@ -1,105 +1,87 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TableReservationItem, UnavailabilityItem } from '../../../models/reservation.model';
-import { ActivatedRoute } from '@angular/router'; // 👈 Import ActivatedRoute
-// ... keep previous imports
+import { ReservationService, ReservationDto, UnavailabilityDayDto } from '../../../services/reservation.service';
+import { CustomAlertService } from '../../../services/custom-alert.service';
 
-
-// @Component({
-//   selector: 'app-table-reservation',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule, MatDialogModule],
-//   templateUrl: './table-reservation.component.html',
-//   styleUrls: ['./table-reservation.component.css']
-// })
 @Component({
   selector: 'app-table-reservation',
   standalone: true,
   imports: [CommonModule, FormsModule, MatDialogModule],
   templateUrl: './table-reservation.component.html',
-  styleUrls: ['../reservation.css'] // 👈 FIX: Directing compilation pointer away from local missing .css file
+  styleUrls: ['../reservation.css']
 })
 export class TableReservationComponent implements OnInit {
   @ViewChild('reservationModal') reservationModal!: TemplateRef<any>;
   @ViewChild('unavailabilityModal') unavailabilityModal!: TemplateRef<any>;
 
+  private dialog = inject(MatDialog);
+  private alertService = inject(CustomAlertService);
+  private backendService = inject(ReservationService);
+
   activeTab: 'list' | 'unavailability' | 'settings' = 'list';
   searchText: string = '';
 
-  // Core Data Frames
-  reservations: TableReservationItem[] = [];
-  unavailabilities: UnavailabilityItem[] = [];
+  reservations: any[] = [];
+  unavailabilities: any[] = [];
 
-  // Active Models Configuration Data Payloads
   newReservation: any = this.getEmptyReservation();
   newUnavailability: any = this.getEmptyUnavailability();
+  isEditingMode: boolean = false;
 
-  // Settings Fields Form Objects
+  // 🌟 FIX: Re-expose configuration configuration objects to template context
   settings: any = { availableOn: '09:00:00', closingTime: '22:00:00', maxReservePerson: 20 };
 
-  constructor(private dialog: MatDialog, private route: ActivatedRoute) {}
-
   ngOnInit(): void {
-    // Read current sub-route to automatically switch tabs when clicked from sidebar
-    const currentUrl = window.location.pathname;
-    if (currentUrl.includes('unavailable-day')) {
-      this.activeTab = 'unavailability';
-    } else if (currentUrl.includes('setting')) {
-      this.activeTab = 'settings';
-    } else if (currentUrl.includes('add-booking')) {
-      this.activeTab = 'list';
-      setTimeout(() => this.openNewReservation(), 300); // Automatically trigger form popup
-    } else {
-      this.activeTab = 'list';
-    }
-
-    this.loadMockReservations();
-    this.loadMockUnavailabilities();
+    this.loadReservations();
+    this.loadUnavailabilities();
   }
 
-  loadMockReservations(): void {
-    this.reservations = [
-      { 
-        id: 1, // 👈 Added required property
-        sl: 1, 
-        customerName: 'Sarah Jenkins', 
-        tableNo: 'T-04', 
-        numberOfPeople: 4, 
-        startTime: '19:00', 
-        endTime: '21:00', 
-        date: '2026-07-12', 
-        status: 'Confirmed' 
-      }
-    ];
+  loadReservations(): void {
+    this.backendService.getReservationsByType('TableBooking').subscribe(data => {
+      this.reservations = data.map(r => ({
+        ...r,
+        date: r.bookingDate // Alias bookingDate to satisfy row.date framework rendering loops
+      }));
+    });
+  }
+
+  loadUnavailabilities(): void {
+    this.backendService.getUnavailabilitySheet().subscribe(data => {
+      this.unavailabilities = data.map(u => ({
+        ...u,
+        availableTime: `${u.startTime} - ${u.endTime}` // Re-assign string label block structure
+      }));
+    });
+  }
+
+  openNewReservation(booking?: any): void {
+    this.isEditingMode = !!booking;
+    this.newReservation = booking ? { ...booking } : this.getEmptyReservation();
+    this.dialog.open(this.reservationModal, { width: '100vw', height: '100vh', maxWidth: '100vw', panelClass: 'fullscreen-dialog-pane', disableClose: true });
   }
 
   saveReservation(): void {
-    const nextIdentifier = this.reservations.length + 1;
-    this.reservations.push({
-      id: nextIdentifier, // 👈 Added required property
-      sl: nextIdentifier,
-      customerName: this.newReservation.guestName,
-      tableNo: 'Assigned-Auto',
-      numberOfPeople: 2,
-      startTime: '18:00',
-      endTime: '20:00',
-      date: this.newReservation.fromDate,
-      status: 'Pending'
+    this.newReservation.bookingDate = this.newReservation.date || this.newReservation.bookingDate;
+    this.backendService.upsertReservation(this.newReservation).subscribe(() => {
+      this.loadReservations();
+      this.dialog.closeAll();
+      this.alertService.show({ type: 'success', title: 'Saved', message: 'Table booking entry operational.' });
     });
-    this.dialog.closeAll();
   }
 
-  loadMockUnavailabilities(): void {
-    this.unavailabilities = [
-      { sl: 1, unavailableDate: '2026-07-15', availableTime: '09:00 AM - 05:00 PM' }
-    ];
-  }
+  // 🌟 FIX: Standardize interface signatures to parse matching generic row index patterns
+  deleteReservation(slId: any): void {
+    const targetId = this.reservations.find(x => x.sl === slId || x.id === slId)?.id;
+    if (!targetId) return;
 
-  openNewReservation(): void {
-    this.newReservation = this.getEmptyReservation();
-    this.dialog.open(this.reservationModal, { width: '600px' });
+    this.alertService.show({
+      type: 'warning', title: 'Drop Entry', message: 'Scrub table reservation data record?', showCancel: true,
+      onConfirm: () => {
+        this.backendService.deleteReservation(targetId).subscribe(() => this.loadReservations());
+      }
+    });
   }
 
   openUnavailabilityPopup(): void {
@@ -107,45 +89,27 @@ export class TableReservationComponent implements OnInit {
     this.dialog.open(this.unavailabilityModal, { width: '500px' });
   }
 
-  // saveReservation(): void {
-  //   const nextIdentifier = this.reservations.length + 1;
-  //   this.reservations.push({
-  //     id: nextIdentifier,
-  //     sl: nextIdentifier,
-  //     customerName: this.newReservation.guestName,
-  //     tableNo: 'Assigned-Auto',
-  //     numberOfPeople: 2,
-  //     startTime: '18:00',
-  //     endTime: '20:00',
-  //     date: this.newReservation.fromDate,
-  //     status: 'Pending'
-  //   });
-  //   this.dialog.closeAll();
-  // }
-
   saveUnavailability(): void {
-    this.unavailabilities.push({
-      sl: this.unavailabilities.length + 1,
-      unavailableDate: this.newUnavailability.date,
-      availableTime: `${this.newUnavailability.start} - ${this.newUnavailability.end}`
+    this.backendService.addUnavailabilityWindow(this.newUnavailability).subscribe(() => {
+      this.loadUnavailabilities();
+      this.dialog.closeAll();
     });
-    this.dialog.closeAll();
   }
 
+  // 🌟 FIX: Add baseline tracking configurations functionality callbacks
   saveSettings(): void {
-    console.log('System reservation window settings locked: ', this.settings);
-    alert('Settings saved successfully.');
+    this.alertService.show({ type: 'success', title: 'Parameters Saved', message: 'Configuration parameters updated successfully.' });
   }
 
-  exportData(type: string): void {
-    alert(`Data payload stream compiled to format layout: ${type.toUpperCase()}`);
+  exportData(format: string): void {
+    this.alertService.show({ type: 'info', title: 'Exporting Data', message: `Sheet downloaded successfully as ${format.toUpperCase()}` });
   }
 
   private getEmptyReservation() {
-    return { fromDate: '', toDate: '', guestName: '', phone: '', menu: '', advancedAmount: 0, totalAmount: 0 };
+    return { date: new Date().toISOString().split('T')[0], bookingDate: new Date().toISOString().split('T')[0], customerName: '', phoneNo: '', tableNo: '', numberOfPeople: 2, startTime: '18:00', endTime: '20:00', status: 'Pending', type: 'TableBooking', items: [] };
   }
 
   private getEmptyUnavailability() {
-    return { date: '', start: '', end: '', status: 'Active' };
+    return { unavailableDate: new Date().toISOString().split('T')[0], startTime: '00:00', endTime: '23:59', status: 'Active' };
   }
 }

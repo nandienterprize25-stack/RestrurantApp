@@ -21,7 +21,11 @@ public class UnitOfWork : IUnitOfWork
 
     private Repository<GroupItemChild>? _groupItemChildren;
    
-    
+    // 🌟 NEW BACKING STORAGE POINTERS
+    private Repository<Reservation>? _reservations;
+    private Repository<ReservationItem>? _reservationItems;
+    private Repository<UnavailabilityDay>? _unavailabilityDays;
+
 
     public UnitOfWork(RestaurantDbContext context)
     {
@@ -39,6 +43,10 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<MenuItemAddon> MenuItemAddons=>_menuItemAddon??=new Repository<MenuItemAddon>(_context);
 
+// 🌟 CONCRETE INSTANTIATIONS
+    public IRepository<Reservation> Reservations => _reservations ??= new Repository<Reservation>(_context);
+    public IRepository<ReservationItem> ReservationItems => _reservationItems ??= new Repository<ReservationItem>(_context);
+    public IRepository<UnavailabilityDay> UnavailabilityDays => _unavailabilityDays ??= new Repository<UnavailabilityDay>(_context);
     public async Task<int> CompleteAsync()
     {
         return await _context.SaveChangesAsync();

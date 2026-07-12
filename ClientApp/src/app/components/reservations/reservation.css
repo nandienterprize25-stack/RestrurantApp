@@ -124,3 +124,108 @@
 .vertical-stack { display: flex; flex-direction: column; gap: 16px; }
 .form-group-block { display: flex; flex-direction: column; gap: 6px; }
 .max-width-md { max-width: 550px; margin-top: 12px; }
+
+/* Styling rules for the sub-table layout matrix */
+.sub-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+  margin-top: 15px;
+}
+
+.sub-table-layout {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.sub-table-layout th {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sub-table-layout td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf2f7;
+  color: #475569;
+  vertical-align: middle;
+}
+
+.sub-table-layout tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Clear button aesthetics */
+.btn-link-danger {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-link-danger:hover {
+  background-color: #fee2e2;
+  text-decoration: underline;
+}
+
+/* Custom Form Validation & Asterisk Visual Layout Engine Rules */
+.required-label::after {
+  content: " *";
+  color: #dc2626; /* Deep crimson-red asterisk hue color */
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+/* Enhancing input style responses upon entry tracking states */
+.form-control:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+/* Inline Error Presentation Layers */
+.form-group.has-error .form-control,
+.inline-item.has-error .form-control {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.form-group.has-error .required-label,
+.inline-item.has-error .required-label {
+  color: #b91c1c !important;
+}
+
+.error-msg-text {
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 4px;
+  display: block;
+}
+
+.matrix-error-banner {
+  background-color: #fef2f2;
+  border: 1px dashed #f87171;
+  color: #991b1b;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.sub-table-wrapper.table-error {
+  border: 2px dashed #ef4444 !important;
+  background-color: #fff5f5;
+}

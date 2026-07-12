@@ -48,8 +48,8 @@
             <td>{{ row.date }}</td>
             <td><span class="status-badge text-uppercase" [attr.data-status]="row.status">{{ row.status }}</span></td>
             <td>
-              <button class="btn-icon">✏️</button>
-              <button class="btn-icon">🗑️</button>
+              <button class="btn-icon" (click)="openNewReservation(row)">✏️</button>
+              <button class="btn-icon" (click)="deleteReservation(row.sl)">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -116,32 +116,61 @@
   </div>
 </div>
 
-<!-- ENTRY POPUP 1: TAKE RESERVATION FORMS FRAME MODAL -->
-<template #reservationModal>
+<!-- FIX: Changed from <template> to <ng-template> for Full-Width Dialog View Configuration -->
+<ng-template #reservationModal>
   <div class="modal-container-frame">
-    <div class="modal-header"><h3>Take A New Table Reservation Block</h3><button class="close-modal-btn" mat-dialog-close>✕</button></div>
-    <div class="modal-body layout-padding-form">
-      <div class="grid-two-col">
-        <div class="form-group"><label>From Date</label><input type="date" [(ngModel)]="newReservation.fromDate" class="form-control"></div>
-        <div class="form-group"><label>To Date</label><input type="date" [(ngModel)]="newReservation.toDate" class="form-control"></div>
-        <div class="form-group span-two"><label>Guest Name</label><input type="text" [(ngModel)]="newReservation.guestName" class="form-control"></div>
-        <div class="form-group"><label>Phone Number Reference</label><input type="text" [(ngModel)]="newReservation.phone" class="form-control"></div>
-        <div class="form-group"><label>Assigned Intake Menu Profile</label><input type="text" [(ngModel)]="newReservation.menu" class="form-control"></div>
-        <div class="form-group"><label>Advanced Down Payment</label><input type="number" [(ngModel)]="newReservation.advancedAmount" class="form-control"></div>
-        <div class="form-group"><label>Total Base Ledger Amount</label><input type="number" [(ngModel)]="newReservation.totalAmount" class="form-control"></div>
-      </div>
-      <div class="modal-footer-action-row margin-top-md">
-        <button class="btn btn-save-booking width-full" (click)="saveReservation()">Save Reservation Placement</button>
+    <div class="modal-header">
+      <h3>{{ isEditingMode ? 'Modify Table Reservation Placement' : 'Take A New Table Reservation Block' }}</h3>
+      <button class="close-modal-btn" mat-dialog-close>✕</button>
+    </div>
+    <div class="modal-body scrollable-body">
+      <fieldset class="form-section-frame">
+        <legend>Reservation Specification parameters</legend>
+        <div class="grid-three-col">
+          <div class="form-group"><label>From Date *</label><input type="date" [(ngModel)]="newReservation.fromDate" class="form-control"></div>
+          <div class="form-group"><label>To Date *</label><input type="date" [(ngModel)]="newReservation.toDate" class="form-control"></div>
+          <div class="form-group"><label>Guest Name *</label><input type="text" [(ngModel)]="newReservation.guestName" class="form-control"></div>
+          <div class="form-group"><label>Phone Number Reference *</label><input type="text" [(ngModel)]="newReservation.phone" class="form-control"></div>
+          <div class="form-group"><label>Table Allocation No.</label><input type="text" [(ngModel)]="newReservation.tableNo" class="form-control"></div>
+          <div class="form-group"><label>Number of People</label><input type="number" [(ngModel)]="newReservation.numberOfPeople" class="form-control"></div>
+          <div class="form-group"><label>Start Time (HH:MM)</label><input type="time" [(ngModel)]="newReservation.startTime" class="form-control"></div>
+          <div class="form-group"><label>End Time (HH:MM)</label><input type="time" [(ngModel)]="newReservation.endTime" class="form-control"></div>
+          <div class="form-group">
+            <label>Reservation Status</label>
+            <select [(ngModel)]="newReservation.status" class="form-control">
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="form-section-frame">
+        <legend>Financial Book Account Metrics</legend>
+        <div class="grid-three-col">
+          <div class="form-group"><label>Assigned Intake Menu Profile</label><input type="text" [(ngModel)]="newReservation.menu" class="form-control"></div>
+          <div class="form-group"><label>Advanced Down Payment</label><input type="number" [(ngModel)]="newReservation.advancedAmount" class="form-control"></div>
+          <div class="form-group"><label>Total Base Ledger Amount</label><input type="number" [(ngModel)]="newReservation.totalAmount" class="form-control"></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="modal-footer-sticky">
+      <div class="total-aggregate-box">Advanced Ledger Post: <strong>${{ newReservation.advancedAmount | number:'1.2-2' }}</strong></div>
+      <div class="footer-control-buttons">
+        <button class="btn btn-reset" mat-dialog-close>Dismiss View</button>
+        <button class="btn btn-save-booking" (click)="saveReservation()">Save Reservation Placement</button>
       </div>
     </div>
   </div>
-</template>
+</ng-template>
 
-<!-- ENTRY POPUP 2: ADD BLOCKING WINDOW / UNAVAILABILITY ENTRY FORM MODAL -->
-<template #unavailabilityModal>
-  <div class="modal-container-frame">
+<!-- FIX: Changed from <template> to <ng-template> -->
+<ng-template #unavailabilityModal>
+  <div class="modal-container-frame" style="width: 500px; height: auto; max-height: 90vh;">
     <div class="modal-header"><h3>Add New Out-Of-Service Unavailability Window</h3><button class="close-modal-btn" mat-dialog-close>✕</button></div>
-    <div class="modal-body layout-padding-form vertical-stack">
+    <div class="modal-body layout-padding-form vertical-stack" style="overflow-y: auto;">
       <div class="form-group"><label>Unavailability Date *</label><input type="date" [(ngModel)]="newUnavailability.date" class="form-control"></div>
       <div class="grid-two-col">
         <div class="form-group"><label>Start Time Lock *</label><input type="time" [(ngModel)]="newUnavailability.start" class="form-control"></div>
@@ -151,9 +180,9 @@
         <label>Status Mode</label>
         <select [(ngModel)]="newUnavailability.status" class="form-control"><option value="Active">Active Lock</option><option value="Inactive">Suspended</option></select>
       </div>
-      <div class="modal-footer-action-row margin-top-md">
+      <div class="modal-footer-action-row margin-top-md" style="padding: 15px 0 0 0;">
         <button class="btn btn-save-booking width-full" (click)="saveUnavailability()">Add & Set Locking window</button>
       </div>
     </div>
   </div>
-</template>
+</ng-template>

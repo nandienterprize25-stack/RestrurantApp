@@ -73,11 +73,11 @@
   </div>
 </div>
 
-<!-- Reactive Take Order Dynamic Form Modal Context Popup Entry Panel -->
-<template #bookingModal>
-  <div class="modal-container-frame">
+<ng-template #bookingModal>
+  <!-- Form state flag added here to activate conditional validation styling -->
+  <div class="modal-container-frame" [class.form-submitted]="formSubmitted">
     <div class="modal-header">
-      <h3>Take Order Entry Worksheet</h3>
+      <h3>{{ isEditingMode ? 'Modify Food Booking Worksheet' : 'Take Order Entry Worksheet' }}</h3>
       <button class="close-modal-btn" mat-dialog-close>✕</button>
     </div>
     <div class="modal-body scrollable-body">
@@ -86,25 +86,28 @@
       <fieldset class="form-section-frame">
         <legend>Booking Information Parameters</legend>
         <div class="grid-three-col">
-          <div class="form-group">
-            <label>Booking Date *</label>
+          <div class="form-group" [class.has-error]="formSubmitted && !currentBooking.bookingDate">
+            <label class="required-label">Booking Date</label>
             <input type="date" [(ngModel)]="currentBooking.bookingDate" class="form-control">
+            <div class="error-msg-text" *ngIf="formSubmitted && !currentBooking.bookingDate">Booking date is required.</div>
           </div>
-          <div class="form-group">
-            <label>Customer Name *</label>
-            <input type="text" [(ngModel)]="currentBooking.customerName" (input)="syncGuestDetails()" class="form-control">
+          <div class="form-group" [class.has-error]="formSubmitted && !currentBooking.customerName">
+            <label class="required-label">Customer Name</label>
+            <input type="text" [(ngModel)]="currentBooking.customerName" (input)="syncGuestDetails()" class="form-control" placeholder="Enter name">
+            <div class="error-msg-text" *ngIf="formSubmitted && !currentBooking.customerName">Customer name is required.</div>
           </div>
-          <div class="form-group">
-            <label>Customer Phone *</label>
-            <input type="text" [(ngModel)]="currentBooking.customerPhone" (input)="syncGuestDetails()" class="form-control">
+          <div class="form-group" [class.has-error]="formSubmitted && !currentBooking.phoneNo">
+            <label class="required-label">Customer Phone</label>
+            <input type="text" [(ngModel)]="currentBooking.phoneNo" (input)="syncGuestDetails()" class="form-control" placeholder="Enter phone number">
+            <div class="error-msg-text" *ngIf="formSubmitted && !currentBooking.phoneNo">Customer phone is required.</div>
           </div>
           <div class="form-group">
             <label>Customer Email</label>
-            <input type="email" [(ngModel)]="currentBooking.customerEmail" (input)="syncGuestDetails()" class="form-control">
+            <input type="email" [(ngModel)]="currentBooking.customerEmail" (input)="syncGuestDetails()" class="form-control" placeholder="name@domain.com">
           </div>
           <div class="form-group span-two">
             <label>Customer Address</label>
-            <input type="text" [(ngModel)]="currentBooking.customerAddress" class="form-control">
+            <input type="text" [(ngModel)]="currentBooking.customerAddress" class="form-control" placeholder="Street Address Details">
           </div>
         </div>
 
@@ -114,9 +117,20 @@
         </div>
 
         <div class="grid-three-col" *ngIf="!currentBooking.sameAsCustomer">
-          <div class="form-group"><label>Guest Name *</label><input type="text" [(ngModel)]="currentBooking.guestName" class="form-control"></div>
-          <div class="form-group"><label>Guest Phone *</label><input type="text" [(ngModel)]="currentBooking.guestPhone" class="form-control"></div>
-          <div class="form-group"><label>Guest Email</label><input type="email" [(ngModel)]="currentBooking.guestEmail" class="form-control"></div>
+          <div class="form-group" [class.has-error]="formSubmitted && !currentBooking.guestName">
+            <label class="required-label">Guest Name</label>
+            <input type="text" [(ngModel)]="currentBooking.guestName" class="form-control">
+            <div class="error-msg-text" *ngIf="formSubmitted && !currentBooking.guestName">Guest name is required.</div>
+          </div>
+          <div class="form-group" [class.has-error]="formSubmitted && !currentBooking.guestPhone">
+            <label class="required-label">Guest Phone</label>
+            <input type="text" [(ngModel)]="currentBooking.guestPhone" class="form-control">
+            <div class="error-msg-text" *ngIf="formSubmitted && !currentBooking.guestPhone">Guest phone is required.</div>
+          </div>
+          <div class="form-group">
+            <label>Guest Email</label>
+            <input type="email" [(ngModel)]="currentBooking.guestEmail" class="form-control">
+          </div>
         </div>
       </fieldset>
 
@@ -141,25 +155,49 @@
       <!-- Box Block Section: Dynamic Meal Allocation Array Engine -->
       <fieldset class="form-section-frame">
         <legend>Book Items Parameters Matrix</legend>
-        <div class="menu-intake-inline-row">
-          <div class="inline-item"><label>Date</label><input type="date" [(ngModel)]="tempItem.date" class="form-control"></div>
-          <div class="inline-item"><label>Room</label><input type="text" [(ngModel)]="tempItem.room" class="form-control" placeholder="e.g. 201"></div>
-          <div class="inline-item">
-            <label>Category</label>
-            <select [(ngModel)]="tempItem.category" class="form-control">
-              <option value="">Select Option</option>
-              <option value="BREAKFAST">BREAKFAST</option>
-              <option value="LUNCH">LUNCH</option>
-              <option value="DINNER">DINNER</option>
+        <!-- Item validation check layer flags added below -->
+        <div class="menu-intake-inline-row" [class.item-validated]="itemSubmitted">
+          <div class="inline-item" [class.has-error]="itemSubmitted && !tempItem.date">
+            <label class="required-label">Date</label>
+            <input type="date" [(ngModel)]="tempItem.date" class="form-control">
+          </div>
+          <div class="inline-item" [class.has-error]="itemSubmitted && !tempItem.roomNo">
+            <label class="required-label">Room</label>
+            <input type="text" [(ngModel)]="tempItem.roomNo" class="form-control" placeholder="e.g. 201">
+          </div>
+          
+          <div class="inline-item" [class.has-error]="itemSubmitted && !tempItem.category">
+            <label class="required-label">Category</label>
+            <select class="form-control" [(ngModel)]="tempItem.category" (change)="onCategoryChange(tempItem.category)">
+              <option value="">-- Select --</option>
+              <option *ngFor="let cat of categoriesList" [value]="cat.name">{{ cat.name }}</option>
             </select>
           </div>
-          <div class="inline-item"><label>Menu</label><input type="text" [(ngModel)]="tempItem.menu" class="form-control" placeholder="Item Name"></div>
-          <div class="inline-item-short"><label>Qty</label><input type="number" [(ngModel)]="tempItem.qty" class="form-control"></div>
+
+          <div class="inline-item" [class.has-error]="itemSubmitted && !tempItem.menuName">
+            <label class="required-label">Menu</label>
+            <select class="form-control" [(ngModel)]="tempItem.menuName">
+              <option value="">-- Select Item --</option>
+              <option *ngFor="let dish of filteredMenuItems" [value]="dish.name || dish.foodItemName">
+                {{ dish.name || dish.foodItemName }} (₹{{ dish.price }})
+              </option>
+            </select>
+          </div>
+
+          <div class="inline-item-short" [class.has-error]="itemSubmitted && (!tempItem.qty || tempItem.qty <= 0)">
+            <label class="required-label">Qty</label>
+            <input type="number" [(ngModel)]="tempItem.qty" class="form-control" min="1">
+          </div>
           <button type="button" class="btn btn-add-item" (click)="addItem()">Add Menu Item</button>
+        </div>
+        
+        <!-- Unified explicit error notification text for Item Rows -->
+        <div class="matrix-error-banner" *ngIf="itemSubmitted && (!tempItem.date || !tempItem.roomNo || !tempItem.category || !tempItem.menuName || !tempItem.qty || tempItem.qty <= 0)">
+          ⚠️ Complete all required item fields marked with asterisks before clicking add.
         </div>
 
         <!-- Inline Sub Allocation Sheet List Grid -->
-        <div class="sub-table-wrapper margin-top-sm">
+        <div class="sub-table-wrapper margin-top-sm" [class.table-error]="formSubmitted && bookedItems.length === 0">
           <table class="sub-table-layout">
             <thead>
               <tr>
@@ -177,25 +215,45 @@
               <tr *ngFor="let it of bookedItems; let idx = index">
                 <td>{{ idx + 1 }}</td>
                 <td>{{ it.date }}</td>
-                <td>{{ it.room }}</td>
+                <td>{{ it.roomNo }}</td>
                 <td>{{ it.category }}</td>
-                <td>{{ it.menu }}</td>
+                <td>{{ it.menuName }}</td>
                 <td>{{ it.qty }}</td>
                 <td>${{ it.total | number:'1.2-2' }}</td>
-                <td><button type="button" class="btn-link-danger" (click)="removeItem(idx)">Remove</button></td>
+                <td>
+                  <button type="button" class="btn-link-danger" (click)="removeItem(idx)">Remove</button>
+                </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="error-msg-text" *ngIf="formSubmitted && bookedItems.length === 0">
+          At least one menu item line must be added to the items matrix table layout.
+        </div>
+      </fieldset>
+
+      <!-- Assignment Status Parameters -->
+      <fieldset class="form-section-frame">
+        <legend>System Assignment Parameters</legend>
+        <div class="grid-three-col">
+          <div class="form-group">
+            <label>Booking Lifecycle Status</label>
+            <select [(ngModel)]="currentBooking.status" class="form-control">
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
       </fieldset>
     </div>
 
     <div class="modal-footer-sticky">
-      <div class="total-aggregate-box">Grand Total Aggregate: <strong>${{ currentBooking.orderedAmount | number:'1.2-2' }}</strong></div>
+      <div class="total-aggregate-box">Grand Total Aggregate: <strong>${{ currentBooking.totalAmount | number:'1.2-2' }}</strong></div>
       <div class="footer-control-buttons">
         <button class="btn btn-reset" mat-dialog-close>Dismiss View</button>
         <button class="btn btn-save-booking" (click)="saveBooking()">Commit & Save Booking</button>
       </div>
     </div>
   </div>
-</template>
+</ng-template>
